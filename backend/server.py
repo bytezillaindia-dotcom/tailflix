@@ -446,22 +446,33 @@ async def get_pet_feed(user_id: Optional[str] = None, limit: int = 10, debug: bo
 # ============ Verification Routes ============
 
 @api_router.get("/likes/daily-count")
-async def get_daily_like_count():
+async def get_daily_like_count(user_id: Optional[str] = None):
     """
     Get the count of actions that count toward daily limit for the current user today
     Counts: like + super_like + golden_bone (excludes skip)
     Used for enforcing daily limits (10 actions per day for free users)
     Also returns user's premium status and Golden Bone monthly count (5/month for premium)
+    
+    Accepts user_id as query parameter or uses most recent user as fallback
     """
     try:
-        # Mock user_id - in production, get from authenticated session
-        recent_user = await db.users.find_one(sort=[("last_login", -1)])
-        
-        if not recent_user:
-            raise HTTPException(status_code=404, detail="No user found. Please login first.")
-        
-        user_id = recent_user['id']
-        is_premium = recent_user.get('is_premium', False)
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
+            is_premium = recent_user.get('is_premium', False)
+            golden_bones_used_this_month = recent_user.get('golden_bones_used_this_month', 0)
+            golden_bones_reset_date = recent_user.get('golden_bones_reset_date')
+        else:
+            # Fetch user by user_id
+            user = await db.users.find_one({"id": user_id})
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            is_premium = user.get('is_premium', False)
+            golden_bones_used_this_month = user.get('golden_bones_used_this_month', 0)
+            golden_bones_reset_date = user.get('golden_bones_reset_date')
         
         # Get today's date range (start and end of day)
         from datetime import datetime, timedelta
