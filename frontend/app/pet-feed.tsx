@@ -264,7 +264,7 @@ export default function PetFeedScreen() {
           onPress={() => handleAction('like')}
           disabled={actionLoading}
         >
-          <Text style={styles.actionIcon}>🎾</Text>
+          <TennisBallIcon size={32} />
           <Text style={styles.actionLabel}>Like</Text>
         </TouchableOpacity>
 
