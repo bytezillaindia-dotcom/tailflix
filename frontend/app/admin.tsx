@@ -798,4 +798,73 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     fontWeight: '600',
   },
+  rejectButtonText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+  },
+  partnerCard: {
+    backgroundColor: '#2C3E50',
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: '#34495E',
+  },
+  partnerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  partnerName: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  partnerStatusBadge: {
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  partnerStatusText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  partnerDetails: {
+    marginBottom: SPACING.sm,
+  },
+  partnerDetailRow: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.lightGray,
+    marginBottom: 4,
+  },
+  partnerDetailLabel: {
+    fontWeight: 'bold',
+    color: COLORS.gray,
+  },
+  partnerActions: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  approveButton: {
+    flex: 1,
+    backgroundColor: '#27AE60',
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  approveButtonText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  rejectButton: {
+    flex: 1,
+    backgroundColor: COLORS.crimson,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
 });
