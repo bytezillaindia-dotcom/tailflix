@@ -873,6 +873,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
     padding: 24,
   },
+  backButtonEmpty: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.charcoal,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.crimson,
+  },
   emptyTitle: {
     fontSize: 28,
     fontWeight: 'bold',
