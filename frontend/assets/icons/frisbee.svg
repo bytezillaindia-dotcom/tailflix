@@ -1,0 +1,33 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="frisbeeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6347;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF4500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </linearGradient>
+    <filter id="frisbeeShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main disc -->
+  <ellipse cx="32" cy="32" rx="26" ry="8" fill="url(#frisbeeGrad)" filter="url(#frisbeeShadow)"/>
+  
+  <!-- Inner ring for depth -->
+  <ellipse cx="32" cy="32" rx="20" ry="6" fill="none" stroke="#FF6347" stroke-width="1.5" opacity="0.5"/>
+  <ellipse cx="32" cy="32" rx="14" ry="4" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.7"/>
+  
+  <!-- Top highlight -->
+  <ellipse cx="32" cy="30" rx="22" ry="4" fill="white" opacity="0.3"/>
+  
+  <!-- Bottom shadow -->
+  <ellipse cx="32" cy="34" rx="22" ry="3" fill="black" opacity="0.2"/>
+</svg>

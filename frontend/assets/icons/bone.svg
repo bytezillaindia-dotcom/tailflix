@@ -1,0 +1,33 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="boneShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <radialGradient id="boneGrad">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8E8E8;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Left end circles -->
+  <circle cx="14" cy="26" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+  <circle cx="14" cy="38" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+  
+  <!-- Right end circles -->
+  <circle cx="50" cy="26" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+  <circle cx="50" cy="38" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+  
+  <!-- Center bar -->
+  <rect x="14" y="28" width="36" height="8" rx="4" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+  
+  <!-- Highlight for 3D effect -->
+  <ellipse cx="32" cy="30" rx="14" ry="2" fill="white" opacity="0.4"/>
+</svg>

@@ -1,0 +1,60 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="0" result="offsetblur"/>
+      <feFlood flood-color="#FFD700" flood-opacity="0.6"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="boneShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.4"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Glow effect -->
+  <g filter="url(#glow)">
+    <!-- Left end circles -->
+    <circle cx="14" cy="26" r="7" fill="url(#goldGrad)"/>
+    <circle cx="14" cy="38" r="7" fill="url(#goldGrad)"/>
+    
+    <!-- Right end circles -->
+    <circle cx="50" cy="26" r="7" fill="url(#goldGrad)"/>
+    <circle cx="50" cy="38" r="7" fill="url(#goldGrad)"/>
+    
+    <!-- Center bar -->
+    <rect x="14" y="28" width="36" height="8" rx="4" fill="url(#goldGrad)"/>
+  </g>
+  
+  <!-- Highlight for 3D effect -->
+  <ellipse cx="32" cy="30" rx="14" ry="2" fill="#FFED4E" opacity="0.6"/>
+  
+  <!-- Sparkles -->
+  <!-- Sparkle 1 (top right) -->
+  <g transform="translate(48, 18)">
+    <path d="M 0,-4 L 0.5,-0.5 L 4,0 L 0.5,0.5 L 0,4 L -0.5,0.5 L -4,0 L -0.5,-0.5 Z" fill="#FFD700" opacity="0.9"/>
+    <circle cx="0" cy="0" r="1.5" fill="white" opacity="0.8"/>
+  </g>
+  
+  <!-- Sparkle 2 (slightly lower) -->
+  <g transform="translate(52, 24)">
+    <path d="M 0,-3 L 0.4,-0.4 L 3,0 L 0.4,0.4 L 0,3 L -0.4,0.4 L -3,0 L -0.4,-0.4 Z" fill="#FFD700" opacity="0.8"/>
+    <circle cx="0" cy="0" r="1" fill="white" opacity="0.7"/>
+  </g>
+</svg>
