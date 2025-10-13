@@ -182,6 +182,9 @@ backend:
         - working: true
           agent: "main"
           comment: "✅ RE-VERIFIED: Skip functionality working correctly. Skip button inserts rows into likes table with action_type='skip'. Daily limit check (GET /api/likes/daily-count) only counts action_type='like', excluding skips. Users can skip unlimited times without hitting the 10/day limit. Tested with 16 skip actions, daily like count remained unchanged at 2."
+        - working: true
+          agent: "main"
+          comment: "✅ UPDATED: Changed action_type from 'superlike' to 'super_like' for consistency. Updated daily limit logic to count like + super_like + boost actions together (10 max/day for free users). Skip remains unlimited. Backend: Updated POST /api/likes validation, GET /api/likes/daily-count now queries all three limited action types. Frontend: Updated handleAction to check limit for all three action types before making the action. Comprehensive testing: Inserted 3 likes + 4 super_likes + 3 boosts = 10 total (at limit). Added 10 skip actions (don't count). User correctly blocked at 10/10 limit, would see paywall on next limited action."
 
   - task: "Pet Feed API"
     implemented: true
