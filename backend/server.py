@@ -327,6 +327,52 @@ async def get_pet_feed(limit: int = 10):
 
 # ============ Verification Routes ============
 
+@api_router.get("/likes/daily-count")
+async def get_daily_like_count():
+    """
+    Get the count of likes for the current user today
+    Used for enforcing daily limits
+    """
+    try:
+        # Mock user_id - in production, get from authenticated session
+        recent_user = await db.users.find_one(sort=[("last_login", -1)])
+        
+        if not recent_user:
+            raise HTTPException(status_code=404, detail="No user found. Please login first.")
+        
+        user_id = recent_user['id']
+        
+        # Get today's date range (start and end of day)
+        from datetime import datetime, timedelta
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = today_start + timedelta(days=1)
+        
+        # Count likes made today by this user with action_type = 'like'
+        daily_likes_count = await db.likes.count_documents({
+            "user_id": user_id,
+            "action_type": "like",
+            "created_at": {
+                "$gte": today_start,
+                "$lt": today_end
+            }
+        })
+        
+        logger.info(f"User {user_id} has {daily_likes_count} likes today")
+        
+        return {
+            "user_id": user_id,
+            "daily_likes_count": daily_likes_count,
+            "limit": 10,
+            "remaining": max(0, 10 - daily_likes_count)
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching daily like count: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch daily like count")
+
+
 @api_router.post("/likes", response_model=Like)
 async def create_like(like_data: LikeCreate):
     """
