@@ -188,6 +188,9 @@ backend:
         - working: true
           agent: "main"
           comment: "✅ FINAL UPDATE: Changed action_type from 'boost' to 'golden_bone'. Backend: Updated Like model, POST /api/likes validation, GET /api/likes/daily-count to use 'golden_bone' instead of 'boost'. Frontend: Complete animation implementation with glow effect, rotating sparkles (✨), heavy haptic feedback, 1-second animation delay before card advances. Daily limit: like + super_like + golden_bone = 10 total. Comprehensive test: 3 likes + 3 super_likes + 4 golden_bones + 10 skips = 10/10 limit reached correctly. Animation tested with AnimatedGoldenBoneButton component using Animated API for smooth glow (opacity), sparkle rotation (360deg), and scale effects."
+        - working: true
+          agent: "main"
+          comment: "✅ PREMIUM FEATURE UPDATE: Super Like now premium-only. Backend: Added 'is_premium' field to User model (default False). Updated GET /api/likes/daily-count to return is_premium status. Frontend: Added premium check before super_like action - free users redirected to paywall with message 'Super Likes are a premium feature 🦴✨', premium users can use it (counts toward 10/day limit). Paywall: Updated to accept dynamic message via params. Comprehensive testing: Free user blocked from Super Like, premium user allowed (9 super_likes counted correctly, 10th hit limit). All 4 tests passed."
 
   - task: "Pet Feed API"
     implemented: true
