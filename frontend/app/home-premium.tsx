@@ -71,6 +71,14 @@ const SECTIONS = [
         gradient: [COLORS.goldenBeige, COLORS.goldShimmer],
         route: '/chat',
       },
+      {
+        id: '5',
+        title: 'TailBoard',
+        icon: '📋',
+        description: 'Community poster wall',
+        gradient: [COLORS.peach, COLORS.pawPink],
+        route: '/tailboard',
+      },
     ],
   },
   {
