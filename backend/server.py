@@ -327,6 +327,71 @@ async def get_pet_feed(limit: int = 10):
 
 # ============ Verification Routes ============
 
+@api_router.post("/likes", response_model=Like)
+async def create_like(like_data: LikeCreate):
+    """
+    Record a like/skip/superlike/boost action
+    For now, we'll use a mock user_id. In production, extract from JWT token
+    """
+    try:
+        # Validate action_type
+        valid_actions = ['like', 'skip', 'superlike', 'boost']
+        if like_data.action_type not in valid_actions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid action_type. Must be one of {valid_actions}"
+            )
+        
+        # Mock user_id - in production, get from authenticated session
+        recent_user = await db.users.find_one(sort=[("last_login", -1)])
+        
+        if not recent_user:
+            raise HTTPException(status_code=404, detail="No user found. Please login first.")
+        
+        user_id = recent_user['id']
+        
+        # Check if pet exists
+        pet = await db.pets.find_one({"id": like_data.pet_id})
+        if not pet:
+            raise HTTPException(status_code=404, detail="Pet not found")
+        
+        # Create like object
+        like = Like(
+            user_id=user_id,
+            pet_id=like_data.pet_id,
+            action_type=like_data.action_type
+        )
+        
+        # Save to database
+        await db.likes.insert_one(like.dict())
+        
+        logger.info(f"User {user_id} performed {like_data.action_type} on pet {like_data.pet_id}")
+        
+        return like
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating like: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to record action")
+
+
+@api_router.get("/likes")
+async def get_likes(user_id: Optional[str] = None):
+    """Get all likes or likes for a specific user"""
+    try:
+        if user_id:
+            likes = await db.likes.find({"user_id": user_id}).to_list(1000)
+        else:
+            likes = await db.likes.find().to_list(1000)
+        return [Like(**like) for like in likes]
+    except Exception as e:
+        logger.error(f"Error fetching likes: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch likes")
+
+
+# ============ Verification Routes ============
+
 @api_router.post("/verifications", response_model=Verification)
 async def create_verification(verification_data: VerificationCreate):
     """
