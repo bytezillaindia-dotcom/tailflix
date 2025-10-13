@@ -780,6 +780,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.9)',
     lineHeight: 20,
+    maxHeight: 60,
   },
   swipeHint: {
     position: 'absolute',
