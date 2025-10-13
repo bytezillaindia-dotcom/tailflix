@@ -463,10 +463,10 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   theirMessageBubble: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: '#F5F5F5',
     borderBottomLeftRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    borderColor: 'rgba(255, 215, 0, 0.4)',
   },
   messageText: {
     fontSize: FONT_SIZES.md,
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   theirMessageText: {
-    color: COLORS.white,
+    color: '#333333',
   },
   messageTime: {
     fontSize: FONT_SIZES.xs,
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   theirMessageTime: {
-    color: 'rgba(255, 215, 0, 0.7)',
+    color: 'rgba(139, 69, 19, 0.7)',
   },
   emptyContainer: {
     flex: 1,
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: FONT_SIZES.md,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(139, 69, 19, 0.7)',
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -512,8 +512,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 215, 0, 0.2)',
-    backgroundColor: 'rgba(26, 26, 26, 0.9)',
+    borderTopColor: 'rgba(255, 215, 0, 0.3)',
+    backgroundColor: 'rgba(255, 248, 231, 0.95)',
     gap: SPACING.sm,
   },
   pawEmojiButton: {
