@@ -219,7 +219,7 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
         onPressOut={handlePressOut}
       >
         <LinearGradient
-          colors={card.colors}
+          colors={card.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[
