@@ -134,14 +134,14 @@ export default function MatchesScreen() {
 
   if (loading) {
     return (
-      <LinearGradient colors={['#000000', '#1a0505', '#2a0a0a']} style={styles.container}>
-        <ActivityIndicator size="large" color="#FFD700" />
+      <LinearGradient colors={['#FFF8E7', '#FFE4B5', '#FFDAB9']} style={styles.container}>
+        <ActivityIndicator size="large" color="#FFB6C1" />
       </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={['#000000', '#1a0505', '#2a0a0a']} style={styles.container}>
+    <LinearGradient colors={['#FFF8E7', '#FFE4B5', '#FFDAB9']} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
