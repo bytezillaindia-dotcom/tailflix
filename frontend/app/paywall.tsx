@@ -6,83 +6,118 @@ import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 export default function PaywallScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const message = params.message as string || "You've used all 10 free likes for today";
+  const customMessage = params.message as string;
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>
-            {params.message ? 'Premium Feature 🐾' : 'Daily Limit Reached! 🐾'}
-          </Text>
+          <Text style={styles.title}>Unlock TailFlix Premium ✨</Text>
           <Text style={styles.subtitle}>
-            {message}
+            More wags, more matches, more love ❤️🐶
           </Text>
         </View>
 
-        {/* Premium Features */}
-        <View style={styles.featuresContainer}>
-          <Text style={styles.featuresTitle}>Upgrade to Premium:</Text>
-          
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>✨</Text>
-            <Text style={styles.featureText}>Unlimited Likes</Text>
+        {/* Custom Message (if coming from premium feature) */}
+        {customMessage && (
+          <View style={styles.customMessageContainer}>
+            <Text style={styles.customMessage}>{customMessage}</Text>
+          </View>
+        )}
+
+        {/* Plans Comparison */}
+        <View style={styles.plansContainer}>
+          {/* Free Plan */}
+          <View style={[styles.planCard, styles.freePlan]}>
+            <View style={styles.planHeader}>
+              <Text style={styles.planTitle}>Free Plan</Text>
+              <Text style={styles.planSubtitle}>(current)</Text>
+            </View>
+            <View style={styles.planFeatures}>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>🎾</Text>
+                <Text style={styles.featureText}>10 Likes/day</Text>
+              </View>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>👀</Text>
+                <Text style={styles.featureText}>View profiles</Text>
+              </View>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>💬</Text>
+                <Text style={styles.featureText}>Basic chat</Text>
+              </View>
+            </View>
+            <View style={styles.planPrice}>
+              <Text style={styles.priceAmount}>$0</Text>
+              <Text style={styles.pricePeriod}>forever</Text>
+            </View>
           </View>
 
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🦴</Text>
-            <Text style={styles.featureText}>Unlimited Super Likes</Text>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>💎</Text>
-            <Text style={styles.featureText}>5 Golden Bones per month</Text>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>👁️</Text>
-            <Text style={styles.featureText}>See who liked your pet</Text>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🎯</Text>
-            <Text style={styles.featureText}>Priority placement in feed</Text>
+          {/* Premium Plan */}
+          <View style={[styles.planCard, styles.premiumPlan]}>
+            <View style={styles.premiumBadge}>
+              <Text style={styles.premiumBadgeText}>⭐ BEST VALUE</Text>
+            </View>
+            <View style={styles.planHeader}>
+              <Text style={[styles.planTitle, styles.premiumText]}>Premium Plan</Text>
+              <Text style={[styles.planSubtitle, styles.premiumText]}>recommended</Text>
+            </View>
+            <View style={styles.planFeatures}>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>♾️</Text>
+                <Text style={[styles.featureText, styles.premiumText]}>Unlimited Likes</Text>
+              </View>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>🦴</Text>
+                <Text style={[styles.featureText, styles.premiumText]}>Super Likes</Text>
+              </View>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>✨🍖</Text>
+                <Text style={[styles.featureText, styles.premiumText]}>Golden Bones (5/month)</Text>
+              </View>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>🚀</Text>
+                <Text style={[styles.featureText, styles.premiumText]}>Boosted visibility</Text>
+              </View>
+              <View style={styles.featureRow}>
+                <Text style={styles.featureIcon}>💎</Text>
+                <Text style={[styles.featureText, styles.premiumText]}>Premium badge</Text>
+              </View>
+            </View>
+            <View style={styles.planPrice}>
+              <Text style={[styles.priceAmount, styles.premiumText]}>$9.99</Text>
+              <Text style={[styles.pricePeriod, styles.premiumText]}>per month</Text>
+            </View>
           </View>
         </View>
 
-        {/* Pricing */}
-        <View style={styles.pricingContainer}>
-          <View style={styles.priceCard}>
-            <Text style={styles.priceAmount}>$9.99</Text>
-            <Text style={styles.pricePeriod}>per month</Text>
-          </View>
-        </View>
-
-        {/* CTA Buttons */}
+        {/* Upgrade Button */}
         <TouchableOpacity
-          style={styles.premiumButton}
+          style={styles.upgradeButton}
           onPress={() => {
-            // TODO: Implement payment flow
-            alert('Payment integration coming soon!');
+            alert('Payments coming soon. Premium is mock-enabled in Admin.');
           }}
         >
-          <Text style={styles.premiumButtonText}>Upgrade to Premium</Text>
+          <Text style={styles.upgradeButtonText}>Upgrade to Premium</Text>
+          <Text style={styles.upgradeButtonSubtext}>✨ Unlock all features</Text>
         </TouchableOpacity>
 
+        {/* Info Section */}
+        <View style={styles.infoSection}>
+          <Text style={styles.infoTitle}>💡 How to Enable Premium (Testing)</Text>
+          <Text style={styles.infoText}>
+            For testing purposes, admins can toggle Premium status in the Admin screen under the Users tab.
+          </Text>
+        </View>
+
+        {/* Back Button */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
           <Text style={styles.backButtonText}>Maybe Later</Text>
         </TouchableOpacity>
-
-        {/* Info Text */}
-        {!params.message && (
-          <Text style={styles.infoText}>
-            Your daily likes reset at midnight. Come back tomorrow for 10 more free likes!
-          </Text>
-        )}
       </ScrollView>
     </View>
   );
