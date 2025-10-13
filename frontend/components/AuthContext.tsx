@@ -25,6 +25,9 @@ const VENDOR_ID_STORAGE_KEY = '@tailflix_vendor_id';
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [vendorId, setVendorId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Load auth state from AsyncStorage on app start
@@ -34,14 +37,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadAuthState = async () => {
     try {
-      const [storedUserId, storedToken] = await Promise.all([
+      const [storedUserId, storedToken, storedRole, storedStatus, storedVendorId] = await Promise.all([
         AsyncStorage.getItem(AUTH_STORAGE_KEY),
         AsyncStorage.getItem(TOKEN_STORAGE_KEY),
+        AsyncStorage.getItem(ROLE_STORAGE_KEY),
+        AsyncStorage.getItem(STATUS_STORAGE_KEY),
+        AsyncStorage.getItem(VENDOR_ID_STORAGE_KEY),
       ]);
 
       if (storedUserId && storedToken) {
         setUserId(storedUserId);
         setToken(storedToken);
+        setRole(storedRole);
+        setStatus(storedStatus);
+        setVendorId(storedVendorId);
       }
     } catch (error) {
       console.error('Error loading auth state:', error);
@@ -50,11 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (newUserId: string, newToken: string) => {
+  const login = async (newUserId: string, newToken: string, newRole?: string, newStatus?: string, newVendorId?: string) => {
     try {
       // Save to state
       setUserId(newUserId);
       setToken(newToken);
+      setRole(newRole || null);
+      setStatus(newStatus || null);
+      setVendorId(newVendorId || null);
 
       // Persist to AsyncStorage
       await Promise.all([
