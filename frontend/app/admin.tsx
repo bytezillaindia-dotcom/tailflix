@@ -348,18 +348,166 @@ export default function AdminScreen() {
     }
   };
 
-  const renderTailProTab = () => (
-    <View style={styles.tabContent}>
-      <Text style={styles.tabTitle}>TailPro Management</Text>
-      <View style={styles.placeholderContainer}>
-        <Text style={styles.placeholderIcon}>💼</Text>
-        <Text style={styles.placeholderText}>Partner & Booking Management</Text>
-        <Text style={styles.placeholderSubtext}>
-          Partner verification, booking management, and city pricing tools will be available here
-        </Text>
+  const renderTailProTab = () => {
+    const [partners, setPartners] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+      loadPartners();
+    }, []);
+
+    const loadPartners = async () => {
+      try {
+        const partnersStr = await AsyncStorage.getItem('tailpro_partners');
+        if (partnersStr) {
+          setPartners(JSON.parse(partnersStr));
+        }
+      } catch (error) {
+        console.error('Error loading partners:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleApprove = async (vendorId: string) => {
+      Alert.alert(
+        'Approve Partner',
+        'Approve this partner application?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Approve',
+            onPress: async () => {
+              try {
+                const partnersStr = await AsyncStorage.getItem('tailpro_partners');
+                if (partnersStr) {
+                  const allPartners = JSON.parse(partnersStr);
+                  const updatedPartners = allPartners.map((p: any) =>
+                    p.vendorId === vendorId
+                      ? { ...p, status: 'approved', role: 'vendor' }
+                      : p
+                  );
+                  await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
+                  await loadPartners();
+                  Alert.alert('Success', 'Partner approved successfully');
+                }
+              } catch (error) {
+                console.error('Error approving partner:', error);
+                Alert.alert('Error', 'Failed to approve partner');
+              }
+            },
+          },
+        ]
+      );
+    };
+
+    const handleReject = async (vendorId: string) => {
+      Alert.alert(
+        'Reject Partner',
+        'Reject this partner application?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Reject',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                const partnersStr = await AsyncStorage.getItem('tailpro_partners');
+                if (partnersStr) {
+                  const allPartners = JSON.parse(partnersStr);
+                  const updatedPartners = allPartners.map((p: any) =>
+                    p.vendorId === vendorId ? { ...p, status: 'rejected' } : p
+                  );
+                  await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
+                  await loadPartners();
+                  Alert.alert('Rejected', 'Partner application rejected');
+                }
+              } catch (error) {
+                console.error('Error rejecting partner:', error);
+                Alert.alert('Error', 'Failed to reject partner');
+              }
+            },
+          },
+        ]
+      );
+    };
+
+    if (loading) {
+      return (
+        <View style={styles.tabContent}>
+          <Text style={styles.tabTitle}>TailPro Partner Verification</Text>
+          <Text style={styles.placeholderText}>Loading...</Text>
+        </View>
+      );
+    }
+
+    const pendingPartners = partners.filter(p => p.status === 'pending');
+
+    return (
+      <View style={styles.tabContent}>
+        <Text style={styles.tabTitle}>TailPro Partner Verification</Text>
+        
+        {pendingPartners.length === 0 ? (
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.placeholderIcon}>💼</Text>
+            <Text style={styles.placeholderText}>No Pending Applications</Text>
+            <Text style={styles.placeholderSubtext}>
+              Partner applications will appear here for verification
+            </Text>
+          </View>
+        ) : (
+          pendingPartners.map((partner) => (
+            <View key={partner.vendorId} style={styles.partnerCard}>
+              <View style={styles.partnerHeader}>
+                <Text style={styles.partnerName}>{partner.name}</Text>
+                <View style={[styles.partnerStatusBadge, { backgroundColor: '#FFA500' }]}>
+                  <Text style={styles.partnerStatusText}>PENDING</Text>
+                </View>
+              </View>
+              
+              <View style={styles.partnerDetails}>
+                <Text style={styles.partnerDetailRow}>
+                  <Text style={styles.partnerDetailLabel}>Phone: </Text>
+                  {partner.phone}
+                </Text>
+                <Text style={styles.partnerDetailRow}>
+                  <Text style={styles.partnerDetailLabel}>Category: </Text>
+                  {partner.category}
+                </Text>
+                <Text style={styles.partnerDetailRow}>
+                  <Text style={styles.partnerDetailLabel}>City: </Text>
+                  {partner.city}
+                </Text>
+                <Text style={styles.partnerDetailRow}>
+                  <Text style={styles.partnerDetailLabel}>Price: </Text>
+                  ₹{partner.price}
+                </Text>
+                <Text style={styles.partnerDetailRow}>
+                  <Text style={styles.partnerDetailLabel}>Vendor ID: </Text>
+                  {partner.vendorId}
+                </Text>
+              </View>
+
+              <View style={styles.partnerActions}>
+                <TouchableOpacity
+                  onPress={() => handleApprove(partner.vendorId)}
+                  style={styles.approveButton}
+                >
+                  <Text style={styles.approveButtonText}>✓ Approve</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleReject(partner.vendorId)}
+                  style={styles.rejectButton}
+                >
+                  <Text style={styles.rejectButtonText}>✗ Reject</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        )}
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
