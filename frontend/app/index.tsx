@@ -20,29 +20,6 @@ export default function SplashScreen() {
     startAnimations();
   }, []);
 
-  const checkOnboardingStatus = async () => {
-    try {
-      console.log('🔍 Checking onboarding status...');
-      const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
-      console.log('📦 onboarding_completed value:', onboardingCompleted);
-      
-      if (onboardingCompleted === 'true') {
-        // User has completed onboarding, go to login
-        console.log('✅ Onboarding completed, navigating to login-premium');
-        router.replace('/login-premium');
-      } else {
-        // First time user, show onboarding
-        console.log('🆕 First time user, navigating to onboarding-choice');
-        router.replace('/onboarding-choice');
-      }
-    } catch (error) {
-      console.error('❌ Error checking onboarding status:', error);
-      // Default to onboarding if error
-      console.log('⚠️ Defaulting to onboarding-choice');
-      router.replace('/onboarding-choice');
-    }
-  };
-
   const startAnimations = () => {
     // Sequence of animations
     Animated.sequence([
@@ -117,7 +94,7 @@ export default function SplashScreen() {
       ]).start();
     }, 1000);
 
-    // Fade out entire screen and navigate based on onboarding status
+    // Fade out entire screen and navigate directly to OTP login
     setTimeout(() => {
       Animated.timing(screenOpacity, {
         toValue: 0,
@@ -125,8 +102,9 @@ export default function SplashScreen() {
         easing: Easing.in(Easing.ease),
         useNativeDriver: true,
       }).start(() => {
-        // Check onboarding status and navigate accordingly
-        checkOnboardingStatus();
+        // Navigate directly to OTP login - no onboarding choice
+        console.log('🚀 Navigating to OTP login...');
+        router.replace('/login-premium');
       });
     }, 2500); // 2.5 seconds total duration
   };
