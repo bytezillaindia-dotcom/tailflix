@@ -210,7 +210,7 @@ export default function FetchYardScreen() {
         }).start();
       },
       onPanResponderRelease: (_, gesture) => {
-        // Swipe right = Like
+        // Swipe right = Like (Fetch)
         if (gesture.dx > SWIPE_THRESHOLD) {
           Animated.spring(position, {
             toValue: { x: SCREEN_WIDTH + 100, y: gesture.dy },
@@ -223,13 +223,6 @@ export default function FetchYardScreen() {
             toValue: { x: -SCREEN_WIDTH - 100, y: gesture.dy },
             useNativeDriver: true,
           }).start(() => handleAction('skip'));
-        }
-        // Swipe up = Boost (Golden Bone)
-        else if (gesture.dy < -SWIPE_THRESHOLD) {
-          Animated.spring(position, {
-            toValue: { x: gesture.dx, y: -SCREEN_HEIGHT - 100 },
-            useNativeDriver: true,
-          }).start(() => handleAction('golden_bone'));
         }
         // Return to center
         else {
