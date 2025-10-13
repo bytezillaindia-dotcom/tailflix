@@ -162,10 +162,11 @@ export default function PremiumLoginScreen() {
       if (response.ok && data.success) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         
-        // Save userId to AsyncStorage via AuthContext
+        // IMPORTANT: Save userId to AsyncStorage FIRST before navigation
         await login(data.user_id, data.token);
+        console.log('✅ User logged in and saved to AsyncStorage:', data.user_id);
 
-        // Small delay to ensure context updates
+        // Small delay to ensure AsyncStorage write completes
         setTimeout(async () => {
           try {
             // Check if user has pets
@@ -174,58 +175,85 @@ export default function PremiumLoginScreen() {
             );
             const hasPetsData = await hasPetsResponse.json();
 
-            // Navigate with error handling
+            // Navigate with fallback logic
+            const targetRoute = hasPetsData.has_pets ? '/home-premium' : '/add-pet';
+            
             try {
-              if (hasPetsData.has_pets) {
-                router.replace('/home-premium');
-              } else {
-                router.replace('/add-pet');
-              }
+              console.log(`🎯 Navigating to: ${targetRoute}`);
+              router.replace(targetRoute);
             } catch (navError) {
-              console.error('Navigation error:', navError);
-              Alert.alert(
-                'Navigation Issue',
-                'Please retry. If the issue persists, restart the app.',
-                [
-                  {
-                    text: 'Retry',
-                    onPress: () => {
-                      if (hasPetsData.has_pets) {
-                        router.replace('/home-premium');
-                      } else {
-                        router.replace('/add-pet');
-                      }
+              console.error('❌ Navigation error to', targetRoute, ':', navError);
+              
+              // Fallback: Try /home if /home-premium fails
+              if (targetRoute === '/home-premium') {
+                try {
+                  console.log('🔄 Fallback: Navigating to /home');
+                  router.replace('/home');
+                } catch (fallbackError) {
+                  console.error('❌ Fallback navigation error:', fallbackError);
+                  Alert.alert(
+                    'Navigation Issue',
+                    'Unable to navigate to dashboard. Please restart the app.',
+                    [
+                      {
+                        text: 'Retry',
+                        onPress: () => {
+                          try {
+                            router.replace('/home-premium');
+                          } catch {
+                            router.replace('/home');
+                          }
+                        },
+                      },
+                    ]
+                  );
+                }
+              } else {
+                Alert.alert(
+                  'Navigation Issue',
+                  'Please retry. If the issue persists, restart the app.',
+                  [
+                    {
+                      text: 'Retry',
+                      onPress: () => router.replace(targetRoute),
                     },
-                  },
-                ]
-              );
+                  ]
+                );
+              }
             }
           } catch (petsError) {
-            console.error('Error checking pets:', petsError);
-            // Default to home-premium if pets check fails
+            console.error('❌ Error checking pets:', petsError);
+            // Default to home-premium with fallback to home
             try {
+              console.log('🔄 Default: Navigating to /home-premium');
               router.replace('/home-premium');
             } catch (navError) {
-              Alert.alert(
-                'Navigation Issue',
-                'Please retry. If the issue persists, restart the app.',
-                [
-                  {
-                    text: 'Retry',
-                    onPress: () => router.replace('/home-premium'),
-                  },
-                ]
-              );
+              console.error('❌ Default navigation error:', navError);
+              try {
+                console.log('🔄 Final fallback: Navigating to /home');
+                router.replace('/home');
+              } catch (finalError) {
+                Alert.alert(
+                  'Navigation Issue',
+                  'Unable to navigate. Please restart the app.',
+                  [
+                    {
+                      text: 'OK',
+                      onPress: () => {},
+                    },
+                  ]
+                );
+              }
             }
           }
-        }, 300);
+        }, 400); // Increased delay to ensure AsyncStorage completes
       } else {
         Alert.alert('Error', data.message || 'Invalid OTP');
         setOtp(['', '', '', '', '', '']);
         otpRefs[0].current?.focus();
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
+      console.error('❌ OTP verification error:', error);
       Alert.alert('Error', 'Network error. Please try again.');
       setOtp(['', '', '', '', '', '']);
     } finally {
