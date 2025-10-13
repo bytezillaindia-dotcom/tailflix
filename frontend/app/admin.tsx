@@ -603,4 +603,22 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     fontWeight: 'bold',
   },
+  premiumToggle: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: 8,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  premiumToggleOn: {
+    backgroundColor: '#FFD700',
+  },
+  premiumToggleOff: {
+    backgroundColor: COLORS.darkGray,
+  },
+  premiumToggleText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+  },
 });
