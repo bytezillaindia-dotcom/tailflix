@@ -341,10 +341,25 @@ export default function AdminScreen() {
         return renderReportsTab();
       case 'users':
         return renderUsersTab();
+      case 'tailpro':
+        return renderTailProTab();
       default:
         return null;
     }
   };
+
+  const renderTailProTab = () => (
+    <View style={styles.tabContent}>
+      <Text style={styles.tabTitle}>TailPro Management</Text>
+      <View style={styles.placeholderContainer}>
+        <Text style={styles.placeholderIcon}>💼</Text>
+        <Text style={styles.placeholderText}>Partner & Booking Management</Text>
+        <Text style={styles.placeholderSubtext}>
+          Partner verification, booking management, and city pricing tools will be available here
+        </Text>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
