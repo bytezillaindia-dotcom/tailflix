@@ -267,14 +267,14 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.lg,
   },
   backButton: {
-    color: '#FFD700',
+    color: '#D2691E',
     fontSize: 16,
     fontWeight: '600',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: '#D2691E',
   },
   headerSpacer: {
     width: 60,
