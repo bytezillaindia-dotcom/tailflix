@@ -51,6 +51,8 @@ export default function RootLayout() {
         <Stack.Screen name="tailpro_partner_signup" />
         <Stack.Screen name="tailpro_post_service" />
         <Stack.Screen name="vendor_dashboard" />
+        <Stack.Screen name="tailmarket_post_puppy" />
+        <Stack.Screen name="tailboard_post_ad" />
       </Stack>
     </AuthProvider>
   );
