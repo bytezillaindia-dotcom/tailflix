@@ -647,6 +647,40 @@ async def reject_verification(verification_id: str):
         raise HTTPException(status_code=500, detail="Failed to reject verification")
 
 
+@api_router.put("/admin/users/{user_id}/premium")
+async def update_user_premium_status(user_id: str, data: dict):
+    """
+    Update a user's premium status
+    - Sets users.is_premium to true or false
+    - Admin only endpoint
+    """
+    try:
+        is_premium = data.get('is_premium', False)
+        
+        result = await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"is_premium": is_premium}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        logger.info(f"User {user_id} premium status updated to {is_premium}")
+        
+        return {
+            "success": True,
+            "message": f"User {'upgraded to' if is_premium else 'downgraded from'} premium",
+            "user_id": user_id,
+            "is_premium": is_premium
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating premium status: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update premium status")
+
+
 # ============ General Routes ============
 
 @api_router.get("/")
