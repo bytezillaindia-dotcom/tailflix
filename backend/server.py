@@ -168,6 +168,63 @@ async def verify_otp(request: VerifyOtpRequest):
         raise HTTPException(status_code=500, detail="Failed to verify OTP")
 
 
+# ============ Pet Routes ============
+
+@api_router.post("/pets", response_model=Pet)
+async def create_pet(pet_data: PetCreate):
+    """
+    Create a new pet profile
+    For now, we'll use a mock user_id. In production, extract from JWT token
+    """
+    try:
+        # Mock user_id - in production, get from authenticated session
+        # For now, get the most recent user or use a default
+        recent_user = await db.users.find_one(sort=[("last_login", -1)])
+        
+        if not recent_user:
+            raise HTTPException(status_code=404, detail="No user found. Please login first.")
+        
+        user_id = recent_user['id']
+        
+        # Create pet object
+        pet = Pet(
+            user_id=user_id,
+            pet_name=pet_data.pet_name,
+            breed=pet_data.breed,
+            sex=pet_data.sex,
+            birth_year=pet_data.birth_year,
+            temperaments=pet_data.temperaments,
+            photos=pet_data.photos,
+        )
+        
+        # Save to database
+        await db.pets.insert_one(pet.dict())
+        
+        logger.info(f"New pet added: {pet_data.pet_name} for user {user_id}")
+        
+        return pet
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating pet: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create pet")
+
+
+@api_router.get("/pets", response_model=List[Pet])
+async def get_pets(user_id: Optional[str] = None):
+    """Get all pets or pets for a specific user"""
+    try:
+        if user_id:
+            pets = await db.pets.find({"user_id": user_id}).to_list(1000)
+        else:
+            pets = await db.pets.find().to_list(1000)
+        return [Pet(**pet) for pet in pets]
+    except Exception as e:
+        logger.error(f"Error fetching pets: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch pets")
+
+
 # ============ General Routes ============
 
 @api_router.get("/")
@@ -177,7 +234,8 @@ async def root():
         "version": "1.0.0",
         "endpoints": {
             "auth": ["/api/auth/send-otp", "/api/auth/verify-otp"],
-            "users": ["/api/users"]
+            "users": ["/api/users"],
+            "pets": ["/api/pets"]
         }
     }
 
