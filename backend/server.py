@@ -1084,6 +1084,130 @@ async def update_user_premium_status(user_id: str, data: dict):
         raise HTTPException(status_code=500, detail="Failed to update premium status")
 
 
+# ============ TailCoins Routes ============
+
+@api_router.get("/users/{user_id}/stats")
+async def get_user_stats(user_id: str):
+    """
+    Get user's TailCoins balance and daily likes stats
+    """
+    try:
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Reset daily counter if it's a new day
+        from datetime import datetime
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        daily_likes_reset_date = user.get('daily_likes_reset_date')
+        daily_likes_count = user.get('daily_likes_count', 0)
+        
+        if not daily_likes_reset_date or daily_likes_reset_date < today_start:
+            # Reset daily counter
+            daily_likes_count = 0
+            await db.users.update_one(
+                {"id": user_id},
+                {"$set": {
+                    "daily_likes_count": 0,
+                    "daily_likes_reset_date": today_start
+                }}
+            )
+        
+        is_premium = user.get('is_premium', False)
+        
+        return {
+            "user_id": user_id,
+            "tail_coins": user.get('tail_coins', 0),
+            "daily_likes_count": daily_likes_count,
+            "daily_likes_limit": None if is_premium else 10,
+            "is_premium": is_premium,
+            "golden_bones_used_this_month": user.get('golden_bones_used_this_month', 0)
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting user stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get user stats")
+
+
+@api_router.post("/users/{user_id}/buy-coins")
+async def buy_tail_coins(user_id: str, data: dict):
+    """
+    Buy TailCoins (stub implementation for now)
+    In production, this would integrate with payment gateway
+    """
+    try:
+        coins_to_add = data.get('coins', 0)
+        amount = data.get('amount', 0)  # Amount in currency
+        
+        if coins_to_add <= 0:
+            raise HTTPException(status_code=400, detail="Invalid coin amount")
+        
+        # Stub: Add coins without payment validation
+        result = await db.users.update_one(
+            {"id": user_id},
+            {"$inc": {"tail_coins": coins_to_add}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get updated user
+        user = await db.users.find_one({"id": user_id})
+        
+        logger.info(f"User {user_id} bought {coins_to_add} TailCoins for ₹{amount}. New balance: {user.get('tail_coins', 0)}")
+        
+        return {
+            "success": True,
+            "message": f"Successfully purchased {coins_to_add} TailCoins!",
+            "coins_added": coins_to_add,
+            "new_balance": user.get('tail_coins', 0),
+            "amount_paid": amount
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error buying coins: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to purchase coins")
+
+
+@api_router.post("/admin/users/{user_id}/add-coins")
+async def admin_add_coins(user_id: str, data: dict):
+    """
+    Admin endpoint to add TailCoins to a user for testing
+    """
+    try:
+        coins_to_add = data.get('coins', 100)
+        
+        result = await db.users.update_one(
+            {"id": user_id},
+            {"$inc": {"tail_coins": coins_to_add}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get updated user
+        user = await db.users.find_one({"id": user_id})
+        
+        logger.info(f"Admin added {coins_to_add} TailCoins to user {user_id}. New balance: {user.get('tail_coins', 0)}")
+        
+        return {
+            "success": True,
+            "message": f"Added {coins_to_add} TailCoins",
+            "user_id": user_id,
+            "new_balance": user.get('tail_coins', 0)
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding coins: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to add coins")
+
+
 # ============ Chat Routes ============
 
 @api_router.get("/chats/{match_id}")
