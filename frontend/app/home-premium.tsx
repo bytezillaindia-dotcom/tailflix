@@ -82,6 +82,19 @@ const SECTIONS = [
     ],
   },
   {
+    title: 'Marketplace 🛒',
+    cards: [
+      {
+        id: '6',
+        title: 'TailMarket',
+        icon: '🐶',
+        description: 'Buy & sell puppies safely',
+        gradient: [COLORS.goldenBeige, COLORS.gold],
+        route: '/tailmarket',
+      },
+    ],
+  },
+  {
     title: 'Control Center ⚙️',
     cards: [
       {
