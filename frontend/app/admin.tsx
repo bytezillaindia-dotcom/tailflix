@@ -863,6 +863,20 @@ export default function AdminScreen() {
             Earnings
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            activeTab === 'content' && styles.tabActive
+          ]}
+          onPress={() => router.push('/admin_content')}
+        >
+          <Text style={[
+            styles.tabText,
+            activeTab === 'content' && styles.tabTextActive
+          ]}>
+            Content 🚨
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {renderContent()}
