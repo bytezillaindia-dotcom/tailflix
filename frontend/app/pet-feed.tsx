@@ -386,6 +386,7 @@ export default function PetFeedScreen() {
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [actionLoading, setActionLoading] = useState(false);
+  const [goldenBoneAnimating, setGoldenBoneAnimating] = useState(false);
 
   const backendUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || '';
 
