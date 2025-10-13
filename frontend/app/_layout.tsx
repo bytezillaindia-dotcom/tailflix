@@ -43,6 +43,12 @@ export default function RootLayout() {
         <Stack.Screen name="tailpro" />
         <Stack.Screen name="post-service" />
         <Stack.Screen name="booking-flow" />
+        <Stack.Screen name="tailpro_home" />
+        <Stack.Screen name="tailpro_list" />
+        <Stack.Screen name="tailpro_booking" />
+        <Stack.Screen name="tailpro_orders" />
+        <Stack.Screen name="tailpro_contact" />
+        <Stack.Screen name="tailpro_partner_signup" />
       </Stack>
     </AuthProvider>
   );
