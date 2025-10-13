@@ -240,6 +240,87 @@ async def get_pets(user_id: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Failed to fetch pets")
 
 
+# ============ Verification Routes ============
+
+@api_router.post("/verifications", response_model=Verification)
+async def create_verification(verification_data: VerificationCreate):
+    """
+    Create a new verification request
+    For now, we'll use a mock user_id. In production, extract from JWT token
+    """
+    try:
+        # Mock user_id - in production, get from authenticated session
+        recent_user = await db.users.find_one(sort=[("last_login", -1)])
+        
+        if not recent_user:
+            raise HTTPException(status_code=404, detail="No user found. Please login first.")
+        
+        user_id = recent_user['id']
+        
+        # Create verification object
+        verification = Verification(
+            user_id=user_id,
+            selfie_url=verification_data.selfie_url,
+            pet_pose_url=verification_data.pet_pose_url,
+            doc_url=verification_data.doc_url,
+            status="pending"
+        )
+        
+        # Save to database
+        await db.verifications.insert_one(verification.dict())
+        
+        logger.info(f"Verification submitted for user {user_id}")
+        
+        return verification
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating verification: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create verification")
+
+
+@api_router.get("/verifications/status/{user_id}")
+async def get_verification_status(user_id: str):
+    """
+    Get the latest verification status for a user
+    Returns: approved, pending, rejected, or not_found
+    """
+    try:
+        # Get the most recent verification for the user
+        verification = await db.verifications.find_one(
+            {"user_id": user_id},
+            sort=[("created_at", -1)]
+        )
+        
+        if not verification:
+            return {"status": "not_found", "message": "No verification found"}
+        
+        return {
+            "status": verification.get("status", "pending"),
+            "created_at": verification.get("created_at"),
+            "reviewed_at": verification.get("reviewed_at")
+        }
+    
+    except Exception as e:
+        logger.error(f"Error fetching verification status: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch verification status")
+
+
+@api_router.get("/verifications", response_model=List[Verification])
+async def get_verifications(user_id: Optional[str] = None):
+    """Get all verifications or verifications for a specific user"""
+    try:
+        if user_id:
+            verifications = await db.verifications.find({"user_id": user_id}).to_list(1000)
+        else:
+            verifications = await db.verifications.find().to_list(1000)
+        return [Verification(**verification) for verification in verifications]
+    except Exception as e:
+        logger.error(f"Error fetching verifications: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch verifications")
+
+
 # ============ General Routes ============
 
 @api_router.get("/")
@@ -250,7 +331,8 @@ async def root():
         "endpoints": {
             "auth": ["/api/auth/send-otp", "/api/auth/verify-otp"],
             "users": ["/api/users"],
-            "pets": ["/api/pets"]
+            "pets": ["/api/pets"],
+            "verifications": ["/api/verifications", "/api/verifications/status/{user_id}"]
         }
     }
 
