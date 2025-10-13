@@ -711,9 +711,9 @@ const styles = StyleSheet.create({
     right: SPACING.lg,
   },
   petPhoto: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     borderWidth: 4,
     borderColor: '#FFD700',
   },
