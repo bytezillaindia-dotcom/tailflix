@@ -26,6 +26,7 @@ export default function RootLayout() {
         <Stack.Screen name="paywall" />
         <Stack.Screen name="match" />
         <Stack.Screen name="likes" />
+        <Stack.Screen name="chat" />
       </Stack>
     </AuthProvider>
   );
