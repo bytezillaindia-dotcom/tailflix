@@ -416,6 +416,20 @@ export default function AdminScreen() {
             Users
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            activeTab === 'tailpro' && styles.tabActive
+          ]}
+          onPress={() => setActiveTab('tailpro')}
+        >
+          <Text style={[
+            styles.tabText,
+            activeTab === 'tailpro' && styles.tabTextActive
+          ]}>
+            TailPro
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {renderContent()}
