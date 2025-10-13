@@ -14,6 +14,39 @@ import {
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
+import Svg, { Circle, Path, Defs, RadialGradient, Stop, Filter, FeGaussianBlur, FeOffset, FeComponentTransfer, FeFuncA, FeMerge, FeMergeNode } from 'react-native-svg';
+
+// Tennis Ball SVG Component
+const TennisBallIcon = ({ size = 32 }) => (
+  <Svg width={size} height={size} viewBox="0 0 64 64">
+    <Defs>
+      <Filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+        <FeGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+        <FeOffset dx="0" dy="2" result="offsetblur"/>
+        <FeComponentTransfer>
+          <FeFuncA type="linear" slope="0.3"/>
+        </FeComponentTransfer>
+        <FeMerge>
+          <FeMergeNode/>
+          <FeMergeNode in="SourceGraphic"/>
+        </FeMerge>
+      </Filter>
+      <RadialGradient id="grad" cx="40%" cy="40%">
+        <Stop offset="0%" stopColor="#B4E657" stopOpacity="1" />
+        <Stop offset="100%" stopColor="#7CAD28" stopOpacity="1" />
+      </RadialGradient>
+    </Defs>
+    
+    <Circle cx="32" cy="32" r="28" fill="#9ACD32" filter="url(#shadow)"/>
+    <Circle cx="32" cy="32" r="28" fill="url(#grad)"/>
+    
+    <Path d="M 12 20 Q 32 8, 52 20" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <Path d="M 12 44 Q 32 56, 52 44" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    
+    <Path d="M 10 22 Q 32 10, 54 22" stroke="white" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6"/>
+    <Path d="M 10 42 Q 32 54, 54 42" stroke="white" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6"/>
+  </Svg>
+);
 
 const { width, height } = Dimensions.get('window');
 
