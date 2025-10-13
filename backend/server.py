@@ -474,8 +474,35 @@ async def create_like(like_data: LikeCreate):
                     "action_type": like_data.action_type
                 }
         
-        # Step 2: Skip actions are always allowed (no limit check needed)
-        # Step 3: Like actions are allowed (frontend enforces daily limit)
+        # SERVER-SIDE DAILY LIMIT ENFORCEMENT
+        # Step 2: Check daily limit for like/super_like/golden_bone (skip is unlimited)
+        if like_data.action_type in ['like', 'super_like', 'golden_bone']:
+            # Free users have 10 actions/day limit, Premium users unlimited
+            if not is_premium:
+                # Count today's limited actions
+                from datetime import datetime, timedelta
+                today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+                today_end = today_start + timedelta(days=1)
+                
+                daily_actions_count = await db.likes.count_documents({
+                    "user_id": user_id,
+                    "action_type": {"$in": ["like", "super_like", "golden_bone"]},
+                    "created_at": {
+                        "$gte": today_start,
+                        "$lt": today_end
+                    }
+                })
+                
+                if daily_actions_count >= 10:
+                    logger.warning(f"User {user_id} (free) hit daily limit: {daily_actions_count}/10 actions")
+                    return {
+                        "error": "daily_limit_reached",
+                        "message": "You've reached your daily limit of 10 actions. Upgrade to Premium for unlimited access.",
+                        "daily_count": daily_actions_count,
+                        "limit": 10
+                    }
+        
+        # Step 3: Skip actions are always allowed (no limit check needed)
         
         # Check if pet exists and get owner info
         liked_pet = await db.pets.find_one({"id": like_data.pet_id})
