@@ -1022,4 +1022,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  goldenBoneContainer: {
+    position: 'relative',
+    width: 72,
+    height: 72,
+  },
+  goldenBoneGlow: {
+    ...StyleSheet.absoluteFillObject,
+    width: 90,
+    height: 90,
+    left: -9,
+    top: -9,
+    borderRadius: 45,
+    backgroundColor: '#FFD700',
+    opacity: 0,
+  },
+  sparkle: {
+    position: 'absolute',
+    fontSize: 20,
+  },
+  sparkle1: {
+    top: -5,
+    right: 0,
+  },
+  sparkle2: {
+    bottom: -5,
+    left: 0,
+  },
 });
