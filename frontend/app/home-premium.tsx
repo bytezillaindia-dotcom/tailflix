@@ -238,6 +238,8 @@ interface AnimatedCardProps {
 function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const iconPulseAnim = useRef(new Animated.Value(1)).current;
   const [isPressed, setIsPressed] = useState(false);
 
   useEffect(() => {
@@ -257,12 +259,46 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Breathing glow animation for special cards
+    if (card.special === 'neon') {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: false,
+          }),
+          Animated.timing(glowAnim, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: false,
+          }),
+        ])
+      ).start();
+
+      // Icon pulse animation
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(iconPulseAnim, {
+            toValue: 1.15,
+            duration: 1500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(iconPulseAnim, {
+            toValue: 1,
+            duration: 1500,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
   }, []);
 
   const handlePressIn = () => {
     setIsPressed(true);
     Animated.spring(scaleAnim, {
-      toValue: 0.95,
+      toValue: card.special === 'neon' ? 1.05 : 0.95,
       tension: 100,
       friction: 3,
       useNativeDriver: true,
@@ -280,6 +316,13 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
     onPress();
   };
 
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.9],
+  });
+
+  const isNeonCard = card.special === 'neon';
+
   return (
     <Animated.View
       style={[
@@ -295,12 +338,26 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
       >
+        {/* Neon Glow Border */}
+        {isNeonCard && (
+          <Animated.View
+            style={[
+              styles.neonGlowBorder,
+              {
+                opacity: glowOpacity,
+                shadowOpacity: glowOpacity,
+              },
+            ]}
+          />
+        )}
+
         <LinearGradient
           colors={card.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[
             styles.card,
+            isNeonCard && styles.neonCard,
             isPressed && styles.cardPressed,
           ]}
         >
@@ -310,12 +367,22 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
           )}
 
           <View style={styles.cardContent}>
-            <View style={styles.iconContainer}>
-              <Text style={styles.cardIcon}>{card.icon}</Text>
-            </View>
+            <Animated.View
+              style={[
+                styles.iconContainer,
+                isNeonCard && styles.neonIconContainer,
+                isNeonCard && { transform: [{ scale: iconPulseAnim }] },
+              ]}
+            >
+              <Text style={[styles.cardIcon, isNeonCard && styles.neonIcon]}>{card.icon}</Text>
+            </Animated.View>
             <View style={styles.cardTextContainer}>
-              <Text style={styles.cardTitle}>{card.title}</Text>
-              <Text style={styles.cardDescription}>{card.description}</Text>
+              <Text style={[styles.cardTitle, isNeonCard && styles.neonTitle]}>
+                {card.title} {isNeonCard && '🐾'}
+              </Text>
+              <Text style={[styles.cardDescription, isNeonCard && styles.neonDescription]}>
+                {card.description}
+              </Text>
             </View>
           </View>
 
