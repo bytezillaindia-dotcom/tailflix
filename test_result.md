@@ -179,6 +179,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ TESTED: Likes API working perfectly. POST /api/likes validates all 4 action types (like/skip/superlike/boost) correctly, rejects invalid action types and non-existent pet IDs. GET /api/likes returns stored likes with correct structure (id, user_id, pet_id, action_type, created_at). All validation scenarios passed (7/7 tests)."
+        - working: true
+          agent: "main"
+          comment: "✅ RE-VERIFIED: Skip functionality working correctly. Skip button inserts rows into likes table with action_type='skip'. Daily limit check (GET /api/likes/daily-count) only counts action_type='like', excluding skips. Users can skip unlimited times without hitting the 10/day limit. Tested with 16 skip actions, daily like count remained unchanged at 2."
 
   - task: "Pet Feed API"
     implemented: true
