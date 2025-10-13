@@ -1,11 +1,38 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useState, useEffect } from 'react';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 import { useAuth } from '../components/AuthContext';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, userId } = useAuth();
+  const [likesBadgeCount, setLikesBadgeCount] = useState(0);
+  const [superLikesBadgeCount, setSuperLikesBadgeCount] = useState(0);
+
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+  useEffect(() => {
+    fetchLikesCount();
+  }, []);
+
+  const fetchLikesCount = async () => {
+    try {
+      const url = userId 
+        ? `${BACKEND_URL}/api/likes/received?user_id=${userId}`
+        : `${BACKEND_URL}/api/likes/received`;
+        
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setLikesBadgeCount(data.unread_count || 0);
+        setSuperLikesBadgeCount(data.super_like_count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching likes count:', error);
+    }
+  };
 
   const handleLogout = async () => {
     Alert.alert(
@@ -63,6 +90,21 @@ export default function HomeScreen() {
           onPress={() => router.push('/pet-feed')}
         >
           <Text style={styles.petFeedButtonText}>🎾 Pet Feed</Text>
+        </TouchableOpacity>
+
+        {/* Likes Button with Badge */}
+        <TouchableOpacity
+          style={styles.likesButton}
+          onPress={() => router.push('/likes')}
+        >
+          <Text style={styles.likesButtonText}>
+            ❤️ Likes {likesBadgeCount > 0 && `(${likesBadgeCount})`}
+          </Text>
+          {superLikesBadgeCount > 0 && (
+            <View style={styles.superLikeBadge}>
+              <Text style={styles.superLikeBadgeText}>⭐ {superLikesBadgeCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         {/* Admin Panel - visible for testing, add user ID check for production */}
