@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-TailFlix Backend API Testing Suite
-Tests the mock OTP authentication system
+TailFlix Backend API Testing Suite - PetFeed Features
+Tests the new PetFeed functionality including likes and pet feed endpoints
 """
 
 import requests
 import json
 import time
-from typing import Dict, Any
+from datetime import datetime
+from typing import Dict, List, Any
 
 # Backend URL from frontend .env
 BACKEND_URL = "https://taildate.preview.emergentagent.com/api"
@@ -16,6 +17,9 @@ class TailFlixAPITester:
     def __init__(self):
         self.base_url = BACKEND_URL
         self.test_results = []
+        self.test_users = []
+        self.test_pets = []
+        self.test_likes = []
         
     def log_test(self, test_name: str, success: bool, details: str, response_data: Any = None):
         """Log test results"""
