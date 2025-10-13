@@ -481,7 +481,7 @@ export default function FetchYardScreen() {
           },
         ]}
       >
-        <Text style={styles.swipeHintText}>LIKE</Text>
+        <Text style={styles.swipeHintText}>FETCH</Text>
       </Animated.View>
     </LinearGradient>
   );
