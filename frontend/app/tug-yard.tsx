@@ -764,12 +764,12 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   interestTag: {
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    backgroundColor: '#DC143C',
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.5)',
+    borderColor: 'rgba(255, 215, 0, 0.4)',
     paddingHorizontal: SPACING.sm,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   interestText: {
     fontSize: 12,
