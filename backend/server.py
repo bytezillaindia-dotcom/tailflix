@@ -55,6 +55,26 @@ class VerifyResponse(BaseModel):
     user_id: Optional[str] = None
     token: Optional[str] = None
 
+class Pet(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    pet_name: str
+    breed: str
+    sex: str  # 'Male' or 'Female'
+    birth_year: int
+    temperaments: List[str]
+    photos: List[str]  # Base64 encoded images
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    verified: bool = False
+
+class PetCreate(BaseModel):
+    pet_name: str
+    breed: str
+    sex: str
+    birth_year: int
+    temperaments: List[str]
+    photos: List[str]
+
 
 # ============ Auth Routes ============
 
