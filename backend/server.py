@@ -713,6 +713,109 @@ async def get_likes(user_id: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Failed to fetch likes")
 
 
+@api_router.get("/likes/received")
+async def get_received_likes(user_id: Optional[str] = None):
+    """
+    Get all likes/super_likes/golden_bones received by the current user
+    Returns enriched data with sender info and their pet details
+    Excludes skip actions
+    """
+    try:
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
+        
+        # Get current user's pets
+        my_pets = await db.pets.find({"user_id": user_id}).to_list(1000)
+        my_pet_ids = [pet['id'] for pet in my_pets]
+        
+        if not my_pet_ids:
+            return {
+                "likes": [],
+                "super_likes": [],
+                "golden_bones": [],
+                "unread_count": 0,
+                "super_like_count": 0
+            }
+        
+        # Get all likes received on my pets (exclude skip)
+        received_likes = await db.likes.find({
+            "pet_id": {"$in": my_pet_ids},
+            "action_type": {"$in": ["like", "super_like", "golden_bone"]}
+        }).to_list(1000)
+        
+        # Enrich with sender and pet information
+        likes_list = []
+        super_likes_list = []
+        golden_bones_list = []
+        
+        for like_doc in received_likes:
+            # Get sender info
+            sender = await db.users.find_one({"id": like_doc['user_id']})
+            if not sender:
+                continue
+            
+            # Get sender's pet (most recent)
+            sender_pet = await db.pets.find_one(
+                {"user_id": like_doc['user_id']},
+                sort=[("created_at", -1)]
+            )
+            
+            # Get my pet that was liked
+            my_liked_pet = await db.pets.find_one({"id": like_doc['pet_id']})
+            
+            enriched_like = {
+                "id": like_doc['id'],
+                "action_type": like_doc['action_type'],
+                "created_at": like_doc['created_at'],
+                "sender": {
+                    "user_id": sender['id'],
+                    "contact": sender.get('value', 'Unknown'),
+                    "is_verified": sender.get('is_verified_human', False)
+                },
+                "sender_pet": {
+                    "id": sender_pet['id'] if sender_pet else None,
+                    "name": sender_pet.get('pet_name', 'Unknown') if sender_pet else 'Unknown',
+                    "breed": sender_pet.get('breed', '') if sender_pet else '',
+                    "photo": sender_pet.get('photos', [])[0] if sender_pet and sender_pet.get('photos') else None
+                },
+                "my_pet": {
+                    "id": my_liked_pet['id'] if my_liked_pet else None,
+                    "name": my_liked_pet.get('pet_name', 'Unknown') if my_liked_pet else 'Unknown'
+                }
+            }
+            
+            # Categorize by action type
+            if like_doc['action_type'] == 'like':
+                likes_list.append(enriched_like)
+            elif like_doc['action_type'] == 'super_like':
+                super_likes_list.append(enriched_like)
+            elif like_doc['action_type'] == 'golden_bone':
+                golden_bones_list.append(enriched_like)
+        
+        # Sort by created_at (most recent first)
+        likes_list.sort(key=lambda x: x['created_at'], reverse=True)
+        super_likes_list.sort(key=lambda x: x['created_at'], reverse=True)
+        golden_bones_list.sort(key=lambda x: x['created_at'], reverse=True)
+        
+        return {
+            "likes": likes_list,
+            "super_likes": super_likes_list,
+            "golden_bones": golden_bones_list,
+            "unread_count": len(likes_list),
+            "super_like_count": len(super_likes_list) + len(golden_bones_list)
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching received likes: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch received likes")
+
+
 # ============ Verification Routes ============
 
 @api_router.post("/verifications", response_model=Verification)
