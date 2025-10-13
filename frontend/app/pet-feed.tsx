@@ -5,16 +5,20 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  Pressable,
   ActivityIndicator,
   Modal,
   ScrollView,
   Dimensions,
   Alert,
+  Animated,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
-import Svg, { Circle, Path, Defs, RadialGradient, Stop, Filter, FeGaussianBlur, FeOffset, FeComponentTransfer, FeFuncA, FeMerge, FeMergeNode } from 'react-native-svg';
+import * as Haptics from 'expo-haptics';
+import Svg, { Circle, Path, Defs, RadialGradient, Stop, Filter, FeGaussianBlur, FeOffset, FeComponentTransfer, FeFuncA, FeMerge, FeMergeNode, LinearGradient, Ellipse, Rect, G, FeFlood, FeComposite } from 'react-native-svg';
 
 // Tennis Ball SVG Component
 const TennisBallIcon = ({ size = 32 }) => (
@@ -45,6 +49,109 @@ const TennisBallIcon = ({ size = 32 }) => (
     
     <Path d="M 10 22 Q 32 10, 54 22" stroke="white" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6"/>
     <Path d="M 10 42 Q 32 54, 54 42" stroke="white" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6"/>
+  </Svg>
+);
+
+// Frisbee SVG Component
+const FrisbeeIcon = ({ size = 32 }) => (
+  <Svg width={size} height={size} viewBox="0 0 64 64">
+    <Defs>
+      <LinearGradient id="frisbeeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#FF6347" stopOpacity="1" />
+        <Stop offset="50%" stopColor="#FF4500" stopOpacity="1" />
+        <Stop offset="100%" stopColor="#FF8C00" stopOpacity="1" />
+      </LinearGradient>
+      <Filter id="frisbeeShadow" x="-50%" y="-50%" width="200%" height="200%">
+        <FeGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+        <FeOffset dx="0" dy="2" result="offsetblur"/>
+        <FeComponentTransfer>
+          <FeFuncA type="linear" slope="0.3"/>
+        </FeComponentTransfer>
+        <FeMerge>
+          <FeMergeNode/>
+          <FeMergeNode in="SourceGraphic"/>
+        </FeMerge>
+      </Filter>
+    </Defs>
+    
+    <Ellipse cx="32" cy="32" rx="26" ry="8" fill="url(#frisbeeGrad)" filter="url(#frisbeeShadow)"/>
+    <Ellipse cx="32" cy="32" rx="20" ry="6" fill="none" stroke="#FF6347" strokeWidth="1.5" opacity="0.5"/>
+    <Ellipse cx="32" cy="32" rx="14" ry="4" fill="none" stroke="#FFD700" strokeWidth="1" opacity="0.7"/>
+    <Ellipse cx="32" cy="30" rx="22" ry="4" fill="white" opacity="0.3"/>
+    <Ellipse cx="32" cy="34" rx="22" ry="3" fill="black" opacity="0.2"/>
+  </Svg>
+);
+
+// Bone SVG Component
+const BoneIcon = ({ size = 32 }) => (
+  <Svg width={size} height={size} viewBox="0 0 64 64">
+    <Defs>
+      <Filter id="boneShadow" x="-50%" y="-50%" width="200%" height="200%">
+        <FeGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+        <FeOffset dx="0" dy="2" result="offsetblur"/>
+        <FeComponentTransfer>
+          <FeFuncA type="linear" slope="0.3"/>
+        </FeComponentTransfer>
+        <FeMerge>
+          <FeMergeNode/>
+          <FeMergeNode in="SourceGraphic"/>
+        </FeMerge>
+      </Filter>
+      <RadialGradient id="boneGrad">
+        <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+        <Stop offset="100%" stopColor="#E8E8E8" stopOpacity="1" />
+      </RadialGradient>
+    </Defs>
+    
+    <Circle cx="14" cy="26" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+    <Circle cx="14" cy="38" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+    <Circle cx="50" cy="26" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+    <Circle cx="50" cy="38" r="7" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+    <Rect x="14" y="28" width="36" height="8" rx="4" fill="url(#boneGrad)" filter="url(#boneShadow)"/>
+    <Ellipse cx="32" cy="30" rx="14" ry="2" fill="white" opacity="0.4"/>
+  </Svg>
+);
+
+// Golden Bone SVG Component
+const GoldenBoneIcon = ({ size = 32 }) => (
+  <Svg width={size} height={size} viewBox="0 0 64 64">
+    <Defs>
+      <LinearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#FFD700" stopOpacity="1" />
+        <Stop offset="50%" stopColor="#FFA500" stopOpacity="1" />
+        <Stop offset="100%" stopColor="#DAA520" stopOpacity="1" />
+      </LinearGradient>
+      <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <FeGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+        <FeOffset dx="0" dy="0" result="offsetblur"/>
+        <FeFlood floodColor="#FFD700" floodOpacity="0.6"/>
+        <FeComposite in2="offsetblur" operator="in"/>
+        <FeMerge>
+          <FeMergeNode/>
+          <FeMergeNode in="SourceGraphic"/>
+        </FeMerge>
+      </Filter>
+    </Defs>
+    
+    <G filter="url(#glow)">
+      <Circle cx="14" cy="26" r="7" fill="url(#goldGrad)"/>
+      <Circle cx="14" cy="38" r="7" fill="url(#goldGrad)"/>
+      <Circle cx="50" cy="26" r="7" fill="url(#goldGrad)"/>
+      <Circle cx="50" cy="38" r="7" fill="url(#goldGrad)"/>
+      <Rect x="14" y="28" width="36" height="8" rx="4" fill="url(#goldGrad)"/>
+    </G>
+    
+    <Ellipse cx="32" cy="30" rx="14" ry="2" fill="#FFED4E" opacity="0.6"/>
+    
+    <G transform="translate(48, 18)">
+      <Path d="M 0,-4 L 0.5,-0.5 L 4,0 L 0.5,0.5 L 0,4 L -0.5,0.5 L -4,0 L -0.5,-0.5 Z" fill="#FFD700" opacity="0.9"/>
+      <Circle cx="0" cy="0" r="1.5" fill="white" opacity="0.8"/>
+    </G>
+    
+    <G transform="translate(52, 24)">
+      <Path d="M 0,-3 L 0.4,-0.4 L 3,0 L 0.4,0.4 L 0,3 L -0.4,0.4 L -3,0 L -0.4,-0.4 Z" fill="#FFD700" opacity="0.8"/>
+      <Circle cx="0" cy="0" r="1" fill="white" opacity="0.7"/>
+    </G>
   </Svg>
 );
 
