@@ -58,6 +58,8 @@ export default function RootLayout() {
         <Stack.Screen name="tailreels_feed" />
         <Stack.Screen name="tailreels_upload" />
         <Stack.Screen name="tailreels_comments" />
+        <Stack.Screen name="tailcause_home" />
+        <Stack.Screen name="tailcause_pet_profile" />
       </Stack>
     </AuthProvider>
   );
