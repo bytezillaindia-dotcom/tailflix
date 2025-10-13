@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 import { useAuth } from '../components/AuthContext';
+import { ActionIcon } from '../components/ActionIcon';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 120;
