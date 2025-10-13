@@ -356,7 +356,7 @@ export default function PetFeedScreen() {
 
       {actionLoading && (
         <View style={styles.actionLoadingOverlay}>
-          <ActivityIndicator size="large" color={theme.colors.crimson} />
+          <ActivityIndicator size="large" color={COLORS.crimson} />
         </View>
       )}
     </View>
