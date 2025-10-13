@@ -14,7 +14,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../constants/theme';
 
-type Tab = 'verifications' | 'reports' | 'users' | 'tailpro' | 'earnings';
+type Tab = 'verifications' | 'reports' | 'users' | 'tailpro' | 'earnings' | 'content';
 
 interface Verification {
   id: string;
