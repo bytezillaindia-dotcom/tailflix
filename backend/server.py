@@ -429,7 +429,8 @@ async def get_daily_like_count():
 @api_router.post("/likes")
 async def create_like(like_data: LikeCreate):
     """
-    Record a like/skip/super_like/golden_bone action
+    Record a like/skip/super_like/golden_bone action (createLikeSecure)
+    Server-side validation for premium features
     Checks for mutual matches and creates match if found
     For now, we'll use a mock user_id. In production, extract from JWT token
     """
@@ -449,6 +450,21 @@ async def create_like(like_data: LikeCreate):
             raise HTTPException(status_code=404, detail="No user found. Please login first.")
         
         user_id = recent_user['id']
+        is_premium = recent_user.get('is_premium', False)
+        
+        # SERVER-SIDE PREMIUM VALIDATION (createLikeSecure logic)
+        # Step 1: Check if premium features require premium status
+        if like_data.action_type in ['super_like', 'golden_bone']:
+            if not is_premium:
+                logger.warning(f"User {user_id} (free) attempted to use {like_data.action_type} - blocked")
+                return {
+                    "error": "premium_required",
+                    "message": f"{like_data.action_type.replace('_', ' ').title()} is a premium feature",
+                    "action_type": like_data.action_type
+                }
+        
+        # Step 2: Skip actions are always allowed (no limit check needed)
+        # Step 3: Like actions are allowed (frontend enforces daily limit)
         
         # Check if pet exists and get owner info
         liked_pet = await db.pets.find_one({"id": like_data.pet_id})
