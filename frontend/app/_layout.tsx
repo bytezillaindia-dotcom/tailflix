@@ -25,6 +25,7 @@ export default function RootLayout() {
         <Stack.Screen name="pet-feed" />
         <Stack.Screen name="paywall" />
         <Stack.Screen name="match" />
+        <Stack.Screen name="likes" />
       </Stack>
     </AuthProvider>
   );
