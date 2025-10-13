@@ -1,10 +1,12 @@
+import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { COLORS } from '../constants/theme';
+import { AuthProvider } from '../components/AuthContext';
 
 export default function RootLayout() {
   return (
-    <>
+    <AuthProvider>
       <StatusBar style="light" backgroundColor={COLORS.black} />
       <Stack
         screenOptions={{
@@ -22,7 +24,8 @@ export default function RootLayout() {
         <Stack.Screen name="admin" />
         <Stack.Screen name="pet-feed" />
         <Stack.Screen name="paywall" />
+        <Stack.Screen name="match" />
       </Stack>
-    </>
+    </AuthProvider>
   );
 }
