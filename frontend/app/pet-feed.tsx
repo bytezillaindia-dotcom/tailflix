@@ -509,6 +509,23 @@ export default function PetFeedScreen() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        
+        // Check if this resulted in a match
+        if (data.match && data.match.matched) {
+          setActionLoading(false);
+          // Navigate to match screen
+          router.push({
+            pathname: '/match',
+            params: {
+              matchType: data.match.match_type,
+              myPetName: data.match.my_pet_name,
+              theirPetName: data.match.their_pet_name,
+            }
+          });
+          return;
+        }
+        
         // Move to next card
         setCurrentIndex(currentIndex + 1);
         
