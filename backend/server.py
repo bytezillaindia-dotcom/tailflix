@@ -276,6 +276,21 @@ async def get_pets(user_id: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Failed to fetch pets")
 
 
+@api_router.get("/users/{user_id}/has-pets")
+async def check_user_has_pets(user_id: str):
+    """Check if a user has any pets"""
+    try:
+        pet_count = await db.pets.count_documents({"user_id": user_id})
+        return {
+            "user_id": user_id,
+            "has_pets": pet_count > 0,
+            "pet_count": pet_count
+        }
+    except Exception as e:
+        logger.error(f"Error checking user pets: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to check user pets")
+
+
 @api_router.get("/pets/feed")
 async def get_pet_feed(limit: int = 10, debug: bool = False):
     """
