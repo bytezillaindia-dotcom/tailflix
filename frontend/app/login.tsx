@@ -80,12 +80,8 @@ export default function LoginScreen() {
       const data = await response.json();
       
       if (response.ok && data.success) {
-        Alert.alert('Success', 'Login successful!', [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/home'),
-          },
-        ]);
+        // Successful verification - redirect to home immediately
+        router.replace('/home');
       } else {
         Alert.alert('Error', data.message || 'Invalid OTP');
       }
