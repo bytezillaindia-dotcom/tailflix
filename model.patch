@@ -1,171 +1,189 @@
+diff --git a/backend/server.py b/backend/server.py
+index d10a349..688eecc 100644
+--- a/backend/server.py
++++ b/backend/server.py
+@@ -96,7 +96,7 @@ class Like(BaseModel):
+     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+     user_id: str
+     pet_id: str
+-    action_type: str  # 'like', 'skip', 'superlike', 'boost'
++    action_type: str  # 'like', 'skip', 'super_like', 'boost'
+     created_at: datetime = Field(default_factory=datetime.utcnow)
+ 
+ class LikeCreate(BaseModel):
 diff --git a/model.patch b/model.patch
-index 30d19ea..e69de29 100644
+index b99f352..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,166 +0,0 @@
+@@ -1,171 +0,0 @@
 -diff --git a/model.patch b/model.patch
--index 9b48951..e69de29 100644
+-index 30d19ea..e69de29 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,98 +0,0 @@
+-@@ -1,166 +0,0 @@
+--diff --git a/model.patch b/model.patch
+--index 9b48951..e69de29 100644
+----- a/model.patch
+--+++ b/model.patch
+--@@ -1,98 +0,0 @@
+---diff --git a/test_result.md b/test_result.md
+---index 2dd0e8f..fa1f4c0 100644
+------ a/test_result.md
+---+++ b/test_result.md
+---@@ -107,51 +107,63 @@ user_problem_statement: "Create TailFlix mobile app - Splash screen, Login with
+--- backend:
+---   - task: "Mock OTP Send API"
+---     implemented: true
+----    working: "NA"
+---+    working: true
+---     file: "/app/backend/server.py"
+---     stuck_count: 0
+---     priority: "high"
+----    needs_retesting: true
+---+    needs_retesting: false
+---     status_history:
+---         - working: "NA"
+---           agent: "main"
+---           comment: "Created POST /api/auth/send-otp endpoint. Accepts phone/email, validates input, creates user if not exists, returns success with mock OTP (123456 for testing)"
+---+        - working: true
+---+          agent: "testing"
+---+          comment: "✅ TESTED: All send-otp scenarios working correctly. Valid phone/email requests return success=true with mock_otp=123456. Invalid method and empty values properly rejected with 400 errors. New users created in database as expected."
+---   
+---   - task: "Mock OTP Verify API"
+---     implemented: true
+----    working: "NA"
+---+    working: true
+---     file: "/app/backend/server.py"
+---     stuck_count: 0
+---     priority: "high"
+----    needs_retesting: true
+---+    needs_retesting: false
+---     status_history:
+---         - working: "NA"
+---           agent: "main"
+---           comment: "Created POST /api/auth/verify-otp endpoint. Accepts any 6-digit code, updates last_login, returns mock token and user_id"
+---+        - working: true
+---+          agent: "testing"
+---+          comment: "✅ TESTED: All verify-otp scenarios working correctly. Any 6-digit numeric code accepted and returns success=true with user_id and token. Invalid OTP formats (non-6-digit, non-numeric) properly rejected. Non-existent users correctly handled. Last_login updated in database."
+---   
+---   - task: "User Model & Database"
+---     implemented: true
+----    working: "NA"
+---+    working: true
+---     file: "/app/backend/server.py"
+---     stuck_count: 0
+---     priority: "high"
+----    needs_retesting: true
+---+    needs_retesting: false
+---     status_history:
+---         - working: "NA"
+---           agent: "main"
+---           comment: "Created User model with MongoDB integration. Stores user method (phone/email), value, created_at, last_login"
+---+        - working: true
+---+          agent: "testing"
+---+          comment: "✅ TESTED: User model and MongoDB integration working perfectly. Users created with correct structure (id, method, value, created_at, last_login). Database persistence verified. UUID-based IDs working correctly."
+--- 
+---   - task: "Get Users API"
+---     implemented: true
+----    working: "NA"
+---+    working: true
+---     file: "/app/backend/server.py"
+---     stuck_count: 0
+---     priority: "low"
+----    needs_retesting: true
+---+    needs_retesting: false
+---     status_history:
+---         - working: "NA"
+---           agent: "main"
+---           comment: "Created GET /api/users endpoint for testing/admin purposes"
+---+        - working: true
+---+          agent: "testing"
+---+          comment: "✅ TESTED: Get users API working correctly. Returns list of users with proper structure including all required fields (id, method, value, created_at, last_login). Verified 5 test users created during testing."
+--- 
+--- frontend:
+---   - task: "Splash Screen"
+---@@ -221,15 +233,13 @@ metadata:
+---   run_ui: false
+--- 
+--- test_plan:
+----  current_focus:
+----    - "Mock OTP Send API"
+----    - "Mock OTP Verify API"
+----    - "User Model & Database"
+----    - "Get Users API"
+---+  current_focus: []
+---   stuck_tasks: []
+---   test_all: false
+---   test_priority: "high_first"
+--- 
+--- agent_communication:
+---     - agent: "main"
+----      message: "TailFlix MVP created with Splash, Login (mock OTP), and Home screens. Backend has mock OTP endpoints that accept any 6-digit code. Please test backend APIs first: 1) POST /api/auth/send-otp with phone/email 2) POST /api/auth/verify-otp with any 6-digit code 3) GET /api/users to verify user creation. All APIs use /api prefix as required."
+---\ No newline at end of file
+---+      message: "TailFlix MVP created with Splash, Login (mock OTP), and Home screens. Backend has mock OTP endpoints that accept any 6-digit code. Please test backend APIs first: 1) POST /api/auth/send-otp with phone/email 2) POST /api/auth/verify-otp with any 6-digit code 3) GET /api/users to verify user creation. All APIs use /api prefix as required."
+---+    - agent: "testing"
+---+      message: "✅ BACKEND TESTING COMPLETE: All 4 backend tasks tested and working perfectly. Created comprehensive test suite (backend_test.py) that validates all OTP authentication endpoints. Mock OTP system accepts any 6-digit code as designed. Database integration working correctly with proper user creation and persistence. All APIs accessible at /api prefix. 9/9 test scenarios passed including edge cases and error handling."
+---\ No newline at end of file
 --diff --git a/test_result.md b/test_result.md
---index 2dd0e8f..fa1f4c0 100644
+--index a9f63e8..d29da58 100644
 ----- a/test_result.md
 --+++ b/test_result.md
---@@ -107,51 +107,63 @@ user_problem_statement: "Create TailFlix mobile app - Splash screen, Login with
--- backend:
---   - task: "Mock OTP Send API"
---     implemented: true
----    working: "NA"
---+    working: true
---     file: "/app/backend/server.py"
---     stuck_count: 0
---     priority: "high"
----    needs_retesting: true
---+    needs_retesting: false
---     status_history:
---         - working: "NA"
---           agent: "main"
---           comment: "Created POST /api/auth/send-otp endpoint. Accepts phone/email, validates input, creates user if not exists, returns success with mock OTP (123456 for testing)"
---+        - working: true
---+          agent: "testing"
---+          comment: "✅ TESTED: All send-otp scenarios working correctly. Valid phone/email requests return success=true with mock_otp=123456. Invalid method and empty values properly rejected with 400 errors. New users created in database as expected."
---   
---   - task: "Mock OTP Verify API"
---     implemented: true
----    working: "NA"
---+    working: true
---     file: "/app/backend/server.py"
---     stuck_count: 0
---     priority: "high"
----    needs_retesting: true
---+    needs_retesting: false
---     status_history:
---         - working: "NA"
---           agent: "main"
---           comment: "Created POST /api/auth/verify-otp endpoint. Accepts any 6-digit code, updates last_login, returns mock token and user_id"
---+        - working: true
---+          agent: "testing"
---+          comment: "✅ TESTED: All verify-otp scenarios working correctly. Any 6-digit numeric code accepted and returns success=true with user_id and token. Invalid OTP formats (non-6-digit, non-numeric) properly rejected. Non-existent users correctly handled. Last_login updated in database."
---   
---   - task: "User Model & Database"
---     implemented: true
----    working: "NA"
---+    working: true
---     file: "/app/backend/server.py"
---     stuck_count: 0
---     priority: "high"
----    needs_retesting: true
---+    needs_retesting: false
---     status_history:
---         - working: "NA"
---           agent: "main"
---           comment: "Created User model with MongoDB integration. Stores user method (phone/email), value, created_at, last_login"
---+        - working: true
---+          agent: "testing"
---+          comment: "✅ TESTED: User model and MongoDB integration working perfectly. Users created with correct structure (id, method, value, created_at, last_login). Database persistence verified. UUID-based IDs working correctly."
+--@@ -167,27 +167,33 @@ backend:
 -- 
---   - task: "Get Users API"
+--   - task: "Likes Model & API"
 --     implemented: true
 ---    working: "NA"
 --+    working: true
 --     file: "/app/backend/server.py"
 --     stuck_count: 0
---     priority: "low"
+--     priority: "high"
 ---    needs_retesting: true
 --+    needs_retesting: false
 --     status_history:
 --         - working: "NA"
 --           agent: "main"
---           comment: "Created GET /api/users endpoint for testing/admin purposes"
+--           comment: "Created Like model with MongoDB integration. Stores user_id, pet_id, action_type (like/skip/superlike/boost), created_at. Added POST /api/likes to record actions and GET /api/likes to retrieve them."
 --+        - working: true
 --+          agent: "testing"
---+          comment: "✅ TESTED: Get users API working correctly. Returns list of users with proper structure including all required fields (id, method, value, created_at, last_login). Verified 5 test users created during testing."
+--+          comment: "✅ TESTED: Likes API working perfectly. POST /api/likes validates all 4 action types (like/skip/superlike/boost) correctly, rejects invalid action types and non-existent pet IDs. GET /api/likes returns stored likes with correct structure (id, user_id, pet_id, action_type, created_at). All validation scenarios passed (7/7 tests)."
+-- 
+--   - task: "Pet Feed API"
+--     implemented: true
+---    working: "NA"
+--+    working: true
+--     file: "/app/backend/server.py"
+--     stuck_count: 0
+--     priority: "high"
+---    needs_retesting: true
+--+    needs_retesting: false
+--     status_history:
+--         - working: "NA"
+--           agent: "main"
+--           comment: "Created GET /api/pets/feed endpoint. Returns verified pets from verified users, excludes user's own pets and already interacted pets. Enriches data with age calculation, mock distance (0.5-50km), and owner verification status. Supports pagination via limit parameter (default 10)."
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "✅ TESTED: Pet Feed API working correctly. GET /api/pets/feed returns pets with enriched fields (age, distance_km, owner_verified). Age calculation accurate (current_year - birth_year). Distance in expected range (0.5-50km). Pagination working with different limit values (1,2,5,10). Filtering logic working - liked pets excluded from subsequent feed calls. No duplicate pets in feed."
 -- 
 -- frontend:
 --   - task: "Splash Screen"
---@@ -221,15 +233,13 @@ metadata:
+--@@ -269,9 +275,7 @@ metadata:
 --   run_ui: false
 -- 
 -- test_plan:
 ---  current_focus:
----    - "Mock OTP Send API"
----    - "Mock OTP Verify API"
----    - "User Model & Database"
----    - "Get Users API"
+---    - "Likes Model & API"
+---    - "Pet Feed API"
 --+  current_focus: []
 --   stuck_tasks: []
 --   test_all: false
 --   test_priority: "high_first"
--- 
--- agent_communication:
+--@@ -282,4 +286,6 @@ agent_communication:
+--     - agent: "testing"
+--       message: "✅ BACKEND TESTING COMPLETE: All 4 backend tasks tested and working perfectly. Created comprehensive test suite (backend_test.py) that validates all OTP authentication endpoints. Mock OTP system accepts any 6-digit code as designed. Database integration working correctly with proper user creation and persistence. All APIs accessible at /api prefix. 9/9 test scenarios passed including edge cases and error handling."
 --     - agent: "main"
----      message: "TailFlix MVP created with Splash, Login (mock OTP), and Home screens. Backend has mock OTP endpoints that accept any 6-digit code. Please test backend APIs first: 1) POST /api/auth/send-otp with phone/email 2) POST /api/auth/verify-otp with any 6-digit code 3) GET /api/users to verify user creation. All APIs use /api prefix as required."
+---      message: "PetFeed feature implemented! Backend: Added Like model and endpoints (POST /api/likes, GET /api/likes, GET /api/pets/feed). Frontend: Created pet-feed.tsx screen with swipeable card design, action buttons (🎾 Like, 🥏 Skip, 🍖 Super Like, ✨🍖 Boost), full profile modal with photo gallery. Updated navigation and home screen. Please test backend endpoints: 1) GET /api/pets/feed - should return verified pets excluding user's own and already interacted 2) POST /api/likes with action_type (like/skip/superlike/boost) 3) GET /api/likes to verify storage."
 --\ No newline at end of file
---+      message: "TailFlix MVP created with Splash, Login (mock OTP), and Home screens. Backend has mock OTP endpoints that accept any 6-digit code. Please test backend APIs first: 1) POST /api/auth/send-otp with phone/email 2) POST /api/auth/verify-otp with any 6-digit code 3) GET /api/users to verify user creation. All APIs use /api prefix as required."
+--+      message: "PetFeed feature implemented! Backend: Added Like model and endpoints (POST /api/likes, GET /api/likes, GET /api/pets/feed). Frontend: Created pet-feed.tsx screen with swipeable card design, action buttons (🎾 Like, 🥏 Skip, 🍖 Super Like, ✨🍖 Boost), full profile modal with photo gallery. Updated navigation and home screen. Please test backend endpoints: 1) GET /api/pets/feed - should return verified pets excluding user's own and already interacted 2) POST /api/likes with action_type (like/skip/superlike/boost) 3) GET /api/likes to verify storage."
 --+    - agent: "testing"
---+      message: "✅ BACKEND TESTING COMPLETE: All 4 backend tasks tested and working perfectly. Created comprehensive test suite (backend_test.py) that validates all OTP authentication endpoints. Mock OTP system accepts any 6-digit code as designed. Database integration working correctly with proper user creation and persistence. All APIs accessible at /api prefix. 9/9 test scenarios passed including edge cases and error handling."
+--+      message: "✅ PETFEED BACKEND TESTING COMPLETE: All PetFeed backend features tested and working perfectly. Updated backend_test.py with comprehensive PetFeed test suite. POST /api/likes validates all 4 action types correctly and rejects invalid inputs. GET /api/pets/feed returns enriched pet data with age calculation, mock distance, and owner verification. Pagination working with different limits. Filtering logic correctly excludes liked pets from subsequent feeds. All 14/14 test scenarios passed including existing OTP tests and new PetFeed functionality."
 --\ No newline at end of file
--diff --git a/test_result.md b/test_result.md
--index a9f63e8..d29da58 100644
----- a/test_result.md
--+++ b/test_result.md
--@@ -167,27 +167,33 @@ backend:
-- 
--   - task: "Likes Model & API"
--     implemented: true
---    working: "NA"
--+    working: true
--     file: "/app/backend/server.py"
--     stuck_count: 0
--     priority: "high"
---    needs_retesting: true
--+    needs_retesting: false
--     status_history:
--         - working: "NA"
--           agent: "main"
--           comment: "Created Like model with MongoDB integration. Stores user_id, pet_id, action_type (like/skip/superlike/boost), created_at. Added POST /api/likes to record actions and GET /api/likes to retrieve them."
--+        - working: true
--+          agent: "testing"
--+          comment: "✅ TESTED: Likes API working perfectly. POST /api/likes validates all 4 action types (like/skip/superlike/boost) correctly, rejects invalid action types and non-existent pet IDs. GET /api/likes returns stored likes with correct structure (id, user_id, pet_id, action_type, created_at). All validation scenarios passed (7/7 tests)."
-- 
--   - task: "Pet Feed API"
--     implemented: true
---    working: "NA"
--+    working: true
--     file: "/app/backend/server.py"
--     stuck_count: 0
--     priority: "high"
---    needs_retesting: true
--+    needs_retesting: false
--     status_history:
--         - working: "NA"
--           agent: "main"
--           comment: "Created GET /api/pets/feed endpoint. Returns verified pets from verified users, excludes user's own pets and already interacted pets. Enriches data with age calculation, mock distance (0.5-50km), and owner verification status. Supports pagination via limit parameter (default 10)."
--+        - working: true
--+          agent: "testing"
--+          comment: "✅ TESTED: Pet Feed API working correctly. GET /api/pets/feed returns pets with enriched fields (age, distance_km, owner_verified). Age calculation accurate (current_year - birth_year). Distance in expected range (0.5-50km). Pagination working with different limit values (1,2,5,10). Filtering logic working - liked pets excluded from subsequent feed calls. No duplicate pets in feed."
-- 
-- frontend:
--   - task: "Splash Screen"
--@@ -269,9 +275,7 @@ metadata:
--   run_ui: false
-- 
-- test_plan:
---  current_focus:
---    - "Likes Model & API"
---    - "Pet Feed API"
--+  current_focus: []
--   stuck_tasks: []
--   test_all: false
--   test_priority: "high_first"
--@@ -282,4 +286,6 @@ agent_communication:
--     - agent: "testing"
--       message: "✅ BACKEND TESTING COMPLETE: All 4 backend tasks tested and working perfectly. Created comprehensive test suite (backend_test.py) that validates all OTP authentication endpoints. Mock OTP system accepts any 6-digit code as designed. Database integration working correctly with proper user creation and persistence. All APIs accessible at /api prefix. 9/9 test scenarios passed including edge cases and error handling."
--     - agent: "main"
---      message: "PetFeed feature implemented! Backend: Added Like model and endpoints (POST /api/likes, GET /api/likes, GET /api/pets/feed). Frontend: Created pet-feed.tsx screen with swipeable card design, action buttons (🎾 Like, 🥏 Skip, 🍖 Super Like, ✨🍖 Boost), full profile modal with photo gallery. Updated navigation and home screen. Please test backend endpoints: 1) GET /api/pets/feed - should return verified pets excluding user's own and already interacted 2) POST /api/likes with action_type (like/skip/superlike/boost) 3) GET /api/likes to verify storage."
--\ No newline at end of file
--+      message: "PetFeed feature implemented! Backend: Added Like model and endpoints (POST /api/likes, GET /api/likes, GET /api/pets/feed). Frontend: Created pet-feed.tsx screen with swipeable card design, action buttons (🎾 Like, 🥏 Skip, 🍖 Super Like, ✨🍖 Boost), full profile modal with photo gallery. Updated navigation and home screen. Please test backend endpoints: 1) GET /api/pets/feed - should return verified pets excluding user's own and already interacted 2) POST /api/likes with action_type (like/skip/superlike/boost) 3) GET /api/likes to verify storage."
--+    - agent: "testing"
--+      message: "✅ PETFEED BACKEND TESTING COMPLETE: All PetFeed backend features tested and working perfectly. Updated backend_test.py with comprehensive PetFeed test suite. POST /api/likes validates all 4 action types correctly and rejects invalid inputs. GET /api/pets/feed returns enriched pet data with age calculation, mock distance, and owner verification. Pagination working with different limits. Filtering logic correctly excludes liked pets from subsequent feeds. All 14/14 test scenarios passed including existing OTP tests and new PetFeed functionality."
--\ No newline at end of file
