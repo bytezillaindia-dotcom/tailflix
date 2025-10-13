@@ -621,20 +621,86 @@ export default function AdminScreen() {
 
   const renderTailProTab = () => {
     const [partners, setPartners] = React.useState<any[]>([]);
+    const [bookings, setBookings] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
+    const [subTab, setSubTab] = React.useState<'verification' | 'bookings'>('verification');
+
+    // Mock data for when storage is empty
+    const MOCK_VENDORS = [
+      {
+        vendorId: 'mock_v1',
+        name: 'Happy Paws Grooming',
+        phone: '+91-9999999999',
+        category: 'Grooming',
+        city: 'Bengaluru',
+        price: 599,
+        status: 'pending',
+        docs: 'Verified',
+      },
+      {
+        vendorId: 'mock_v2',
+        name: 'Pet Care Clinic',
+        phone: '+91-8888888888',
+        category: 'Veterinary',
+        city: 'Mumbai',
+        price: 799,
+        status: 'pending',
+        docs: 'Pending',
+      },
+    ];
+
+    const MOCK_BOOKINGS = [
+      {
+        order_id: 'ORD001',
+        service: 'Pet Grooming',
+        vendor_id: 'mock_v1',
+        vendor_name: 'Happy Paws',
+        customer: 'Arjun Kumar',
+        date: '2025-10-15',
+        status: 'Confirmed',
+        amount: 599,
+      },
+      {
+        order_id: 'ORD002',
+        service: 'Vet Checkup',
+        vendor_id: 'mock_v2',
+        vendor_name: 'Pet Care Clinic',
+        customer: 'Priya Sharma',
+        date: '2025-10-16',
+        status: 'Pending',
+        amount: 799,
+      },
+    ];
 
     React.useEffect(() => {
-      loadPartners();
+      loadData();
     }, []);
 
-    const loadPartners = async () => {
+    const loadData = async () => {
       try {
+        // Load partners
         const partnersStr = await AsyncStorage.getItem('tailpro_partners');
         if (partnersStr) {
-          setPartners(JSON.parse(partnersStr));
+          const parsedPartners = JSON.parse(partnersStr);
+          setPartners(parsedPartners.length > 0 ? parsedPartners : MOCK_VENDORS);
+        } else {
+          // Use mock data if no data exists
+          setPartners(MOCK_VENDORS);
+        }
+
+        // Load bookings
+        const bookingsStr = await AsyncStorage.getItem('tailpro_bookings');
+        if (bookingsStr) {
+          const parsedBookings = JSON.parse(bookingsStr);
+          setBookings(parsedBookings.length > 0 ? parsedBookings : MOCK_BOOKINGS);
+        } else {
+          setBookings(MOCK_BOOKINGS);
         }
       } catch (error) {
-        console.error('Error loading partners:', error);
+        console.error('Error loading TailPro data:', error);
+        // Fallback to mock data on error
+        setPartners(MOCK_VENDORS);
+        setBookings(MOCK_BOOKINGS);
       } finally {
         setLoading(false);
       }
@@ -650,18 +716,14 @@ export default function AdminScreen() {
             text: 'Approve',
             onPress: async () => {
               try {
-                const partnersStr = await AsyncStorage.getItem('tailpro_partners');
-                if (partnersStr) {
-                  const allPartners = JSON.parse(partnersStr);
-                  const updatedPartners = allPartners.map((p: any) =>
-                    p.vendorId === vendorId
-                      ? { ...p, status: 'approved', role: 'vendor' }
-                      : p
-                  );
-                  await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
-                  await loadPartners();
-                  Alert.alert('Success', 'Partner approved successfully');
-                }
+                const updatedPartners = partners.map((p: any) =>
+                  p.vendorId === vendorId
+                    ? { ...p, status: 'approved', role: 'vendor' }
+                    : p
+                );
+                await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
+                setPartners(updatedPartners);
+                Alert.alert('Success', 'Partner approved successfully');
               } catch (error) {
                 console.error('Error approving partner:', error);
                 Alert.alert('Error', 'Failed to approve partner');
@@ -683,16 +745,12 @@ export default function AdminScreen() {
             style: 'destructive',
             onPress: async () => {
               try {
-                const partnersStr = await AsyncStorage.getItem('tailpro_partners');
-                if (partnersStr) {
-                  const allPartners = JSON.parse(partnersStr);
-                  const updatedPartners = allPartners.map((p: any) =>
-                    p.vendorId === vendorId ? { ...p, status: 'rejected' } : p
-                  );
-                  await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
-                  await loadPartners();
-                  Alert.alert('Rejected', 'Partner application rejected');
-                }
+                const updatedPartners = partners.map((p: any) =>
+                  p.vendorId === vendorId ? { ...p, status: 'rejected' } : p
+                );
+                await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
+                setPartners(updatedPartners);
+                Alert.alert('Rejected', 'Partner application rejected');
               } catch (error) {
                 console.error('Error rejecting partner:', error);
                 Alert.alert('Error', 'Failed to reject partner');
@@ -706,7 +764,7 @@ export default function AdminScreen() {
     if (loading) {
       return (
         <View style={styles.tabContent}>
-          <Text style={styles.tabTitle}>TailPro Partner Verification</Text>
+          <Text style={styles.tabTitle}>TailPro Management</Text>
           <Text style={styles.placeholderText}>Loading...</Text>
         </View>
       );
@@ -716,65 +774,144 @@ export default function AdminScreen() {
 
     return (
       <View style={styles.tabContent}>
-        <Text style={styles.tabTitle}>TailPro Partner Verification</Text>
+        <Text style={styles.tabTitle}>TailPro Management</Text>
         
-        {pendingPartners.length === 0 ? (
-          <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderIcon}>💼</Text>
-            <Text style={styles.placeholderText}>No Pending Applications</Text>
-            <Text style={styles.placeholderSubtext}>
-              Partner applications will appear here for verification
+        {/* Sub-tabs */}
+        <View style={styles.subTabsContainer}>
+          <TouchableOpacity
+            style={[styles.subTab, subTab === 'verification' && styles.subTabActive]}
+            onPress={() => setSubTab('verification')}
+          >
+            <Text style={[styles.subTabText, subTab === 'verification' && styles.subTabTextActive]}>
+              Partner Verification
             </Text>
-          </View>
-        ) : (
-          pendingPartners.map((partner) => (
-            <View key={partner.vendorId} style={styles.partnerCard}>
-              <View style={styles.partnerHeader}>
-                <Text style={styles.partnerName}>{partner.name}</Text>
-                <View style={[styles.partnerStatusBadge, { backgroundColor: '#FFA500' }]}>
-                  <Text style={styles.partnerStatusText}>PENDING</Text>
-                </View>
-              </View>
-              
-              <View style={styles.partnerDetails}>
-                <Text style={styles.partnerDetailRow}>
-                  <Text style={styles.partnerDetailLabel}>Phone: </Text>
-                  {partner.phone}
-                </Text>
-                <Text style={styles.partnerDetailRow}>
-                  <Text style={styles.partnerDetailLabel}>Category: </Text>
-                  {partner.category}
-                </Text>
-                <Text style={styles.partnerDetailRow}>
-                  <Text style={styles.partnerDetailLabel}>City: </Text>
-                  {partner.city}
-                </Text>
-                <Text style={styles.partnerDetailRow}>
-                  <Text style={styles.partnerDetailLabel}>Price: </Text>
-                  ₹{partner.price}
-                </Text>
-                <Text style={styles.partnerDetailRow}>
-                  <Text style={styles.partnerDetailLabel}>Vendor ID: </Text>
-                  {partner.vendorId}
-                </Text>
-              </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.subTab, subTab === 'bookings' && styles.subTabActive]}
+            onPress={() => setSubTab('bookings')}
+          >
+            <Text style={[styles.subTabText, subTab === 'bookings' && styles.subTabTextActive]}>
+              Bookings 📅
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-              <View style={styles.partnerActions}>
-                <TouchableOpacity
-                  onPress={() => handleApprove(partner.vendorId)}
-                  style={styles.approveButton}
-                >
-                  <Text style={styles.approveButtonText}>✓ Approve</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleReject(partner.vendorId)}
-                  style={styles.rejectButton}
-                >
-                  <Text style={styles.rejectButtonText}>✗ Reject</Text>
-                </TouchableOpacity>
-              </View>
+        {/* Content based on sub-tab */}
+        {subTab === 'verification' ? (
+          pendingPartners.length === 0 ? (
+            <View style={styles.placeholderContainer}>
+              <Text style={styles.placeholderIcon}>💼</Text>
+              <Text style={styles.placeholderText}>No Pending Applications</Text>
+              <Text style={styles.placeholderSubtext}>
+                Partner applications will appear here for verification
+              </Text>
             </View>
-          ))
+          ) : (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {pendingPartners.map((partner) => (
+                <View key={partner.vendorId} style={styles.partnerCard}>
+                  <View style={styles.partnerHeader}>
+                    <Text style={styles.partnerName}>{partner.name}</Text>
+                    <View style={[styles.partnerStatusBadge, { backgroundColor: '#FFA500' }]}>
+                      <Text style={styles.partnerStatusText}>PENDING</Text>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.partnerDetails}>
+                    <Text style={styles.partnerDetailRow}>
+                      <Text style={styles.partnerDetailLabel}>Phone: </Text>
+                      {partner.phone}
+                    </Text>
+                    <Text style={styles.partnerDetailRow}>
+                      <Text style={styles.partnerDetailLabel}>Category: </Text>
+                      {partner.category}
+                    </Text>
+                    <Text style={styles.partnerDetailRow}>
+                      <Text style={styles.partnerDetailLabel}>City: </Text>
+                      {partner.city}
+                    </Text>
+                    <Text style={styles.partnerDetailRow}>
+                      <Text style={styles.partnerDetailLabel}>Price: </Text>
+                      ₹{partner.price}
+                    </Text>
+                    <Text style={styles.partnerDetailRow}>
+                      <Text style={styles.partnerDetailLabel}>Docs: </Text>
+                      {partner.docs || 'Not provided'}
+                    </Text>
+                    <Text style={styles.partnerDetailRow}>
+                      <Text style={styles.partnerDetailLabel}>Vendor ID: </Text>
+                      {partner.vendorId}
+                    </Text>
+                  </View>
+
+                  <View style={styles.partnerActions}>
+                    <TouchableOpacity
+                      onPress={() => handleApprove(partner.vendorId)}
+                      style={styles.approveButton}
+                    >
+                      <Text style={styles.approveButtonText}>✓ Approve</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleReject(partner.vendorId)}
+                      style={styles.rejectButton}
+                    >
+                      <Text style={styles.rejectButtonText}>✗ Reject</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          )
+        ) : (
+          // Bookings tab
+          bookings.length === 0 ? (
+            <View style={styles.placeholderContainer}>
+              <Text style={styles.placeholderIcon}>📅</Text>
+              <Text style={styles.placeholderText}>No Bookings Yet</Text>
+              <Text style={styles.placeholderSubtext}>
+                Service bookings will appear here
+              </Text>
+            </View>
+          ) : (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {bookings.map((booking) => (
+                <View key={booking.order_id} style={styles.bookingCard}>
+                  <View style={styles.bookingHeader}>
+                    <Text style={styles.bookingOrderId}>#{booking.order_id}</Text>
+                    <View style={[
+                      styles.bookingStatusBadge,
+                      { backgroundColor: booking.status === 'Confirmed' ? '#4CAF50' : '#FFA500' }
+                    ]}>
+                      <Text style={styles.bookingStatusText}>{booking.status}</Text>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.bookingDetails}>
+                    <Text style={styles.bookingDetailRow}>
+                      <Text style={styles.bookingDetailLabel}>Service: </Text>
+                      {booking.service}
+                    </Text>
+                    <Text style={styles.bookingDetailRow}>
+                      <Text style={styles.bookingDetailLabel}>Vendor: </Text>
+                      {booking.vendor_name}
+                    </Text>
+                    <Text style={styles.bookingDetailRow}>
+                      <Text style={styles.bookingDetailLabel}>Customer: </Text>
+                      {booking.customer}
+                    </Text>
+                    <Text style={styles.bookingDetailRow}>
+                      <Text style={styles.bookingDetailLabel}>Date: </Text>
+                      {booking.date}
+                    </Text>
+                    <Text style={styles.bookingDetailRow}>
+                      <Text style={styles.bookingDetailLabel}>Amount: </Text>
+                      ₹{booking.amount}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          )
         )}
       </View>
     );
