@@ -632,11 +632,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     paddingHorizontal: SPACING.lg,
+    alignItems: 'center',
+  },
+  actionButtonWrapper: {
+    minWidth: 72,
+    minHeight: 72,
   },
   actionButton: {
     width: 70,
-    height: 70,
-    borderRadius: 35,
+    height: 84,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(26, 26, 26, 0.95)',
@@ -644,6 +649,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 12,
     elevation: 8,
+    paddingVertical: SPACING.sm,
   },
   likeButton: {
     borderWidth: 2,
