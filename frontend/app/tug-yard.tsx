@@ -473,6 +473,15 @@ export default function TugYardScreen() {
           },
         ]}
       >
+        {/* Gold Glow Background Effect */}
+        <View style={styles.cardGlow} />
+        
+        {/* Dark Gradient Background */}
+        <LinearGradient
+          colors={['#000000', '#1a0505', '#2a0a0a']}
+          style={styles.cardBackgroundGradient}
+        />
+        
         {/* Owner Photo (main) */}
         <Image source={{ uri: currentProfile.owner_photo }} style={styles.ownerPhoto} />
         
