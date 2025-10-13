@@ -92,6 +92,38 @@ export default function FetchYardScreen() {
     }
   };
 
+  const fetchUserStats = async () => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/users/${userId}/stats`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setTailCoins(data.tail_coins || 0);
+        setDailyLikesCount(data.daily_likes_count || 0);
+        setDailyLikesLimit(data.daily_likes_limit);
+        setIsPremium(data.is_premium || false);
+        
+        // Animate coin badge on update
+        Animated.sequence([
+          Animated.spring(coinBadgeScale, {
+            toValue: 1.2,
+            tension: 300,
+            useNativeDriver: true,
+          }),
+          Animated.spring(coinBadgeScale, {
+            toValue: 1,
+            tension: 200,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
+
   const animateCardEntrance = () => {
     Animated.parallel([
       Animated.spring(cardScale, {
