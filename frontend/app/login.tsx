@@ -13,11 +13,13 @@ import {
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
+import { useAuth } from '../components/AuthContext';
 
 type LoginMethod = 'phone' | 'email' | null;
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [loginMethod, setLoginMethod] = useState<LoginMethod>(null);
   const [inputValue, setInputValue] = useState('');
   const [otp, setOtp] = useState('');
@@ -80,8 +82,21 @@ export default function LoginScreen() {
       const data = await response.json();
       
       if (response.ok && data.success) {
-        // Successful verification - redirect to home immediately
-        router.replace('/home');
+        // Save user_id and token to AuthContext
+        await login(data.user_id, data.token);
+
+        // Check if user has pets
+        const hasPetsResponse = await fetch(
+          `${BACKEND_URL}/api/users/${data.user_id}/has-pets`
+        );
+        const hasPetsData = await hasPetsResponse.json();
+
+        // Redirect based on whether user has pets
+        if (hasPetsData.has_pets) {
+          router.replace('/home');
+        } else {
+          router.replace('/add-pet');
+        }
       } else {
         Alert.alert('Error', data.message || 'Invalid OTP');
       }
