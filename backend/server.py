@@ -426,10 +426,11 @@ async def get_daily_like_count():
         raise HTTPException(status_code=500, detail="Failed to fetch daily like count")
 
 
-@api_router.post("/likes", response_model=Like)
+@api_router.post("/likes")
 async def create_like(like_data: LikeCreate):
     """
     Record a like/skip/super_like/golden_bone action
+    Checks for mutual matches and creates match if found
     For now, we'll use a mock user_id. In production, extract from JWT token
     """
     try:
@@ -449,10 +450,12 @@ async def create_like(like_data: LikeCreate):
         
         user_id = recent_user['id']
         
-        # Check if pet exists
-        pet = await db.pets.find_one({"id": like_data.pet_id})
-        if not pet:
+        # Check if pet exists and get owner info
+        liked_pet = await db.pets.find_one({"id": like_data.pet_id})
+        if not liked_pet:
             raise HTTPException(status_code=404, detail="Pet not found")
+        
+        other_user_id = liked_pet['owner_id']
         
         # If action is golden_bone, increment the monthly counter
         if like_data.action_type == 'golden_bone':
@@ -474,7 +477,59 @@ async def create_like(like_data: LikeCreate):
         
         logger.info(f"User {user_id} performed {like_data.action_type} on pet {like_data.pet_id}")
         
-        return like
+        # Check for mutual match (only for like, super_like, golden_bone - not skip)
+        match_info = None
+        if like_data.action_type in ['like', 'super_like', 'golden_bone']:
+            # Get current user's pet (most recent)
+            my_pet = await db.pets.find_one({"owner_id": user_id}, sort=[("created_at", -1)])
+            
+            if my_pet:
+                # Check if the other user already liked my pet
+                mutual_like = await db.likes.find_one({
+                    "user_id": other_user_id,
+                    "pet_id": my_pet['id'],
+                    "action_type": {"$in": ["like", "super_like", "golden_bone"]}
+                })
+                
+                if mutual_like:
+                    # It's a match! Check if match already exists
+                    existing_match = await db.matches.find_one({
+                        "$or": [
+                            {"user1_id": user_id, "user2_id": other_user_id},
+                            {"user1_id": other_user_id, "user2_id": user_id}
+                        ]
+                    })
+                    
+                    if not existing_match:
+                        # Create new match
+                        match = Match(
+                            user1_id=user_id,
+                            user2_id=other_user_id,
+                            pet1_id=my_pet['id'],
+                            pet2_id=like_data.pet_id,
+                            match_type=like_data.action_type
+                        )
+                        
+                        await db.matches.insert_one(match.dict())
+                        
+                        logger.info(f"✨ MATCH CREATED! Users {user_id} and {other_user_id}, triggered by {like_data.action_type}")
+                        
+                        match_info = {
+                            "matched": True,
+                            "match_id": match.id,
+                            "match_type": like_data.action_type,
+                            "my_pet_name": my_pet.get('pet_name', 'Your pet'),
+                            "their_pet_name": liked_pet.get('pet_name', 'Their pet')
+                        }
+        
+        return {
+            "id": like.id,
+            "user_id": like.user_id,
+            "pet_id": like.pet_id,
+            "action_type": like.action_type,
+            "created_at": like.created_at,
+            "match": match_info
+        }
     
     except HTTPException:
         raise
