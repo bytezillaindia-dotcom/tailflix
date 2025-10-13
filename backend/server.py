@@ -35,6 +35,7 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
     is_verified_human: bool = False
+    is_premium: bool = False  # Premium subscription status
 
 class SendOtpRequest(BaseModel):
     method: str  # 'phone' or 'email'
