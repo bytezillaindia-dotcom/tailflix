@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 # Backend URL from frontend/.env
-BASE_URL = "https://pet-dating-app-1.preview.emergentagent.com/api"
+BASE_URL = "https://pet-dating-app-2.preview.emergentagent.com/api"
 
 class ComprehensiveTailFlixTester:
     def __init__(self):
