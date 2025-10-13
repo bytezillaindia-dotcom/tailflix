@@ -612,4 +612,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFF',
   },
+  floatingButton: {
+    position: 'absolute',
+    bottom: SCREEN_HEIGHT * 0.12,
+    left: SPACING.lg,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    overflow: 'hidden',
+    shadowColor: COLORS.pawPink,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  floatingButtonGradient: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  floatingButtonIcon: {
+    fontSize: 28,
+    color: '#FFF',
+  },
 });
