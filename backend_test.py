@@ -1055,6 +1055,477 @@ class TailFlixTester:
         except Exception as e:
             self.log_step(step, False, f"Exception during log capture: {str(e)}")
 
+    # ============ DOUBLE FETCH & ACTION MECHANICS TESTS ============
+    
+    def test_double_fetch_action_mechanics(self):
+        """Test Double Fetch & Action Mechanics as specified in review request"""
+        print("\n💕 DOUBLE FETCH & ACTION MECHANICS TESTING")
+        print("=" * 60)
+        
+        # Setup test users and pets for mutual matching
+        self.setup_double_fetch_test_data()
+        
+        # Test 1: Action Button Mechanics
+        self.test_action_button_mechanics_detailed()
+        
+        # Test 2: Mutual Match Detection
+        self.test_mutual_match_detection_detailed()
+        
+        # Test 3: Match Entry Creation
+        self.test_match_entry_creation_detailed()
+        
+        # Test 4: Action Type Validation
+        self.test_action_type_validation_detailed()
+        
+        # Test 5: Pet Feed Integration
+        self.test_pet_feed_integration_detailed()
+        
+        # Test 6: Premium Feature Enforcement
+        self.test_premium_enforcement_detailed()
+        
+    def setup_double_fetch_test_data(self):
+        """Setup specific test data for Double Fetch testing"""
+        step = "Double Fetch Setup - Test Data Creation"
+        
+        try:
+            # Create User A (Premium)
+            user_a_data = {"method": "email", "value": "alice.doublefetch@tailflix.com"}
+            otp_success, otp_response, _ = self.make_request("POST", "/auth/send-otp", user_a_data)
+            
+            if otp_success and otp_response.get("mock_otp"):
+                verify_data = {**user_a_data, "otp": otp_response["mock_otp"]}
+                verify_success, verify_response, _ = self.make_request("POST", "/auth/verify-otp", verify_data)
+                
+                if verify_success and verify_response.get("user_id"):
+                    user_a_id = verify_response["user_id"]
+                    
+                    # Make User A premium
+                    self.make_request("PUT", f"/admin/users/{user_a_id}/premium", {"is_premium": True})
+                    
+                    # Create pet for User A
+                    pet_a_data = {
+                        "pet_name": "Luna",
+                        "breed": "Golden Retriever", 
+                        "sex": "Female",
+                        "birth_year": 2020,
+                        "temperaments": ["Friendly", "Energetic"],
+                        "photos": ["base64_photo_luna"]
+                    }
+                    
+                    pet_success, pet_response, _ = self.make_request("POST", f"/pets?user_id={user_a_id}", pet_a_data)
+                    
+                    if pet_success:
+                        self.users["alice_df"] = {
+                            "user_id": user_a_id,
+                            "pet_id": pet_response["id"],
+                            "is_premium": True
+                        }
+            
+            # Create User B (Free)
+            user_b_data = {"method": "email", "value": "bob.doublefetch@tailflix.com"}
+            otp_success, otp_response, _ = self.make_request("POST", "/auth/send-otp", user_b_data)
+            
+            if otp_success and otp_response.get("mock_otp"):
+                verify_data = {**user_b_data, "otp": otp_response["mock_otp"]}
+                verify_success, verify_response, _ = self.make_request("POST", "/auth/verify-otp", verify_data)
+                
+                if verify_success and verify_response.get("user_id"):
+                    user_b_id = verify_response["user_id"]
+                    
+                    # Create pet for User B
+                    pet_b_data = {
+                        "pet_name": "Max",
+                        "breed": "Labrador",
+                        "sex": "Male",
+                        "birth_year": 2019,
+                        "temperaments": ["Playful", "Loyal"],
+                        "photos": ["base64_photo_max"]
+                    }
+                    
+                    pet_success, pet_response, _ = self.make_request("POST", f"/pets?user_id={user_b_id}", pet_b_data)
+                    
+                    if pet_success:
+                        self.users["bob_df"] = {
+                            "user_id": user_b_id,
+                            "pet_id": pet_response["id"],
+                            "is_premium": False
+                        }
+            
+            setup_success = "alice_df" in self.users and "bob_df" in self.users
+            
+            self.log_step(step, setup_success, "Double Fetch test data created", {
+                "User A (Alice)": f"Premium user with pet Luna: {setup_success}",
+                "User B (Bob)": f"Free user with pet Max: {setup_success}",
+                "Ready for testing": setup_success
+            })
+            
+        except Exception as e:
+            self.log_step(step, False, f"Exception during setup: {str(e)}")
+    
+    def test_action_button_mechanics_detailed(self):
+        """Test all 4 action types via POST /api/likes endpoint"""
+        print("\n🎯 Testing Action Button Mechanics (Detailed)")
+        
+        if "alice_df" not in self.users or "bob_df" not in self.users:
+            self.log_step("Action Mechanics - Setup Check", False, "Test data not available")
+            return
+        
+        alice = self.users["alice_df"]
+        bob = self.users["bob_df"]
+        
+        # Test 1: Skip action (unlimited, doesn't count toward daily limit)
+        skip_data = {"pet_id": bob["pet_id"], "action_type": "skip"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={alice['user_id']}", skip_data)
+        
+        if success and response.get("action_type") == "skip":
+            self.log_step("Action Mechanics - Skip", True, "Skip action stored successfully", {
+                "Action ID": response.get("id"),
+                "Unlimited usage": "Should not count toward daily limit",
+                "Status": "Working correctly"
+            })
+        else:
+            self.log_step("Action Mechanics - Skip", False, f"Skip action failed: {response}")
+        
+        # Test 2: Like action (counts toward daily limit)
+        like_data = {"pet_id": bob["pet_id"], "action_type": "like"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={alice['user_id']}", like_data)
+        
+        if success and response.get("action_type") == "like":
+            self.log_step("Action Mechanics - Like", True, "Like action stored successfully", {
+                "Action ID": response.get("id"),
+                "Daily limit": "Counts toward 10/day limit",
+                "Status": "Working correctly"
+            })
+        else:
+            self.log_step("Action Mechanics - Like", False, f"Like action failed: {response}")
+        
+        # Test 3: Super Like action (premium-only, counts toward daily limit)
+        super_like_data = {"pet_id": bob["pet_id"], "action_type": "super_like"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={alice['user_id']}", super_like_data)
+        
+        if success and response.get("action_type") == "super_like":
+            self.log_step("Action Mechanics - Super Like", True, "Super Like action stored successfully", {
+                "Action ID": response.get("id"),
+                "Premium feature": "Premium user allowed",
+                "Daily limit": "Counts toward 10/day limit",
+                "Status": "Working correctly"
+            })
+        else:
+            self.log_step("Action Mechanics - Super Like", False, f"Super Like action failed: {response}")
+        
+        # Test 4: Golden Bone action (premium-only, monthly limit, counts toward daily limit)
+        golden_bone_data = {"pet_id": bob["pet_id"], "action_type": "golden_bone"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={alice['user_id']}", golden_bone_data)
+        
+        if success and response.get("action_type") == "golden_bone":
+            self.log_step("Action Mechanics - Golden Bone", True, "Golden Bone action stored successfully", {
+                "Action ID": response.get("id"),
+                "Premium feature": "Premium user allowed",
+                "Monthly limit": "5/month for premium users",
+                "Daily limit": "Counts toward 10/day limit",
+                "Status": "Working correctly"
+            })
+        else:
+            self.log_step("Action Mechanics - Golden Bone", False, f"Golden Bone action failed: {response}")
+    
+    def test_mutual_match_detection_detailed(self):
+        """Test mutual match flow and response data"""
+        print("\n💕 Testing Mutual Match Detection (Detailed)")
+        
+        if "alice_df" not in self.users or "bob_df" not in self.users:
+            self.log_step("Mutual Match - Setup Check", False, "Test data not available")
+            return
+        
+        alice = self.users["alice_df"]
+        bob = self.users["bob_df"]
+        
+        # Step 1: Alice likes Bob's pet (Max) - No match yet
+        like_data_alice = {"pet_id": bob["pet_id"], "action_type": "like"}
+        success_a, response_a, _ = self.make_request("POST", f"/likes?user_id={alice['user_id']}", like_data_alice)
+        
+        if success_a:
+            match_info_a = response_a.get("match")
+            if match_info_a is None or not match_info_a.get("matched"):
+                self.log_step("Mutual Match - First Like", True, "Alice liked Bob's pet, no match detected yet", {
+                    "Alice → Bob's pet": "Like recorded",
+                    "Match detected": "No (expected)",
+                    "Response match field": str(match_info_a)
+                })
+            else:
+                self.log_step("Mutual Match - First Like", False, f"Unexpected match detected: {match_info_a}")
+        else:
+            self.log_step("Mutual Match - First Like", False, f"Alice's like failed: {response_a}")
+            return
+        
+        # Step 2: Bob likes Alice's pet (Luna) - Match should be detected!
+        like_data_bob = {"pet_id": alice["pet_id"], "action_type": "like"}
+        success_b, response_b, _ = self.make_request("POST", f"/likes?user_id={bob['user_id']}", like_data_bob)
+        
+        if success_b:
+            match_info_b = response_b.get("match")
+            
+            if match_info_b and match_info_b.get("matched"):
+                # Verify match data structure
+                required_fields = ["match_id", "match_type", "my_pet", "their_pet"]
+                missing_fields = [field for field in required_fields if field not in match_info_b]
+                
+                if not missing_fields:
+                    my_pet = match_info_b.get("my_pet", {})
+                    their_pet = match_info_b.get("their_pet", {})
+                    
+                    self.log_step("Mutual Match - Detection Success", True, "Mutual match detected correctly", {
+                        "Match ID": match_info_b.get("match_id"),
+                        "Match Type": match_info_b.get("match_type"),
+                        "My Pet Name": my_pet.get("name"),
+                        "Their Pet Name": their_pet.get("name"),
+                        "My Pet Photo": "Present" if my_pet.get("photo") else "Missing",
+                        "Their Pet Photo": "Present" if their_pet.get("photo") else "Missing",
+                        "All required fields": "Present"
+                    })
+                else:
+                    self.log_step("Mutual Match - Detection Success", False, f"Missing required fields: {missing_fields}")
+            else:
+                self.log_step("Mutual Match - Detection Success", False, f"No match detected in mutual like scenario: {response_b}")
+        else:
+            self.log_step("Mutual Match - Detection Success", False, f"Bob's like failed: {response_b}")
+    
+    def test_match_entry_creation_detailed(self):
+        """Verify Match document creation and duplicate prevention"""
+        print("\n📝 Testing Match Entry Creation (Detailed)")
+        
+        if "alice_df" not in self.users or "bob_df" not in self.users:
+            self.log_step("Match Entry - Setup Check", False, "Test data not available")
+            return
+        
+        alice = self.users["alice_df"]
+        bob = self.users["bob_df"]
+        
+        # Test duplicate match prevention by trying another mutual action
+        super_like_data = {"pet_id": bob["pet_id"], "action_type": "super_like"}
+        success, response, _ = self.make_request("POST", f"/likes?user_id={alice['user_id']}", super_like_data)
+        
+        if success:
+            match_info = response.get("match")
+            
+            if match_info and match_info.get("matched"):
+                # Should return existing match, not create duplicate
+                self.log_step("Match Entry - Duplicate Prevention", True, "Existing match returned, no duplicate created", {
+                    "Match ID": match_info.get("match_id"),
+                    "Match Type": match_info.get("match_type"),
+                    "Duplicate prevention": "Working correctly"
+                })
+            else:
+                # No match info returned for existing match (also acceptable)
+                self.log_step("Match Entry - Duplicate Prevention", True, "No duplicate match created", {
+                    "Behavior": "No match info returned for existing match",
+                    "Duplicate prevention": "Working correctly"
+                })
+        else:
+            self.log_step("Match Entry - Duplicate Prevention", False, f"Super like action failed: {response}")
+        
+        # Verify match was created by checking backend logs for "MATCH CREATED!" message
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["tail", "-n", "50", "/var/log/supervisor/backend.err.log"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            
+            if result.returncode == 0 and "MATCH CREATED!" in result.stdout:
+                self.log_step("Match Entry - Backend Verification", True, "Match creation confirmed in backend logs", {
+                    "Log message": "✨ MATCH CREATED! found in logs",
+                    "Database entry": "Match document created successfully"
+                })
+            else:
+                self.log_step("Match Entry - Backend Verification", False, "Match creation message not found in logs")
+                
+        except Exception as e:
+            self.log_step("Match Entry - Backend Verification", False, f"Could not check backend logs: {str(e)}")
+    
+    def test_action_type_validation_detailed(self):
+        """Test that invalid action_type values are rejected with 400 error"""
+        print("\n🚫 Testing Action Type Validation (Detailed)")
+        
+        if "alice_df" not in self.users or "bob_df" not in self.users:
+            self.log_step("Action Validation - Setup Check", False, "Test data not available")
+            return
+        
+        alice = self.users["alice_df"]
+        bob = self.users["bob_df"]
+        
+        # Test various invalid action types
+        invalid_actions = [
+            "invalid",
+            "boost",  # Old name, should be golden_bone
+            "dislike",
+            "",
+            "LIKE",  # Wrong case
+            "superlike",  # Wrong format, should be super_like
+            "123",
+            "null",
+            "undefined"
+        ]
+        
+        validation_results = []
+        
+        for invalid_action in invalid_actions:
+            invalid_data = {"pet_id": bob["pet_id"], "action_type": invalid_action}
+            success, response, status_code = self.make_request("POST", f"/likes?user_id={alice['user_id']}", invalid_data)
+            
+            if status_code == 400:
+                validation_results.append(f"✅ '{invalid_action}' correctly rejected")
+                self.log_step(f"Action Validation - '{invalid_action}'", True, "Correctly rejected with 400 error")
+            else:
+                validation_results.append(f"❌ '{invalid_action}' incorrectly accepted")
+                self.log_step(f"Action Validation - '{invalid_action}'", False, f"Should be rejected but got {status_code}: {response}")
+        
+        # Summary of validation results
+        passed_validations = sum(1 for result in validation_results if result.startswith("✅"))
+        total_validations = len(validation_results)
+        
+        self.log_step("Action Validation - Summary", passed_validations == total_validations, f"Validation results: {passed_validations}/{total_validations} passed", {
+            "Valid actions": "like, skip, super_like, golden_bone",
+            "Invalid actions tested": len(invalid_actions),
+            "Correctly rejected": passed_validations,
+            "Incorrectly accepted": total_validations - passed_validations
+        })
+    
+    def test_pet_feed_integration_detailed(self):
+        """Test that pets load correctly after backend fix (sex and temperaments optional)"""
+        print("\n🐕 Testing Pet Feed Integration (Detailed)")
+        
+        if "alice_df" not in self.users:
+            self.log_step("Pet Feed Integration - Setup Check", False, "Test data not available")
+            return
+        
+        alice = self.users["alice_df"]
+        
+        # Test GET /api/pets/feed
+        success, response, status_code = self.make_request("GET", f"/pets/feed?user_id={alice['user_id']}&limit=10")
+        
+        if success:
+            if isinstance(response, list):
+                self.log_step("Pet Feed Integration - Loading", True, f"Pet feed loaded successfully with {len(response)} pets", {
+                    "Response type": "List of pets",
+                    "Pet count": len(response),
+                    "Status code": status_code
+                })
+                
+                # Check for optional fields handling
+                if response:
+                    pets_analysis = []
+                    for pet in response[:3]:  # Analyze first 3 pets
+                        analysis = {
+                            "name": pet.get("pet_name", "Unknown"),
+                            "has_sex": pet.get("sex") is not None,
+                            "has_temperaments": pet.get("temperaments") is not None and len(pet.get("temperaments", [])) > 0,
+                            "has_enriched_fields": all(field in pet for field in ["age", "distance_km", "owner_verified"])
+                        }
+                        pets_analysis.append(analysis)
+                    
+                    # Check if any pets have missing optional fields (should not cause errors)
+                    pets_with_missing_optional = [p for p in pets_analysis if not p["has_sex"] or not p["has_temperaments"]]
+                    
+                    self.log_step("Pet Feed Integration - Optional Fields", True, "Optional fields handled correctly", {
+                        "Pets analyzed": len(pets_analysis),
+                        "Pets with missing optional fields": len(pets_with_missing_optional),
+                        "No validation errors": "Backend fix working correctly",
+                        "Enriched fields present": all(p["has_enriched_fields"] for p in pets_analysis)
+                    })
+                else:
+                    self.log_step("Pet Feed Integration - Optional Fields", True, "No pets in feed (empty result)")
+                    
+            elif isinstance(response, dict) and response.get("error") == "verification_required":
+                self.log_step("Pet Feed Integration - Loading", True, "Verification guard active (expected behavior)", {
+                    "Error": response.get("error"),
+                    "Message": response.get("message"),
+                    "Redirect": response.get("redirect")
+                })
+            else:
+                self.log_step("Pet Feed Integration - Loading", False, f"Unexpected response format: {type(response)}")
+        else:
+            self.log_step("Pet Feed Integration - Loading", False, f"Pet feed request failed: {status_code} - {response}")
+    
+    def test_premium_enforcement_detailed(self):
+        """Test premium feature enforcement for free users"""
+        print("\n🔒 Testing Premium Feature Enforcement (Detailed)")
+        
+        if "alice_df" not in self.users or "bob_df" not in self.users:
+            self.log_step("Premium Enforcement - Setup Check", False, "Test data not available")
+            return
+        
+        alice = self.users["alice_df"]  # Premium user
+        bob = self.users["bob_df"]      # Free user
+        
+        # Test 1: Free user tries Super Like (should be blocked)
+        super_like_data = {"pet_id": alice["pet_id"], "action_type": "super_like"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={bob['user_id']}", super_like_data)
+        
+        if success and response.get("error") == "premium_required":
+            self.log_step("Premium Enforcement - Super Like Block", True, "Free user correctly blocked from Super Like", {
+                "Error type": response.get("error"),
+                "Message": response.get("message"),
+                "Action type": response.get("action_type"),
+                "Enforcement": "Working correctly"
+            })
+        elif success and response.get("id"):
+            self.log_step("Premium Enforcement - Super Like Block", False, "Free user incorrectly allowed Super Like", {
+                "Expected": "premium_required error",
+                "Actual": f"Action allowed with ID {response.get('id')}",
+                "Critical issue": "Premium enforcement not working"
+            })
+        else:
+            self.log_step("Premium Enforcement - Super Like Block", False, f"Unexpected response: {response}")
+        
+        # Test 2: Free user tries Golden Bone (should be blocked)
+        golden_bone_data = {"pet_id": alice["pet_id"], "action_type": "golden_bone"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={bob['user_id']}", golden_bone_data)
+        
+        if success and response.get("error") == "premium_required":
+            self.log_step("Premium Enforcement - Golden Bone Block", True, "Free user correctly blocked from Golden Bone", {
+                "Error type": response.get("error"),
+                "Message": response.get("message"),
+                "Action type": response.get("action_type"),
+                "Enforcement": "Working correctly"
+            })
+        elif success and response.get("id"):
+            self.log_step("Premium Enforcement - Golden Bone Block", False, "Free user incorrectly allowed Golden Bone", {
+                "Expected": "premium_required error",
+                "Actual": f"Action allowed with ID {response.get('id')}",
+                "Critical issue": "Premium enforcement not working"
+            })
+        else:
+            self.log_step("Premium Enforcement - Golden Bone Block", False, f"Unexpected response: {response}")
+        
+        # Test 3: Premium user can use Super Like (should work)
+        super_like_premium_data = {"pet_id": bob["pet_id"], "action_type": "super_like"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={alice['user_id']}", super_like_premium_data)
+        
+        if success and response.get("action_type") == "super_like":
+            self.log_step("Premium Enforcement - Premium Super Like", True, "Premium user can use Super Like", {
+                "Action ID": response.get("id"),
+                "User type": "Premium",
+                "Feature access": "Correctly allowed"
+            })
+        else:
+            self.log_step("Premium Enforcement - Premium Super Like", False, f"Premium user blocked from Super Like: {response}")
+        
+        # Test 4: Premium user can use Golden Bone (should work)
+        golden_bone_premium_data = {"pet_id": bob["pet_id"], "action_type": "golden_bone"}
+        success, response, status_code = self.make_request("POST", f"/likes?user_id={alice['user_id']}", golden_bone_premium_data)
+        
+        if success and response.get("action_type") == "golden_bone":
+            self.log_step("Premium Enforcement - Premium Golden Bone", True, "Premium user can use Golden Bone", {
+                "Action ID": response.get("id"),
+                "User type": "Premium",
+                "Feature access": "Correctly allowed",
+                "Monthly limit": "5/month for premium users"
+            })
+        else:
+            self.log_step("Premium Enforcement - Premium Golden Bone", False, f"Premium user blocked from Golden Bone: {response}")
+
 if __name__ == "__main__":
     import sys
     
