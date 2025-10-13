@@ -221,10 +221,67 @@ export default function VendorDashboard() {
   );
 
   const renderEarningsTab = () => {
-    const completedOrders = orders.filter(o => o.status === 'completed');
-    const totalEarnings = completedOrders.reduce((sum, order) => sum + order.total, 0);
-    const pendingPayouts = totalEarnings * 0.3; // Mock: 30% pending
-    const completedPayouts = totalEarnings * 0.7; // Mock: 70% completed
+    const [earnings, setEarnings] = React.useState({ total: 0, pending: 0, completed: 0 });
+
+    React.useEffect(() => {
+      loadEarnings();
+    }, []);
+
+    const loadEarnings = async () => {
+      try {
+        const earningsStr = await AsyncStorage.getItem('vendor_earnings');
+        if (earningsStr) {
+          const allEarnings = JSON.parse(earningsStr);
+          const vendorEarnings = allEarnings[vendorId] || { total: 0, pending: 0, completed: 0 };
+          setEarnings(vendorEarnings);
+        }
+      } catch (error) {
+        console.error('Error loading earnings:', error);
+      }
+    };
+
+    const handleRequestPayout = async () => {
+      if (earnings.pending === 0) {
+        Alert.alert('No Pending Amount', 'You have no pending earnings to withdraw');
+        return;
+      }
+
+      Alert.alert(
+        'Request Payout',
+        `Request payout of ₹${earnings.pending}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Request',
+            onPress: async () => {
+              try {
+                const earningsStr = await AsyncStorage.getItem('vendor_earnings');
+                if (earningsStr) {
+                  const allEarnings = JSON.parse(earningsStr);
+                  if (allEarnings[vendorId]) {
+                    // Move pending to completed
+                    allEarnings[vendorId].completed += allEarnings[vendorId].pending;
+                    allEarnings[vendorId].pending = 0;
+                    
+                    await AsyncStorage.setItem('vendor_earnings', JSON.stringify(allEarnings));
+                    await loadEarnings();
+                    
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    Alert.alert(
+                      'Payout Requested ✅',
+                      'Your payout request has been submitted successfully! Funds will be transferred within 2-3 business days.'
+                    );
+                  }
+                }
+              } catch (error) {
+                console.error('Error requesting payout:', error);
+                Alert.alert('Error', 'Failed to process payout request');
+              }
+            },
+          },
+        ]
+      );
+    };
 
     return (
       <View style={styles.tabContent}>
@@ -233,29 +290,38 @@ export default function VendorDashboard() {
           style={styles.earningsCard}
         >
           <Text style={styles.earningsLabel}>Total Earnings</Text>
-          <Text style={styles.earningsAmount}>₹{totalEarnings}</Text>
+          <Text style={styles.earningsAmount}>₹{earnings.total}</Text>
         </LinearGradient>
 
         <View style={styles.earningsBreakdown}>
           <View style={styles.earningsRow}>
             <Text style={styles.earningsRowLabel}>Pending Payouts</Text>
-            <Text style={styles.earningsRowValue}>₹{Math.round(pendingPayouts)}</Text>
+            <Text style={styles.earningsRowValue}>₹{earnings.pending}</Text>
           </View>
           <View style={styles.earningsRow}>
             <Text style={styles.earningsRowLabel}>Completed Payouts</Text>
-            <Text style={styles.earningsRowValue}>₹{Math.round(completedPayouts)}</Text>
+            <Text style={styles.earningsRowValue}>₹{earnings.completed}</Text>
           </View>
         </View>
 
         <TouchableOpacity
-          onPress={() => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            Alert.alert('Payout Requested', 'Your payout request has been submitted successfully!');
-          }}
-          style={styles.payoutButton}
+          onPress={handleRequestPayout}
+          style={[
+            styles.payoutButton,
+            earnings.pending === 0 && styles.payoutButtonDisabled,
+          ]}
+          disabled={earnings.pending === 0}
         >
-          <Text style={styles.payoutButtonText}>💰 Request Payout</Text>
+          <Text style={styles.payoutButtonText}>
+            💰 Request Payout {earnings.pending > 0 ? `(₹${earnings.pending})` : ''}
+          </Text>
         </TouchableOpacity>
+
+        {earnings.pending === 0 && (
+          <Text style={styles.noEarningsText}>
+            No pending earnings. Complete more bookings to earn!
+          </Text>
+        )}
       </View>
     );
   };
