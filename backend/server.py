@@ -280,6 +280,7 @@ async def get_pets(user_id: Optional[str] = None):
 async def get_pet_feed(limit: int = 10):
     """
     Get pet feed for the current user
+    REQUIRES: User must be verified (is_verified_human=true)
     - Only shows verified pets from verified users
     - Excludes pets already liked/skipped
     - Excludes user's own pets
@@ -294,6 +295,16 @@ async def get_pet_feed(limit: int = 10):
             raise HTTPException(status_code=404, detail="No user found. Please login first.")
         
         current_user_id = recent_user['id']
+        is_verified = recent_user.get('is_verified_human', False)
+        
+        # SERVER-SIDE VERIFICATION GUARD
+        if not is_verified:
+            logger.warning(f"User {current_user_id} (unverified) attempted to access pet feed - blocked")
+            return {
+                "error": "verification_required",
+                "message": "You must be verified to access the pet feed. Please complete verification.",
+                "redirect": "/verify"
+            }
         
         # Get all pet IDs that the user has already interacted with
         user_interactions = await db.likes.find({"user_id": current_user_id}).to_list(10000)
