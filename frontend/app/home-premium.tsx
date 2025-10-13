@@ -98,7 +98,7 @@ const SECTIONS = [
         icon: '💼',
         description: 'Book premium pet services',
         gradient: [COLORS.pawPinkLight, COLORS.gold],
-        route: '/tailpro',
+        route: '/tailpro_home',
       },
     ],
   },
