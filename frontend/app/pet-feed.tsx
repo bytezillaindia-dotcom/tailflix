@@ -247,7 +247,7 @@ export default function PetFeedScreen() {
     }
   };
 
-  const handleAction = async (actionType: 'like' | 'skip' | 'superlike' | 'boost') => {
+  const handleAction = async (actionType: 'like' | 'skip' | 'super_like' | 'boost') => {
     if (currentIndex >= pets.length) return;
 
     const currentPet = pets[currentIndex];
@@ -255,13 +255,15 @@ export default function PetFeedScreen() {
     try {
       setActionLoading(true);
       
-      // Check daily limit ONLY for "like" action
-      if (actionType === 'like') {
+      // Check daily limit for actions that count toward the limit: like, super_like, boost
+      // Skip actions are unlimited
+      const limitedActions = ['like', 'super_like', 'boost'];
+      if (limitedActions.includes(actionType)) {
         const limitsResponse = await fetch(`${backendUrl}/api/likes/daily-count`);
         const limitsData = await limitsResponse.json();
         
         if (limitsResponse.ok) {
-          // Check if user has reached daily limit (10 likes for free users)
+          // Check if user has reached daily limit (10 actions for free users)
           if (limitsData.daily_likes_count >= limitsData.limit) {
             setActionLoading(false);
             // Show paywall
