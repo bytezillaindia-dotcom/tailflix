@@ -188,7 +188,7 @@ export default function MatchesScreen() {
                 onPress={() => handleMatchPress(match)}
               >
                 <LinearGradient
-                  colors={['rgba(220, 20, 60, 0.1)', 'rgba(255, 215, 0, 0.1)']}
+                  colors={['#FFDAB9', '#FFF8E7']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.matchCard}
