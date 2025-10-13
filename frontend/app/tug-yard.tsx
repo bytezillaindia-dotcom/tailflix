@@ -772,6 +772,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFD700',
     marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   petName: {
     fontSize: 18,
