@@ -374,13 +374,12 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.black,
+    backgroundColor: 'transparent',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.black,
   },
   loadingText: {
     color: COLORS.white,
@@ -395,14 +394,14 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.xxl,
     paddingBottom: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.darkGray,
-    backgroundColor: COLORS.charcoal,
+    borderBottomColor: 'rgba(255, 215, 0, 0.2)',
+    backgroundColor: 'rgba(26, 26, 26, 0.8)',
   },
   backButton: {
     padding: SPACING.sm,
   },
   backButtonText: {
-    color: COLORS.crimson,
+    color: '#FFD700',
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
   },
@@ -416,7 +415,7 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: COLORS.gold,
+    borderColor: '#FFD700',
   },
   headerPetPhotoPlaceholder: {
     width: 32,
@@ -432,7 +431,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: '#FFD700',
   },
   headerSpacer: {
     width: 60,
@@ -453,15 +452,21 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     padding: SPACING.md,
-    borderRadius: 16,
+    borderRadius: 20,
   },
   myMessageBubble: {
-    backgroundColor: COLORS.crimson,
     borderBottomRightRadius: 4,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   theirMessageBubble: {
-    backgroundColor: COLORS.charcoal,
+    backgroundColor: '#2a2a2a',
     borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
   },
   messageText: {
     fontSize: FONT_SIZES.md,
@@ -483,7 +488,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   theirMessageTime: {
-    color: COLORS.gray,
+    color: 'rgba(255, 215, 0, 0.7)',
   },
   emptyContainer: {
     flex: 1,
@@ -497,7 +502,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.gray,
+    color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -507,43 +512,47 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
     borderTopWidth: 1,
-    borderTopColor: COLORS.darkGray,
-    backgroundColor: COLORS.charcoal,
+    borderTopColor: 'rgba(255, 215, 0, 0.2)',
+    backgroundColor: 'rgba(26, 26, 26, 0.9)',
     gap: SPACING.sm,
   },
-  pawButton: {
+  pawEmojiButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.gold,
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    borderWidth: 2,
+    borderColor: '#FFD700',
     justifyContent: 'center',
     alignItems: 'center',
   },
   pawButtonText: {
-    fontSize: 24,
+    fontSize: 22,
   },
   textInput: {
     flex: 1,
-    backgroundColor: COLORS.darkGray,
-    borderRadius: 20,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    backgroundColor: 'rgba(42, 42, 42, 0.8)',
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+    paddingHorizontal: SPACING.md + 4,
+    paddingVertical: SPACING.sm + 2,
     color: COLORS.white,
     fontSize: FONT_SIZES.md,
     maxHeight: 100,
   },
   sendButton: {
-    backgroundColor: COLORS.crimson,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm + 2,
-    borderRadius: 20,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 60,
-  },
-  sendButtonDisabled: {
-    backgroundColor: COLORS.darkGray,
-    opacity: 0.5,
+    minWidth: 70,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 4,
   },
   sendButtonText: {
     color: COLORS.white,
