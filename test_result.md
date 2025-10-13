@@ -451,7 +451,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Tug Yard Match Flow (Two Hearts on a Leash)"
+    - "Tug Yard Premium UI Redesign"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
