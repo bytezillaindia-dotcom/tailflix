@@ -127,8 +127,11 @@ const SECTIONS = [
 
 export default function PremiumHome() {
   const router = useRouter();
-  const { logout, userId } = useAuth();
+  const { logout, userId, role, status } = useAuth();
   const [isAdmin] = useState(true); // For now, show admin to all users
+  
+  // Check if user is approved vendor
+  const isApprovedVendor = role === 'vendor' && status === 'approved';
   
   return (
     <View style={styles.container}>
@@ -165,6 +168,25 @@ export default function PremiumHome() {
         contentContainerStyle={styles.cardsContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* Conditional Vendor Dashboard Card */}
+        {isApprovedVendor && (
+          <View>
+            <Text style={styles.sectionTitle}>Vendor Zone 💼</Text>
+            <AnimatedCard
+              card={{
+                id: 'vendor-dashboard',
+                title: 'Vendor Dashboard',
+                icon: '💼',
+                description: 'Manage services, bookings & earnings',
+                gradient: [COLORS.cream, COLORS.goldenBeige],
+                route: '/vendor_dashboard',
+              }}
+              index={0}
+              onPress={() => router.push('/vendor_dashboard')}
+            />
+          </View>
+        )}
+        
         {SECTIONS.map((section) => (
           <View key={section.title}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
