@@ -323,6 +323,95 @@ async def get_verifications(user_id: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Failed to fetch verifications")
 
 
+# ============ Admin Routes ============
+
+@api_router.get("/admin/verifications/pending", response_model=List[Verification])
+async def get_pending_verifications():
+    """Get all pending verifications for admin review"""
+    try:
+        verifications = await db.verifications.find({"status": "pending"}).to_list(1000)
+        return [Verification(**verification) for verification in verifications]
+    except Exception as e:
+        logger.error(f"Error fetching pending verifications: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch pending verifications")
+
+
+@api_router.post("/admin/verifications/{verification_id}/approve")
+async def approve_verification(verification_id: str, request: dict):
+    """
+    Approve a verification
+    - Updates verification status to approved
+    - Sets reviewed_by and reviewed_at
+    - Updates user's is_verified_human to true
+    """
+    try:
+        user_id = request.get('user_id')
+        
+        # Update verification
+        result = await db.verifications.update_one(
+            {"id": verification_id},
+            {
+                "$set": {
+                    "status": "approved",
+                    "reviewed_by": "Admin",  # In production, get from auth token
+                    "reviewed_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Verification not found")
+        
+        # Update user's verification status
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"is_verified_human": True}}
+        )
+        
+        logger.info(f"Verification {verification_id} approved for user {user_id}")
+        
+        return {"success": True, "message": "Verification approved"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error approving verification: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to approve verification")
+
+
+@api_router.post("/admin/verifications/{verification_id}/reject")
+async def reject_verification(verification_id: str):
+    """
+    Reject a verification
+    - Updates verification status to rejected
+    - Sets reviewed_by and reviewed_at
+    """
+    try:
+        result = await db.verifications.update_one(
+            {"id": verification_id},
+            {
+                "$set": {
+                    "status": "rejected",
+                    "reviewed_by": "Admin",  # In production, get from auth token
+                    "reviewed_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Verification not found")
+        
+        logger.info(f"Verification {verification_id} rejected")
+        
+        return {"success": True, "message": "Verification rejected"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error rejecting verification: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to reject verification")
+
+
 # ============ General Routes ============
 
 @api_router.get("/")
@@ -334,7 +423,8 @@ async def root():
             "auth": ["/api/auth/send-otp", "/api/auth/verify-otp"],
             "users": ["/api/users"],
             "pets": ["/api/pets"],
-            "verifications": ["/api/verifications", "/api/verifications/status/{user_id}"]
+            "verifications": ["/api/verifications", "/api/verifications/status/{user_id}"],
+            "admin": ["/api/admin/verifications/pending", "/api/admin/verifications/{id}/approve", "/api/admin/verifications/{id}/reject"]
         }
     }
 
