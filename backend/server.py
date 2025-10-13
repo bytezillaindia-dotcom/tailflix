@@ -253,6 +253,78 @@ async def get_pets(user_id: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Failed to fetch pets")
 
 
+@api_router.get("/pets/feed")
+async def get_pet_feed(limit: int = 10):
+    """
+    Get pet feed for the current user
+    - Only shows verified pets from verified users
+    - Excludes pets already liked/skipped
+    - Excludes user's own pets
+    - Mock distance/location for now
+    For production: extract user_id from JWT token
+    """
+    try:
+        # Mock user_id - in production, get from authenticated session
+        recent_user = await db.users.find_one(sort=[("last_login", -1)])
+        
+        if not recent_user:
+            raise HTTPException(status_code=404, detail="No user found. Please login first.")
+        
+        current_user_id = recent_user['id']
+        
+        # Get all pet IDs that the user has already interacted with
+        user_interactions = await db.likes.find({"user_id": current_user_id}).to_list(10000)
+        interacted_pet_ids = [like['pet_id'] for like in user_interactions]
+        
+        # Find verified users only
+        verified_users = await db.users.find({"is_verified_human": True}).to_list(10000)
+        verified_user_ids = [user['id'] for user in verified_users]
+        
+        # Build query to get eligible pets
+        query = {
+            "user_id": {"$ne": current_user_id, "$in": verified_user_ids},  # Not user's own pet, from verified users
+            "id": {"$nin": interacted_pet_ids}  # Not already interacted with
+        }
+        
+        # Fetch pets
+        pets = await db.pets.find(query).limit(limit).to_list(limit)
+        
+        # Enrich pet data with owner info and mock distance
+        enriched_pets = []
+        for pet_doc in pets:
+            pet = Pet(**pet_doc)
+            
+            # Get owner info
+            owner = await db.users.find_one({"id": pet.user_id})
+            
+            # Calculate age from birth_year
+            current_year = datetime.utcnow().year
+            age = current_year - pet.birth_year
+            
+            # Mock distance (in production, calculate based on user location)
+            import random
+            mock_distance = round(random.uniform(0.5, 50), 1)
+            
+            enriched_pet = {
+                **pet.dict(),
+                "age": age,
+                "distance_km": mock_distance,
+                "owner_verified": owner.get("is_verified_human", False) if owner else False
+            }
+            
+            enriched_pets.append(enriched_pet)
+        
+        logger.info(f"Fetched {len(enriched_pets)} pets for feed")
+        
+        return enriched_pets
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching pet feed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch pet feed")
+
+
 # ============ Verification Routes ============
 
 @api_router.post("/verifications", response_model=Verification)
