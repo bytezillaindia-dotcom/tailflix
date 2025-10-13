@@ -16,6 +16,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" />
+        <Stack.Screen name="onboarding-choice" />
         <Stack.Screen name="login" />
         <Stack.Screen name="login-premium" />
         <Stack.Screen name="home" />
@@ -28,6 +29,7 @@ export default function RootLayout() {
         <Stack.Screen name="fetch-yard" />
         <Stack.Screen name="paywall" />
         <Stack.Screen name="match" />
+        <Stack.Screen name="double-fetch" />
         <Stack.Screen name="likes" />
         <Stack.Screen name="chat" />
       </Stack>
