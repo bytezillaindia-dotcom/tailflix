@@ -32,6 +32,13 @@ export default function HomeScreen() {
         </View>
 
         <TouchableOpacity
+          style={styles.addPetButton}
+          onPress={() => router.push('/add-pet')}
+        >
+          <Text style={styles.addPetButtonText}>+ Add Your Pet</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={styles.logoutButton}
           onPress={() => router.replace('/login')}
         >
