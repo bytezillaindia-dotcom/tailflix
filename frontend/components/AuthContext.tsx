@@ -7,11 +7,12 @@ interface AuthContextType {
   role: string | null;
   status: string | null;
   vendorId: string | null;
+  vendorType: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (userId: string, token: string, role?: string, status?: string, vendorId?: string) => Promise<void>;
+  login: (userId: string, token: string, role?: string, status?: string, vendorId?: string, vendorType?: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateVendorStatus: (role: string, status: string, vendorId: string) => Promise<void>;
+  updateVendorStatus: (role: string, status: string, vendorId: string, vendorType: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +22,7 @@ const TOKEN_STORAGE_KEY = '@tailflix_token';
 const ROLE_STORAGE_KEY = '@tailflix_role';
 const STATUS_STORAGE_KEY = '@tailflix_status';
 const VENDOR_ID_STORAGE_KEY = '@tailflix_vendor_id';
+const VENDOR_TYPE_STORAGE_KEY = '@tailflix_vendor_type';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
