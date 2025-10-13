@@ -38,12 +38,19 @@ export default function HomeScreen() {
           <Text style={styles.addPetButtonText}>+ Add Your Pet</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.petFeedButton}
+          onPress={() => router.push('/pet-feed')}
+        >
+          <Text style={styles.petFeedButtonText}>🎾 Pet Feed</Text>
+        </TouchableOpacity>
+
         {/* Admin Panel - visible for testing, add user ID check for production */}
         <TouchableOpacity
           style={styles.adminButton}
           onPress={() => router.push('/admin')}
         >
-          <Text style={styles.adminButtonText}>\ud83d\udd12 Admin Panel</Text>
+          <Text style={styles.adminButtonText}>🔒 Admin Panel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
