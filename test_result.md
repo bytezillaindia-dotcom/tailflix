@@ -107,51 +107,63 @@ user_problem_statement: "Create TailFlix mobile app - Splash screen, Login with 
 backend:
   - task: "Mock OTP Send API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created POST /api/auth/send-otp endpoint. Accepts phone/email, validates input, creates user if not exists, returns success with mock OTP (123456 for testing)"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: All send-otp scenarios working correctly. Valid phone/email requests return success=true with mock_otp=123456. Invalid method and empty values properly rejected with 400 errors. New users created in database as expected."
   
   - task: "Mock OTP Verify API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created POST /api/auth/verify-otp endpoint. Accepts any 6-digit code, updates last_login, returns mock token and user_id"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: All verify-otp scenarios working correctly. Any 6-digit numeric code accepted and returns success=true with user_id and token. Invalid OTP formats (non-6-digit, non-numeric) properly rejected. Non-existent users correctly handled. Last_login updated in database."
   
   - task: "User Model & Database"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created User model with MongoDB integration. Stores user method (phone/email), value, created_at, last_login"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: User model and MongoDB integration working perfectly. Users created with correct structure (id, method, value, created_at, last_login). Database persistence verified. UUID-based IDs working correctly."
 
   - task: "Get Users API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "low"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created GET /api/users endpoint for testing/admin purposes"
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Get users API working correctly. Returns list of users with proper structure including all required fields (id, method, value, created_at, last_login). Verified 5 test users created during testing."
 
 frontend:
   - task: "Splash Screen"
