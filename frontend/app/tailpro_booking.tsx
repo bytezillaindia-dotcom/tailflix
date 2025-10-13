@@ -124,6 +124,7 @@ export default function TailProBooking() {
       total: totalPrice,
       city,
       status: 'confirmed',
+      vendorId: 'VENDOR_SVC_1', // Mock vendor ID - will be dynamic with real backend
       createdAt: new Date().toISOString(),
     };
 
@@ -132,12 +133,35 @@ export default function TailProBooking() {
       const orders = ordersStr ? JSON.parse(ordersStr) : [];
       orders.push(order);
       await AsyncStorage.setItem('tailpro_orders', JSON.stringify(orders));
+      
+      // Credit vendor earnings
+      await creditVendorEarnings(order.vendorId, totalPrice, 'tailpro_booking');
     } catch (error) {
       console.error('Error saving order:', error);
     }
 
     setStep(6);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
+
+  // Helper function to credit vendor earnings
+  const creditVendorEarnings = async (vendorId: string, amount: number, source: string) => {
+    try {
+      const earningsStr = await AsyncStorage.getItem('vendor_earnings');
+      const allEarnings = earningsStr ? JSON.parse(earningsStr) : {};
+      
+      if (!allEarnings[vendorId]) {
+        allEarnings[vendorId] = { total: 0, pending: 0, completed: 0 };
+      }
+      
+      allEarnings[vendorId].total += amount;
+      allEarnings[vendorId].pending += amount;
+      
+      await AsyncStorage.setItem('vendor_earnings', JSON.stringify(allEarnings));
+      console.log(`Credited ₹${amount} to vendor ${vendorId} from ${source}`);
+    } catch (error) {
+      console.error('Error crediting vendor earnings:', error);
+    }
   };
 
   const renderStepIndicator = () => (
