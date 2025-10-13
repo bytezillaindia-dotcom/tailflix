@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://taildate.preview.emergentagent.com/api"
+BACKEND_URL = "https://tailflix-swipe.preview.emergentagent.com/api"
 
 class TailFlixAPITester:
     def __init__(self):
