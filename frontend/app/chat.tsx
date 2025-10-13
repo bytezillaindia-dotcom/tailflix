@@ -394,14 +394,14 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.xxl,
     paddingBottom: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 215, 0, 0.2)',
-    backgroundColor: 'rgba(26, 26, 26, 0.8)',
+    borderBottomColor: 'rgba(255, 215, 0, 0.3)',
+    backgroundColor: 'rgba(255, 248, 231, 0.95)',
   },
   backButton: {
     padding: SPACING.sm,
   },
   backButtonText: {
-    color: '#FFD700',
+    color: '#D2691E',
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
   },
