@@ -633,9 +633,20 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
     alignItems: 'center',
   },
+  payoutButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+    opacity: 0.6,
+  },
   payoutButtonText: {
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  noEarningsText: {
+    fontSize: FONT_SIZES.sm,
+    color: '#7F8C8D',
+    textAlign: 'center',
+    marginTop: SPACING.md,
+    fontStyle: 'italic',
   },
 });
