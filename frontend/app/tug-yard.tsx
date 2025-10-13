@@ -559,27 +559,73 @@ export default function TugYardScreen() {
           </Animated.View>
         </TouchableOpacity>
 
-        {/* Tug Button (Like) */}
+        {/* Tug Button (Like) - Long Press 1s */}
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => handleAction('like')}
+          onPressIn={handleTugPressIn}
+          onPressOut={handleTugPressOut}
           style={styles.actionButtonWrapper}
         >
           <Animated.View style={[styles.actionButton, styles.tugButton, { shadowColor: tugGlowColor }]}>
-            <Text style={styles.actionIcon}>🪢</Text>
-            <Text style={styles.actionLabel}>Tug</Text>
+            <View style={styles.iconContainer}>
+              <Text style={styles.actionIcon}>🪢</Text>
+              {isTugging && (
+                <View style={styles.progressRing}>
+                  <Animated.View 
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: tugProgress.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', '100%'],
+                        }),
+                      },
+                    ]}
+                  />
+                </View>
+              )}
+            </View>
+            <Text style={styles.actionLabel}>Hold 1s</Text>
           </Animated.View>
         </TouchableOpacity>
 
-        {/* Strong Tug Button (Super Like) */}
+        {/* Strong Tug Button (Super Like) - Long Press 1.5s */}
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => handleAction('super_like')}
+          onPressIn={handleStrongTugPressIn}
+          onPressOut={handleStrongTugPressOut}
           style={styles.actionButtonWrapper}
         >
           <Animated.View style={[styles.actionButton, styles.strongTugButton, { shadowColor: strongTugGlowColor }]}>
-            <Text style={styles.actionIcon}>✨🪢</Text>
-            <Text style={styles.actionLabel}>Strong</Text>
+            <View style={styles.iconContainer}>
+              <Animated.Text 
+                style={[
+                  styles.actionIcon,
+                  {
+                    opacity: isStrongTugging ? ropeGlow : 1,
+                  },
+                ]}
+              >
+                ✨🪢
+              </Animated.Text>
+              {isStrongTugging && (
+                <View style={styles.progressRing}>
+                  <Animated.View 
+                    style={[
+                      styles.progressFill,
+                      styles.progressFillGold,
+                      {
+                        width: strongTugProgress.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', '100%'],
+                        }),
+                      },
+                    ]}
+                  />
+                </View>
+              )}
+            </View>
+            <Text style={styles.actionLabel}>Hold 1.5s</Text>
           </Animated.View>
         </TouchableOpacity>
 
