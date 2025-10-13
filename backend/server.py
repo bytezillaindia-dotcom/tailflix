@@ -222,20 +222,18 @@ async def verify_otp(request: VerifyOtpRequest):
 # ============ Pet Routes ============
 
 @api_router.post("/pets", response_model=Pet)
-async def create_pet(pet_data: PetCreate):
+async def create_pet(pet_data: PetCreate, user_id: Optional[str] = None):
     """
     Create a new pet profile
-    For now, we'll use a mock user_id. In production, extract from JWT token
+    Accepts user_id as query parameter or uses most recent user as fallback
     """
     try:
-        # Mock user_id - in production, get from authenticated session
-        # For now, get the most recent user or use a default
-        recent_user = await db.users.find_one(sort=[("last_login", -1)])
-        
-        if not recent_user:
-            raise HTTPException(status_code=404, detail="No user found. Please login first.")
-        
-        user_id = recent_user['id']
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
         
         # Create pet object
         pet = Pet(
