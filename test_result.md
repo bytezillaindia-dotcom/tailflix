@@ -115,8 +115,17 @@ user_problem_statement: |
   9. Notifications: Red badge for normal likes, gold badge for super likes
   10. Premium users: Unlimited likes, no paywall
   11. Admin panel to toggle premium status and add coins
+  12. **NEW: TailPro Services Marketplace** - Complete booking system with:
+      - City-based service marketplace (6 cities: Bengaluru, Chennai, Delhi, Hyderabad, Mumbai, Pune)
+      - 5 service categories (Grooming, Walking, Vet, Boarding, Training)
+      - City-based dynamic pricing
+      - 6-step booking wizard (Package → DateTime → Add-ons → Details → Payment → Success)
+      - Order management with cancel/reschedule
+      - Provider contact (chat/call)
+      - Partner onboarding signup
+      - Admin panel TailPro tab for partner verification
   
-  COMPREHENSIVE QA TEST REQUIRED for all flows listed above.
+  COMPREHENSIVE TEST REQUIRED: Test all existing flows + new TailPro marketplace features.
 
 backend:
   - task: "Mock OTP Send API"
