@@ -23,11 +23,15 @@ print("=" * 80)
 
 class TailFlixTester:
     def __init__(self):
-        self.base_url = BACKEND_URL
-        self.test_results = []
-        self.test_users = []
-        self.test_pets = []
-        self.test_likes = []
+        self.test_results = {
+            'working': [],
+            'broken': [],
+            'missing': [],
+            'notes': []
+        }
+        self.test_users = {}
+        self.test_pets = {}
+        self.test_verifications = {}
         
     def log_test(self, test_name: str, success: bool, details: str, response_data: Any = None):
         """Log test results"""
