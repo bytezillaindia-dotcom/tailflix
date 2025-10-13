@@ -104,6 +104,7 @@ class Like(BaseModel):
     pet_id: str
     action_type: str  # 'like', 'skip', 'super_like', 'golden_bone'
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    seen: bool = False  # Whether recipient has seen this like notification
 
 class LikeCreate(BaseModel):
     pet_id: str
