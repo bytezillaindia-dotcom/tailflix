@@ -251,21 +251,26 @@ function ServiceCard({ service, index, onBookNow }: ServiceCardProps) {
         },
       ]}
     >
-      {/* Image */}
-      <Image source={{ uri: service.photo_url }} style={styles.serviceImage} />
-
-      {/* Verified Badge */}
-      {service.verified && (
-        <View style={styles.verifiedBadge}>
-          <Text style={styles.verifiedBadgeText}>✓ Verified</Text>
-        </View>
-      )}
-
-      {/* Content */}
-      <View style={styles.serviceContent}>
-        <Text style={styles.serviceName}>{service.service}</Text>
-        <Text style={styles.serviceProvider}>by {service.provider}</Text>
+      {/* Image with Overlay */}
+      <View style={{ position: 'relative' }}>
+        <Image source={{ uri: service.photo_url }} style={styles.serviceImage} />
         
+        {/* Dark Overlay at Bottom */}
+        <View style={styles.imageOverlay}>
+          <Text style={styles.serviceNameOnImage}>{service.service}</Text>
+          <Text style={styles.providerOnImage}>by {service.provider}</Text>
+        </View>
+
+        {/* Verified Badge */}
+        {service.verified && (
+          <View style={styles.verifiedBadge}>
+            <Text style={styles.verifiedBadgeText}>✓ Verified</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Content Below Image */}
+      <View style={styles.serviceContent}>
         {/* Rating */}
         <View style={styles.ratingContainer}>
           <View style={styles.starsContainer}>
@@ -274,7 +279,7 @@ function ServiceCard({ service, index, onBookNow }: ServiceCardProps) {
           <Text style={styles.ratingText}>{service.rating}</Text>
         </View>
 
-        <Text style={styles.servicePrice}>{service.price} / session</Text>
+        <Text style={styles.servicePrice}>{service.price}</Text>
         
         {service.description && (
           <Text style={styles.serviceDescription} numberOfLines={2}>
@@ -287,14 +292,10 @@ function ServiceCard({ service, index, onBookNow }: ServiceCardProps) {
           onPress={onBookNow}
           style={styles.bookButton}
         >
-          <LinearGradient
-            colors={[COLORS.crimson, COLORS.gold]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.bookButtonGradient}
-          >
-            <Text style={styles.bookButtonText}>📅 Book Now</Text>
-          </LinearGradient>
+          <View style={styles.bookButtonGradient}>
+            <Text style={styles.bookButtonText}>📅</Text>
+            <Text style={styles.bookButtonText}>Book Now</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </Animated.View>
