@@ -617,7 +617,7 @@ async def root():
             "auth": ["/api/auth/send-otp", "/api/auth/verify-otp"],
             "users": ["/api/users"],
             "pets": ["/api/pets", "/api/pets/feed"],
-            "likes": ["/api/likes"],
+            "likes": ["/api/likes", "/api/likes/daily-count"],
             "verifications": ["/api/verifications", "/api/verifications/status/{user_id}"],
             "admin": ["/api/admin/verifications/pending", "/api/admin/verifications/{id}/approve", "/api/admin/verifications/{id}/reject"]
         }
