@@ -83,10 +83,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (newRole) storagePromises.push(AsyncStorage.setItem(ROLE_STORAGE_KEY, newRole));
       if (newStatus) storagePromises.push(AsyncStorage.setItem(STATUS_STORAGE_KEY, newStatus));
       if (newVendorId) storagePromises.push(AsyncStorage.setItem(VENDOR_ID_STORAGE_KEY, newVendorId));
+      if (newVendorType) storagePromises.push(AsyncStorage.setItem(VENDOR_TYPE_STORAGE_KEY, newVendorType));
       
       await Promise.all(storagePromises);
 
-      console.log('User logged in:', newUserId, 'Role:', newRole, 'Status:', newStatus);
+      console.log('User logged in:', newUserId, 'Role:', newRole, 'VendorType:', newVendorType);
     } catch (error) {
       console.error('Error saving auth state:', error);
       throw error;
@@ -101,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRole(null);
       setStatus(null);
       setVendorId(null);
+      setVendorType(null);
 
       // Clear AsyncStorage
       await Promise.all([
@@ -109,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.removeItem(ROLE_STORAGE_KEY),
         AsyncStorage.removeItem(STATUS_STORAGE_KEY),
         AsyncStorage.removeItem(VENDOR_ID_STORAGE_KEY),
+        AsyncStorage.removeItem(VENDOR_TYPE_STORAGE_KEY),
       ]);
 
       console.log('User logged out');
@@ -118,19 +121,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateVendorStatus = async (newRole: string, newStatus: string, newVendorId: string) => {
+  const updateVendorStatus = async (newRole: string, newStatus: string, newVendorId: string, newVendorType: string) => {
     try {
       setRole(newRole);
       setStatus(newStatus);
       setVendorId(newVendorId);
+      setVendorType(newVendorType);
       
       await Promise.all([
         AsyncStorage.setItem(ROLE_STORAGE_KEY, newRole),
         AsyncStorage.setItem(STATUS_STORAGE_KEY, newStatus),
         AsyncStorage.setItem(VENDOR_ID_STORAGE_KEY, newVendorId),
+        AsyncStorage.setItem(VENDOR_TYPE_STORAGE_KEY, newVendorType),
       ]);
       
-      console.log('Vendor status updated:', newRole, newStatus, newVendorId);
+      console.log('Vendor status updated:', newRole, newStatus, newVendorId, newVendorType);
     } catch (error) {
       console.error('Error updating vendor status:', error);
       throw error;
