@@ -445,24 +445,43 @@ export default function PetFeedScreen() {
         }
       }
       
-      // Special animation for Golden Bone before action
+      // Special check for golden_bone: Premium-only feature with monthly limit (5/month)
       if (actionType === 'golden_bone') {
-        // Trigger animation
+        const limitsResponse = await fetch(`${backendUrl}/api/likes/daily-count`);
+        const limitsData = await limitsResponse.json();
+        
+        if (limitsResponse.ok) {
+          // If user is not premium, redirect to paywall
+          if (!limitsData.is_premium) {
+            setActionLoading(false);
+            router.push({
+              pathname: '/paywall',
+              params: { message: 'Golden Bones are a premium feature ✨🍖' }
+            });
+            return;
+          }
+          // Premium user: check monthly golden_bones limit
+          if (limitsData.golden_bones_remaining <= 0) {
+            setActionLoading(false);
+            Alert.alert(
+              'No Golden Bones Left',
+              "You've used all your Golden Bones this month. They reset on the 1st of next month.",
+              [{ text: 'OK' }]
+            );
+            return;
+          }
+        }
+        
+        // Trigger animation for golden_bone
         setGoldenBoneAnimating(true);
-        
-        // Trigger strong haptic feedback for premium action
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        
-        // Wait for animation to complete (1 second)
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Reset animation state
         setGoldenBoneAnimating(false);
       }
       
-      // Check daily limit for other limited actions: like, golden_bone
-      // Skip actions are unlimited, super_like already checked above
-      const limitedActions = ['like', 'golden_bone'];
+      // Check daily limit for other limited actions: like
+      // Skip is unlimited, super_like and golden_bone already checked above
+      const limitedActions = ['like'];
       if (limitedActions.includes(actionType)) {
         const limitsResponse = await fetch(`${backendUrl}/api/likes/daily-count`);
         const limitsData = await limitsResponse.json();
