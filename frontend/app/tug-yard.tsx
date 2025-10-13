@@ -845,6 +845,30 @@ const styles = StyleSheet.create({
   leashLabel: {
     color: '#000',
   },
+  iconContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressRing: {
+    position: 'absolute',
+    bottom: -8,
+    left: '50%',
+    marginLeft: -20,
+    width: 40,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#DC143C',
+    borderRadius: 2,
+  },
+  progressFillGold: {
+    backgroundColor: '#FFD700',
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
