@@ -23,24 +23,30 @@ print("=" * 80)
 
 class TailFlixTester:
     def __init__(self):
-        self.test_results = {
-            'working': [],
-            'broken': [],
-            'missing': [],
-            'notes': []
-        }
-        self.test_users = {}
-        self.test_pets = {}
-        self.test_verifications = {}
+        self.journey_results = []
+        self.users = {}
+        self.pets = {}
+        self.verifications = {}
         
-    def log_result(self, category, message):
-        """Log test result to appropriate category"""
-        self.test_results[category].append(message)
-        status_emoji = {"working": "✅", "broken": "❌", "missing": "⚠️", "notes": "📝"}
-        print(f"{status_emoji[category]} {message}")
-    
-    def make_request(self, method, endpoint, data=None, expected_status=200):
-        """Make HTTP request and handle errors"""
+    def log_step(self, step: str, success: bool, message: str, details: dict = None):
+        """Log journey step result"""
+        status = "✅" if success else "❌" if not success else "⚠️"
+        result = {
+            "step": step,
+            "success": success,
+            "message": message,
+            "details": details or {},
+            "timestamp": datetime.now().isoformat()
+        }
+        self.journey_results.append(result)
+        print(f"{status} {step}: {message}")
+        if details:
+            for key, value in details.items():
+                print(f"   {key}: {value}")
+        print()
+        
+    def make_request(self, method: str, endpoint: str, data: dict = None) -> tuple:
+        """Make HTTP request and return (success, response_data, status_code)"""
         url = f"{API_BASE}{endpoint}"
         try:
             if method.upper() == 'GET':
@@ -50,16 +56,12 @@ class TailFlixTester:
             elif method.upper() == 'PUT':
                 response = requests.put(url, json=data, timeout=10)
             else:
-                raise ValueError(f"Unsupported method: {method}")
+                return False, {"error": f"Unsupported method: {method}"}, 0
+                
+            return response.status_code < 400, response.json(), response.status_code
             
-            if response.status_code != expected_status:
-                return None, f"Expected {expected_status}, got {response.status_code}: {response.text}"
-            
-            return response.json(), None
-        except requests.exceptions.RequestException as e:
-            return None, f"Request failed: {str(e)}"
-        except json.JSONDecodeError as e:
-            return None, f"Invalid JSON response: {str(e)}"
+        except Exception as e:
+            return False, {"error": str(e)}, 0
     
     def test_onboarding_flow(self):
         """Test complete onboarding flow: OTP → Profile → Pet → Verification"""
