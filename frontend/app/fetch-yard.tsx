@@ -610,6 +610,18 @@ export default function FetchYardScreen() {
       >
         <Text style={styles.swipeHintText}>FETCH</Text>
       </Animated.View>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        visible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onBuyCoins={handleBuyCoins}
+        onUpgradePremium={handleUpgradePremium}
+        tailCoins={tailCoins}
+        dailyLikesUsed={dailyLikesCount}
+        dailyLikesLimit={dailyLikesLimit || 10}
+        errorType={paywallError}
+      />
     </LinearGradient>
   );
 }
