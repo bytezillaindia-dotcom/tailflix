@@ -134,15 +134,29 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
   },
-  adminButton: {
+  petFeedButton: {
     backgroundColor: COLORS.gold,
     padding: SPACING.md,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: SPACING.md,
   },
-  adminButtonText: {
+  petFeedButtonText: {
     color: COLORS.black,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+  },
+  adminButton: {
+    backgroundColor: COLORS.charcoal,
+    padding: SPACING.md,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.gold,
+  },
+  adminButtonText: {
+    color: COLORS.gold,
     fontSize: FONT_SIZES.md,
     fontWeight: 'bold',
   },
