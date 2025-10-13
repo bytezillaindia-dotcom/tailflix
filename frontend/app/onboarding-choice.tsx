@@ -90,14 +90,28 @@ export default function OnboardingChoiceScreen() {
   };
 
   const handleChoice = async (mode: 'pet' | 'owner_pet') => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
-    // Store the chosen mode and mark onboarding as completed
-    await AsyncStorage.setItem('onboarding_mode', mode);
-    await AsyncStorage.setItem('onboarding_completed', 'true');
-    
-    // Navigate directly to OTP login
-    router.replace('/login-premium');
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
+      console.log('🎯 User selected mode:', mode);
+      
+      // Store the chosen mode and mark onboarding as completed
+      await AsyncStorage.setItem('onboarding_mode', mode);
+      await AsyncStorage.setItem('onboarding_completed', 'true');
+      
+      console.log('✅ Mode saved to AsyncStorage:', mode);
+      console.log('🚀 Navigating to login-premium...');
+      
+      // Use setTimeout to ensure AsyncStorage completes before navigation
+      setTimeout(() => {
+        router.replace('/login-premium');
+      }, 100);
+      
+    } catch (error) {
+      console.error('❌ Error in handleChoice:', error);
+      // Fallback: try to navigate anyway
+      router.replace('/login-premium');
+    }
   };
 
   const badge1GlowColor = badge1Glow.interpolate({
