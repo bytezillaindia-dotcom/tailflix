@@ -653,11 +653,11 @@ const styles = StyleSheet.create({
   },
   likeButton: {
     borderWidth: 2,
-    borderColor: 'rgba(255, 215, 0, 0.5)',
+    borderColor: 'rgba(154, 205, 50, 0.5)',
   },
   skipButton: {
     borderWidth: 2,
-    borderColor: 'rgba(255, 165, 0, 0.5)',
+    borderColor: 'rgba(255, 107, 107, 0.5)',
   },
   superLikeButton: {
     borderWidth: 2,
@@ -668,19 +668,18 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 165, 0, 0.5)',
   },
   boostButton: {
-    borderWidth: 0,
-  },
-  actionIcon: {
-    fontSize: 32,
-    marginBottom: 2,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 215, 0, 0.6)',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
   },
   actionLabel: {
     fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '600',
+    marginTop: SPACING.xs,
   },
   boostLabel: {
-    color: '#000',
+    color: '#FFD700',
   },
   swipeHint: {
     position: 'absolute',
