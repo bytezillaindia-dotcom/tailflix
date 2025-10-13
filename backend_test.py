@@ -798,6 +798,278 @@ class TailFlixTester:
         
         print("=" * 60)
 
+    # ============ SPECIAL: PET FEED DEBUG LOGGING TEST ============
+    
+    def test_pet_feed_debug_logging(self):
+        """Special test for Pet Feed debug logging analysis as requested"""
+        print("\n🔍 SPECIAL TEST: PET FEED DEBUG LOGGING ANALYSIS")
+        print("=" * 60)
+        
+        # Step 1: Test normal mode and capture debug logs
+        self.test_pet_feed_normal_mode_debug()
+        
+        # Step 2: Test debug mode (?debug=true)
+        self.test_pet_feed_debug_mode_analysis()
+        
+        # Step 3: Analyze filtering logic with interactions
+        self.test_pet_feed_filtering_with_debug()
+        
+        # Step 4: Capture and analyze backend logs
+        self.capture_and_analyze_backend_logs()
+        
+    def test_pet_feed_normal_mode_debug(self):
+        """Test Pet Feed normal mode and analyze debug output"""
+        step = "Pet Feed Normal Mode - Debug Analysis"
+        
+        try:
+            # Make request to trigger debug logging
+            success, response, status_code = self.make_request("GET", "/pets/feed?limit=5")
+            
+            if success:
+                if isinstance(response, list):
+                    self.log_step(step, True, f"Normal mode returned {len(response)} pets", {
+                        "Response type": "List of pets",
+                        "Pet count": len(response),
+                        "Status code": status_code
+                    })
+                    
+                    # Analyze pet data structure
+                    if response:
+                        first_pet = response[0]
+                        enriched_fields = ['age', 'distance_km', 'owner_verified']
+                        present_fields = [field for field in enriched_fields if field in first_pet]
+                        
+                        self.log_step("Pet Feed - Data Enrichment", True, f"Enriched fields present: {present_fields}", {
+                            "Pet name": first_pet.get('pet_name', 'Unknown'),
+                            "Age": first_pet.get('age', 'Missing'),
+                            "Distance": f"{first_pet.get('distance_km', 'Missing')} km",
+                            "Owner verified": first_pet.get('owner_verified', 'Missing')
+                        })
+                elif isinstance(response, dict) and response.get('error') == 'verification_required':
+                    self.log_step(step, True, "Verification guard active - user blocked", {
+                        "Error type": response.get('error'),
+                        "Message": response.get('message', 'No message'),
+                        "Redirect": response.get('redirect', 'No redirect')
+                    })
+                else:
+                    self.log_step(step, False, f"Unexpected response format: {type(response)}", {
+                        "Response": str(response)[:200]
+                    })
+            else:
+                self.log_step(step, False, f"Request failed with status {status_code}", {
+                    "Response": str(response)[:200]
+                })
+                
+        except Exception as e:
+            self.log_step(step, False, f"Exception during normal mode test: {str(e)}")
+    
+    def test_pet_feed_debug_mode_analysis(self):
+        """Test Pet Feed debug mode (?debug=true) for detailed analysis"""
+        step = "Pet Feed Debug Mode - Analysis"
+        
+        try:
+            # Make request with debug=true
+            success, response, status_code = self.make_request("GET", "/pets/feed?debug=true&limit=5")
+            
+            if success and isinstance(response, list):
+                self.log_step(step, True, f"Debug mode returned {len(response)} pets", {
+                    "Response type": "List of pets (debug mode)",
+                    "Pet count": len(response),
+                    "Status code": status_code
+                })
+                
+                # Analyze debug-specific fields
+                if response:
+                    debug_analysis = []
+                    for i, pet in enumerate(response):
+                        debug_info = {
+                            "pet_name": pet.get('pet_name', f'Pet_{i}'),
+                            "is_own_pet": pet.get('is_own_pet', 'Missing'),
+                            "is_interacted": pet.get('is_interacted', 'Missing'),
+                            "owner_verified": pet.get('owner_verified', 'Missing'),
+                            "owner_id": pet.get('owner_id', 'Missing')
+                        }
+                        debug_analysis.append(debug_info)
+                    
+                    self.log_step("Pet Feed Debug - Field Analysis", True, "Debug fields analyzed", {
+                        "Debug data": json.dumps(debug_analysis, indent=2)
+                    })
+                    
+                    # Check if debug mode bypasses filters
+                    own_pets = [p for p in response if p.get('is_own_pet') == True]
+                    interacted_pets = [p for p in response if p.get('is_interacted') == True]
+                    
+                    self.log_step("Pet Feed Debug - Filter Bypass", True, "Debug mode filter analysis", {
+                        "Own pets included": len(own_pets),
+                        "Interacted pets included": len(interacted_pets),
+                        "Total pets": len(response),
+                        "Filter bypass": "Yes (debug mode)" if (own_pets or interacted_pets) else "No"
+                    })
+            else:
+                self.log_step(step, False, f"Debug mode failed or returned unexpected format", {
+                    "Success": success,
+                    "Response type": type(response),
+                    "Status code": status_code,
+                    "Response": str(response)[:200]
+                })
+                
+        except Exception as e:
+            self.log_step(step, False, f"Exception during debug mode test: {str(e)}")
+    
+    def test_pet_feed_filtering_with_debug(self):
+        """Test filtering logic by comparing normal vs debug mode"""
+        step = "Pet Feed Filtering - Logic Verification"
+        
+        try:
+            # Get debug mode results (unfiltered)
+            debug_success, debug_response, _ = self.make_request("GET", "/pets/feed?debug=true&limit=10")
+            
+            # Get normal mode results (filtered)
+            normal_success, normal_response, _ = self.make_request("GET", "/pets/feed?limit=10")
+            
+            if debug_success and normal_success:
+                debug_count = len(debug_response) if isinstance(debug_response, list) else 0
+                normal_count = len(normal_response) if isinstance(normal_response, list) else 0
+                
+                # Check if normal mode has fewer or equal pets (due to filtering)
+                filtering_working = normal_count <= debug_count
+                
+                self.log_step(step, filtering_working, "Filtering logic comparison", {
+                    "Debug mode pets": debug_count,
+                    "Normal mode pets": normal_count,
+                    "Filtering active": "Yes" if normal_count < debug_count else "Possibly (or no pets to filter)",
+                    "Verification guard": "Active" if isinstance(normal_response, dict) and normal_response.get('error') == 'verification_required' else "Inactive"
+                })
+                
+                # If we have pets in debug mode, analyze what's being filtered
+                if isinstance(debug_response, list) and debug_response:
+                    own_pets = sum(1 for p in debug_response if p.get('is_own_pet') == True)
+                    interacted_pets = sum(1 for p in debug_response if p.get('is_interacted') == True)
+                    unverified_owners = sum(1 for p in debug_response if p.get('owner_verified') == False)
+                    
+                    self.log_step("Pet Feed Filtering - Exclusion Analysis", True, "Filter exclusion breakdown", {
+                        "Total pets (debug)": debug_count,
+                        "Own pets (should exclude)": own_pets,
+                        "Already interacted (should exclude)": interacted_pets,
+                        "Unverified owners (should exclude)": unverified_owners,
+                        "Expected exclusions": own_pets + interacted_pets + unverified_owners
+                    })
+            else:
+                self.log_step(step, False, "Could not compare debug vs normal mode", {
+                    "Debug success": debug_success,
+                    "Normal success": normal_success
+                })
+                
+        except Exception as e:
+            self.log_step(step, False, f"Exception during filtering test: {str(e)}")
+    
+    def capture_and_analyze_backend_logs(self):
+        """Capture backend logs to analyze debug output"""
+        step = "Backend Debug Logs - Capture & Analysis"
+        
+        try:
+            # Trigger debug logging with a request
+            self.make_request("GET", "/pets/feed?debug=true&limit=3")
+            time.sleep(2)  # Wait for logs to be written
+            
+            # Try to capture supervisor logs
+            import subprocess
+            
+            log_files = [
+                "/var/log/supervisor/backend.out.log",
+                "/var/log/supervisor/backend.err.log"
+            ]
+            
+            logs_captured = False
+            for log_file in log_files:
+                try:
+                    result = subprocess.run(
+                        ["tail", "-n", "100", log_file],
+                        capture_output=True,
+                        text=True,
+                        timeout=10
+                    )
+                    
+                    if result.returncode == 0 and result.stdout:
+                        logs_captured = True
+                        log_content = result.stdout
+                        
+                        print(f"\n📋 Backend Logs from {log_file}:")
+                        print("=" * 80)
+                        print(log_content)
+                        print("=" * 80)
+                        
+                        # Analyze debug log sections
+                        debug_sections = [
+                            "TOTAL PETS IN DATABASE",
+                            "EXCLUDED (own pets)",
+                            "EXCLUDED (already interacted)",
+                            "VERIFIED USERS",
+                            "EXCLUDED (unverified owners)",
+                            "DEBUG MODE ENABLED",
+                            "APPLYING FILTERS",
+                            "ELIGIBLE PETS",
+                            "FINAL RESULT"
+                        ]
+                        
+                        found_sections = []
+                        section_details = {}
+                        
+                        for section in debug_sections:
+                            if section in log_content:
+                                found_sections.append(section)
+                                # Try to extract the number from the log line
+                                import re
+                                pattern = f"{section}:? (\\d+)"
+                                match = re.search(pattern, log_content)
+                                if match:
+                                    section_details[section] = match.group(1)
+                        
+                        self.log_step("Backend Logs - Debug Sections Found", len(found_sections) > 0, f"Found {len(found_sections)} debug sections", {
+                            "Sections found": found_sections,
+                            "Section details": section_details
+                        })
+                        
+                        # Look for specific filtering information
+                        if "DEBUG: PET FEED FILTERING" in log_content:
+                            self.log_step("Backend Logs - Debug Header", True, "Debug logging header found", {
+                                "Debug mode active": "DEBUG MODE ENABLED" in log_content,
+                                "Filter analysis": "APPLYING FILTERS" in log_content
+                            })
+                        
+                        break
+                        
+                except subprocess.TimeoutExpired:
+                    continue
+                except FileNotFoundError:
+                    continue
+            
+            if not logs_captured:
+                self.log_step(step, False, "Could not capture backend logs", {
+                    "Attempted files": log_files,
+                    "Suggestion": "Check if supervisor is running and log files exist"
+                })
+            else:
+                self.log_step(step, True, "Backend logs captured and analyzed")
+                
+        except Exception as e:
+            self.log_step(step, False, f"Exception during log capture: {str(e)}")
+
 if __name__ == "__main__":
+    import sys
+    
     tester = TailFlixTester()
-    tester.run_all_tests()
+    
+    # Check if we should run the special debug test
+    if len(sys.argv) > 1 and sys.argv[1] == "debug":
+        print("🔍 Running SPECIAL Pet Feed Debug Logging Test")
+        tester.test_pet_feed_debug_logging()
+    else:
+        print("🧪 Running ALL TailFlix Backend Tests")
+        tester.run_all_tests()
+    
+    # Always run the debug test for this specific request
+    print("\n" + "="*80)
+    print("🎯 RUNNING REQUESTED DEBUG LOGGING TEST")
+    print("="*80)
+    tester.test_pet_feed_debug_logging()
