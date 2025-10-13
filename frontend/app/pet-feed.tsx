@@ -724,31 +724,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
   },
   actionButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  skipButton: {
-    backgroundColor: COLORS.charcoal,
-  },
-  likeButton: {
-    backgroundColor: COLORS.crimson,
     width: 72,
     height: 72,
     borderRadius: 36,
-  },
-  superlikeButton: {
-    backgroundColor: COLORS.gold,
-  },
-  boostButton: {
-    backgroundColor: COLORS.gold,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   actionIcon: {
     fontSize: 28,
