@@ -511,6 +511,20 @@ export default function PetFeedScreen() {
       if (response.ok) {
         const data = await response.json();
         
+        // Check for server-side premium validation error
+        if (data.error === 'premium_required') {
+          setActionLoading(false);
+          // Navigate to paywall with custom message
+          const actionName = data.action_type === 'super_like' ? 'Super Likes' : 'Golden Bones';
+          router.push({
+            pathname: '/paywall',
+            params: { 
+              message: `${actionName} are a premium feature ${data.action_type === 'super_like' ? '🦴✨' : '✨🍖'}` 
+            }
+          });
+          return;
+        }
+        
         // Check if this resulted in a match
         if (data.match && data.match.matched) {
           setActionLoading(false);
