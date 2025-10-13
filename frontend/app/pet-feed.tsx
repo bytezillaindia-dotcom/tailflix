@@ -399,41 +399,33 @@ export default function PetFeedScreen() {
 
       {/* Action Buttons */}
       <View style={styles.actionsContainer}>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.skipButton]}
+        <AnimatedActionButton
           onPress={() => handleAction('skip')}
+          icon={FrisbeeIcon}
+          label="Skip"
           disabled={actionLoading}
-        >
-          <Text style={styles.actionIcon}>🥏</Text>
-          <Text style={styles.actionLabel}>Skip</Text>
-        </TouchableOpacity>
+        />
 
-        <TouchableOpacity
-          style={[styles.actionButton, styles.likeButton]}
+        <AnimatedActionButton
           onPress={() => handleAction('like')}
+          icon={TennisBallIcon}
+          label="Like"
           disabled={actionLoading}
-        >
-          <TennisBallIcon size={32} />
-          <Text style={styles.actionLabel}>Like</Text>
-        </TouchableOpacity>
+        />
 
-        <TouchableOpacity
-          style={[styles.actionButton, styles.superlikeButton]}
+        <AnimatedActionButton
           onPress={() => handleAction('superlike')}
+          icon={BoneIcon}
+          label="Super Like"
           disabled={actionLoading}
-        >
-          <Text style={styles.actionIcon}>🍖</Text>
-          <Text style={styles.actionLabel}>Super Like</Text>
-        </TouchableOpacity>
+        />
 
-        <TouchableOpacity
-          style={[styles.actionButton, styles.boostButton]}
+        <AnimatedActionButton
           onPress={() => handleAction('boost')}
+          icon={GoldenBoneIcon}
+          label="Boost"
           disabled={actionLoading}
-        >
-          <Text style={styles.actionIcon}>✨🍖</Text>
-          <Text style={styles.actionLabel}>Boost</Text>
-        </TouchableOpacity>
+        />
       </View>
 
       {/* Full Profile Modal */}
