@@ -362,8 +362,12 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Premium Feature Enforcement"
+    - "Verification Guard Implementation"
+  stuck_tasks:
+    - "Premium Feature Enforcement"
+    - "Verification Guard Implementation"
   test_all: false
   test_priority: "high_first"
 
