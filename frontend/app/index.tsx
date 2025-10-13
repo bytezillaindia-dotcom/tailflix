@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 
 export default function SplashScreen() {
@@ -18,6 +19,24 @@ export default function SplashScreen() {
   useEffect(() => {
     startAnimations();
   }, []);
+
+  const checkOnboardingStatus = async () => {
+    try {
+      const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
+      
+      if (onboardingCompleted === 'true') {
+        // User has completed onboarding, go to login
+        router.replace('/login-premium');
+      } else {
+        // First time user, show onboarding
+        router.replace('/onboarding-choice');
+      }
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      // Default to onboarding if error
+      router.replace('/onboarding-choice');
+    }
+  };
 
   const startAnimations = () => {
     // Sequence of animations
@@ -93,7 +112,7 @@ export default function SplashScreen() {
       ]).start();
     }, 1000);
 
-    // Fade out entire screen and navigate to login
+    // Fade out entire screen and navigate based on onboarding status
     setTimeout(() => {
       Animated.timing(screenOpacity, {
         toValue: 0,
@@ -101,8 +120,8 @@ export default function SplashScreen() {
         easing: Easing.in(Easing.ease),
         useNativeDriver: true,
       }).start(() => {
-        // Always navigate to premium login screen after splash
-        router.replace('/login-premium');
+        // Check onboarding status and navigate accordingly
+        checkOnboardingStatus();
       });
     }, 2500); // 2.5 seconds total duration
   };
