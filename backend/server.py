@@ -882,6 +882,105 @@ async def get_received_likes(user_id: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Failed to fetch received likes")
 
 
+@api_router.get("/likes/badges")
+async def get_like_badges(user_id: Optional[str] = None):
+    """
+    Get badge counts for unseen likes and super likes
+    Returns: { normal_likes_count, super_likes_count }
+    """
+    try:
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
+        
+        # Get current user's pets
+        my_pets = await db.pets.find({"user_id": user_id}).to_list(1000)
+        my_pet_ids = [pet['id'] for pet in my_pets]
+        
+        if not my_pet_ids:
+            return {
+                "normal_likes_count": 0,
+                "super_likes_count": 0,
+                "has_unseen": False
+            }
+        
+        # Count unseen normal likes
+        normal_likes_count = await db.likes.count_documents({
+            "pet_id": {"$in": my_pet_ids},
+            "action_type": "like",
+            "seen": False
+        })
+        
+        # Count unseen super likes and golden bones
+        super_likes_count = await db.likes.count_documents({
+            "pet_id": {"$in": my_pet_ids},
+            "action_type": {"$in": ["super_like", "golden_bone"]},
+            "seen": False
+        })
+        
+        logger.info(f"Badge counts for user {user_id}: {normal_likes_count} normal, {super_likes_count} super")
+        
+        return {
+            "normal_likes_count": normal_likes_count,
+            "super_likes_count": super_likes_count,
+            "has_unseen": (normal_likes_count + super_likes_count) > 0
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting badge counts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get badge counts")
+
+
+@api_router.post("/likes/mark-seen")
+async def mark_likes_seen(user_id: Optional[str] = None):
+    """
+    Mark all received likes as seen for the current user
+    This clears the badge notifications
+    """
+    try:
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
+        
+        # Get current user's pets
+        my_pets = await db.pets.find({"user_id": user_id}).to_list(1000)
+        my_pet_ids = [pet['id'] for pet in my_pets]
+        
+        if not my_pet_ids:
+            return {"success": True, "marked_count": 0}
+        
+        # Mark all received likes as seen
+        result = await db.likes.update_many(
+            {
+                "pet_id": {"$in": my_pet_ids},
+                "action_type": {"$in": ["like", "super_like", "golden_bone"]},
+                "seen": False
+            },
+            {"$set": {"seen": True}}
+        )
+        
+        logger.info(f"Marked {result.modified_count} likes as seen for user {user_id}")
+        
+        return {
+            "success": True,
+            "marked_count": result.modified_count
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error marking likes as seen: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to mark likes as seen")
+
+
 # ============ Verification Routes ============
 
 @api_router.post("/verifications", response_model=Verification)
