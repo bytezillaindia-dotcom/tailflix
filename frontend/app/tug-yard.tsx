@@ -508,7 +508,7 @@ export default function TugYardScreen() {
           </View>
 
           {/* Bio */}
-          <Text style={styles.bio}>{currentProfile.bio}</Text>
+          <Text style={styles.bio} numberOfLines={3}>{currentProfile.bio}</Text>
         </View>
       </Animated.View>
 
