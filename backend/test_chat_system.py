@@ -52,11 +52,11 @@ def test_chat_system():
     # User B
     requests.post(f"{BACKEND_URL}/auth/send-otp", json={
         "method": "phone",
-        "value": "+0987654321"
+        "value": phone_b
     })
     user_b_response = requests.post(f"{BACKEND_URL}/auth/verify-otp", json={
         "method": "phone",
-        "value": "+0987654321",
+        "value": phone_b,
         "otp": "123456"
     })
     user_b = user_b_response.json()
