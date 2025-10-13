@@ -336,6 +336,7 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
   });
 
   const isNeonCard = card.special === 'neon';
+  const isCauseCard = card.special === 'cause';
 
   return (
     <Animated.View
@@ -372,9 +373,19 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
           style={[
             styles.card,
             isNeonCard && styles.neonCard,
+            isCauseCard && styles.causeCard,
             isPressed && styles.cardPressed,
           ]}
         >
+          {/* Pawprint Overlay for Cause Card */}
+          {isCauseCard && (
+            <View style={styles.pawprintOverlay}>
+              <Text style={styles.pawprint}>🐾</Text>
+              <Text style={[styles.pawprint, styles.pawprint2]}>🐾</Text>
+              <Text style={[styles.pawprint, styles.pawprint3]}>🐾</Text>
+            </View>
+          )}
+
           {/* Shine Effect Overlay */}
           {isPressed && (
             <View style={styles.shineOverlay} />
@@ -385,6 +396,7 @@ function AnimatedCard({ card, index, onPress }: AnimatedCardProps) {
               style={[
                 styles.iconContainer,
                 isNeonCard && styles.neonIconContainer,
+                isCauseCard && styles.causeIconContainer,
                 isNeonCard && { transform: [{ scale: iconPulseAnim }] },
               ]}
             >
