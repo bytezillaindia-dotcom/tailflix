@@ -23,6 +23,7 @@ export default function RootLayout() {
         <Stack.Screen name="home-premium" />
         <Stack.Screen name="add-pet" />
         <Stack.Screen name="verify" />
+        <Stack.Screen name="verification-gate" />
         <Stack.Screen name="verification-success" />
         <Stack.Screen name="admin" />
         <Stack.Screen name="pet-feed" />
