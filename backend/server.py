@@ -536,9 +536,12 @@ async def get_daily_like_count(user_id: Optional[str] = None):
 @api_router.post("/likes")
 async def create_like(like_data: LikeCreate, user_id: Optional[str] = None):
     """
-    Record a like/skip/super_like/golden_bone action (createLikeSecure)
-    Server-side validation for premium features
-    Checks for mutual matches and creates match if found
+    Record a like/skip/super_like/golden_bone action with TailCoins economy
+    - Daily 10 free likes, then 1 TailCoin per like
+    - Super Like: 5 TailCoins
+    - Golden Bone: 50 TailCoins
+    - Skip: Always free, unlimited
+    - Premium users: Unlimited free likes
     
     Accepts user_id as query parameter or uses most recent user as fallback
     """
@@ -557,54 +560,87 @@ async def create_like(like_data: LikeCreate, user_id: Optional[str] = None):
             if not recent_user:
                 raise HTTPException(status_code=404, detail="No user found. Please login first.")
             user_id = recent_user['id']
-            is_premium = recent_user.get('is_premium', False)
+            user = recent_user
         else:
             # Fetch user by user_id
             user = await db.users.find_one({"id": user_id})
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            is_premium = user.get('is_premium', False)
         
-        # SERVER-SIDE PREMIUM VALIDATION (createLikeSecure logic)
-        # Step 1: Check if premium features require premium status
-        if like_data.action_type in ['super_like', 'golden_bone']:
-            if not is_premium:
-                logger.warning(f"User {user_id} (free) attempted to use {like_data.action_type} - blocked")
-                return {
-                    "error": "premium_required",
-                    "message": f"{like_data.action_type.replace('_', ' ').title()} is a premium feature",
-                    "action_type": like_data.action_type
-                }
+        is_premium = user.get('is_premium', False)
+        tail_coins = user.get('tail_coins', 0)
+        daily_likes_count = user.get('daily_likes_count', 0)
+        daily_likes_reset_date = user.get('daily_likes_reset_date')
         
-        # SERVER-SIDE DAILY LIMIT ENFORCEMENT
-        # Step 2: Check daily limit for like/super_like/golden_bone (skip is unlimited)
-        if like_data.action_type in ['like', 'super_like', 'golden_bone']:
-            # Free users have 10 actions/day limit, Premium users unlimited
+        # Reset daily counter if it's a new day
+        from datetime import datetime, timedelta
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        if not daily_likes_reset_date or daily_likes_reset_date < today_start:
+            # Reset daily counter
+            daily_likes_count = 0
+            await db.users.update_one(
+                {"id": user_id},
+                {"$set": {
+                    "daily_likes_count": 0,
+                    "daily_likes_reset_date": today_start
+                }}
+            )
+            logger.info(f"Reset daily likes counter for user {user_id}")
+        
+        # TAILCOINS ECONOMY LOGIC
+        coins_to_deduct = 0
+        
+        if like_data.action_type == 'skip':
+            # Skip is always free and unlimited
+            pass
+        
+        elif like_data.action_type == 'like':
+            # Regular like: 10 free per day, then 1 TailCoin each
             if not is_premium:
-                # Count today's limited actions
-                from datetime import datetime, timedelta
-                today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-                today_end = today_start + timedelta(days=1)
-                
-                daily_actions_count = await db.likes.count_documents({
-                    "user_id": user_id,
-                    "action_type": {"$in": ["like", "super_like", "golden_bone"]},
-                    "created_at": {
-                        "$gte": today_start,
-                        "$lt": today_end
-                    }
-                })
-                
-                if daily_actions_count >= 10:
-                    logger.warning(f"User {user_id} (free) hit daily limit: {daily_actions_count}/10 actions")
+                if daily_likes_count >= 10:
+                    # Need TailCoins for extra likes
+                    coins_to_deduct = 1
+                    if tail_coins < coins_to_deduct:
+                        logger.warning(f"User {user_id} out of TailCoins for extra like. Has: {tail_coins}")
+                        return {
+                            "error": "insufficient_coins",
+                            "message": "Out of free likes! Buy TailCoins or upgrade to Premium for unlimited likes.",
+                            "tail_coins": tail_coins,
+                            "coins_needed": coins_to_deduct,
+                            "daily_likes_used": daily_likes_count,
+                            "daily_likes_limit": 10
+                        }
+                # else: free like (within daily limit)
+            # Premium users get unlimited free likes
+        
+        elif like_data.action_type == 'super_like':
+            # Super Like: 5 TailCoins (or free for premium)
+            if not is_premium:
+                coins_to_deduct = 5
+                if tail_coins < coins_to_deduct:
+                    logger.warning(f"User {user_id} insufficient TailCoins for super_like. Has: {tail_coins}, needs: {coins_to_deduct}")
                     return {
-                        "error": "daily_limit_reached",
-                        "message": "You've reached your daily limit of 10 actions. Upgrade to Premium for unlimited access.",
-                        "daily_count": daily_actions_count,
-                        "limit": 10
+                        "error": "insufficient_coins",
+                        "message": "Not enough TailCoins for Super Like! Buy more coins or upgrade to Premium.",
+                        "tail_coins": tail_coins,
+                        "coins_needed": coins_to_deduct,
+                        "action_type": "super_like"
                     }
         
-        # Step 3: Skip actions are always allowed (no limit check needed)
+        elif like_data.action_type == 'golden_bone':
+            # Golden Bone: 50 TailCoins (or free for premium)
+            if not is_premium:
+                coins_to_deduct = 50
+                if tail_coins < coins_to_deduct:
+                    logger.warning(f"User {user_id} insufficient TailCoins for golden_bone. Has: {tail_coins}, needs: {coins_to_deduct}")
+                    return {
+                        "error": "insufficient_coins",
+                        "message": "Not enough TailCoins for Golden Bone Boost! Buy more coins or upgrade to Premium.",
+                        "tail_coins": tail_coins,
+                        "coins_needed": coins_to_deduct,
+                        "action_type": "golden_bone"
+                    }
         
         # Check if pet exists and get owner info
         liked_pet = await db.pets.find_one({"id": like_data.pet_id})
@@ -612,6 +648,23 @@ async def create_like(like_data: LikeCreate, user_id: Optional[str] = None):
             raise HTTPException(status_code=404, detail="Pet not found")
         
         other_user_id = liked_pet['user_id']
+        
+        # Deduct TailCoins if needed
+        if coins_to_deduct > 0:
+            await db.users.update_one(
+                {"id": user_id},
+                {"$inc": {"tail_coins": -coins_to_deduct}}
+            )
+            logger.info(f"Deducted {coins_to_deduct} TailCoins from user {user_id}. New balance: {tail_coins - coins_to_deduct}")
+        
+        # Increment daily likes counter for 'like' actions (not for paid actions)
+        if like_data.action_type == 'like' and not is_premium and coins_to_deduct == 0:
+            await db.users.update_one(
+                {"id": user_id},
+                {"$inc": {"daily_likes_count": 1}}
+            )
+            daily_likes_count += 1
+            logger.info(f"Incremented daily likes counter for user {user_id}: {daily_likes_count}/10")
         
         # If action is golden_bone, increment the monthly counter
         if like_data.action_type == 'golden_bone':
@@ -686,13 +739,22 @@ async def create_like(like_data: LikeCreate, user_id: Optional[str] = None):
                             }
                         }
         
+        # Get updated user stats
+        updated_user = await db.users.find_one({"id": user_id})
+        
         return {
             "id": like.id,
             "user_id": like.user_id,
             "pet_id": like.pet_id,
             "action_type": like.action_type,
             "created_at": like.created_at,
-            "match": match_info
+            "match": match_info,
+            "user_stats": {
+                "tail_coins": updated_user.get('tail_coins', 0),
+                "daily_likes_count": updated_user.get('daily_likes_count', 0),
+                "daily_likes_limit": 10 if not is_premium else None,
+                "is_premium": is_premium
+            }
         }
     
     except HTTPException:
