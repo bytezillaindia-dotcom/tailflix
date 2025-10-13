@@ -557,13 +557,16 @@ export default function PetFeedScreen() {
         // Check if this resulted in a match
         if (data.match && data.match.matched) {
           setActionLoading(false);
-          // Navigate to match screen
+          // Navigate to match screen with full pet details
           router.push({
             pathname: '/match',
             params: {
               matchType: data.match.match_type,
-              myPetName: data.match.my_pet_name,
-              theirPetName: data.match.their_pet_name,
+              matchId: data.match.match_id,
+              myPetName: data.match.my_pet.name,
+              myPetPhoto: data.match.my_pet.photo || '',
+              theirPetName: data.match.their_pet.name,
+              theirPetPhoto: data.match.their_pet.photo || '',
             }
           });
           return;
