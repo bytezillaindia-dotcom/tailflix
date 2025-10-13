@@ -6,6 +6,7 @@ Tests the complete chat system for matched users
 import requests
 import json
 import time
+import random
 
 BACKEND_URL = "http://localhost:8001/api"
 
@@ -14,17 +15,22 @@ def test_chat_system():
     print("TESTING CHAT SYSTEM")
     print("="*80 + "\n")
     
+    # Generate unique phone numbers
+    random_suffix = random.randint(10000, 99999)
+    phone_a = f"+111{random_suffix}1"
+    phone_b = f"+222{random_suffix}2"
+    
     # Step 1: Create two users and pets
     print("Step 1: Creating User A and User B with pets...")
     
     # User A
     requests.post(f"{BACKEND_URL}/auth/send-otp", json={
         "method": "phone",
-        "value": "+1234567890"
+        "value": phone_a
     })
     user_a_response = requests.post(f"{BACKEND_URL}/auth/verify-otp", json={
         "method": "phone",
-        "value": "+1234567890",
+        "value": phone_a,
         "otp": "123456"
     })
     user_a = user_a_response.json()
