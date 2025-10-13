@@ -1073,3 +1073,9 @@ if __name__ == "__main__":
     print("🎯 RUNNING REQUESTED DEBUG LOGGING TEST")
     print("="*80)
     tester.test_pet_feed_debug_logging()
+    
+    # Run Double Fetch & Action Mechanics tests
+    print("\n" + "="*80)
+    print("🎯 RUNNING DOUBLE FETCH & ACTION MECHANICS TESTS")
+    print("="*80)
+    tester.test_double_fetch_action_mechanics()
