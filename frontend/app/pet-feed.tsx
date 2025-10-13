@@ -401,6 +401,22 @@ export default function PetFeedScreen() {
       const data = await response.json();
       
       if (response.ok) {
+        // Check for server-side verification guard
+        if (data.error === 'verification_required') {
+          setLoading(false);
+          Alert.alert(
+            'Verification Required',
+            'You must be verified to access the pet feed. Please complete verification.',
+            [
+              {
+                text: 'Go to Verification',
+                onPress: () => router.push('/verify')
+              }
+            ]
+          );
+          return;
+        }
+        
         setPets(data);
       } else {
         Alert.alert('Error', 'Failed to load pet feed');
