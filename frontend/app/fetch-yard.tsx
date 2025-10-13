@@ -388,67 +388,68 @@ export default function FetchYardScreen() {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => handleAction('skip')}
+          style={styles.actionButtonWrapper}
         >
-          <Animated.View
-            style={[
-              styles.actionButton,
-              styles.skipButton,
-              { shadowColor: hyperLikeGlowColor },
-            ]}
-          >
-            <Text style={styles.actionIcon}>🥏</Text>
+          <View style={[styles.actionButton, styles.skipButton]}>
+            <ActionIcon
+              type="frisbee"
+              size={56}
+              glowTrigger={hyperLikeGlow}
+              accessibilityLabel="Skip (Frisbee)"
+            />
             <Text style={styles.actionLabel}>Skip</Text>
-          </Animated.View>
+          </View>
         </TouchableOpacity>
 
         {/* Fetch/Like Button (Tennis Ball) */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => handleAction('like')}
+          style={styles.actionButtonWrapper}
         >
-          <Animated.View
-            style={[
-              styles.actionButton,
-              styles.likeButton,
-              { shadowColor: likeGlowColor },
-            ]}
-          >
-            <Text style={styles.actionIcon}>🎾</Text>
+          <View style={[styles.actionButton, styles.likeButton]}>
+            <ActionIcon
+              type="tennis-ball"
+              size={56}
+              glowTrigger={likeGlow}
+              accessibilityLabel="Like (Tennis Ball)"
+            />
             <Text style={styles.actionLabel}>Fetch</Text>
-          </Animated.View>
+          </View>
         </TouchableOpacity>
 
         {/* Super Like Button (Bone) */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => handleAction('super_like')}
+          style={styles.actionButtonWrapper}
         >
-          <Animated.View
-            style={[
-              styles.actionButton,
-              styles.superLikeButton,
-              { shadowColor: superLikeGlowColor },
-            ]}
-          >
-            <Text style={styles.actionIcon}>🍖</Text>
+          <View style={[styles.actionButton, styles.superLikeButton]}>
+            <ActionIcon
+              type="bone"
+              size={56}
+              glowTrigger={superLikeGlow}
+              accessibilityLabel="Super Like (Bone)"
+            />
             <Text style={styles.actionLabel}>Super</Text>
-          </Animated.View>
+          </View>
         </TouchableOpacity>
 
         {/* Boost Button (Golden Bone) */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => handleAction('golden_bone')}
+          style={styles.actionButtonWrapper}
         >
-          <LinearGradient
-            colors={['#FFD700', '#FFA500']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[styles.actionButton, styles.boostButton]}
-          >
-            <Text style={styles.actionIcon}>🦴</Text>
+          <View style={[styles.actionButton, styles.boostButton]}>
+            <ActionIcon
+              type="golden-bone"
+              size={56}
+              glowTrigger={boostGlow}
+              accessibilityLabel="Boost (Golden Bone)"
+            />
             <Text style={[styles.actionLabel, styles.boostLabel]}>Boost</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </View>
 
