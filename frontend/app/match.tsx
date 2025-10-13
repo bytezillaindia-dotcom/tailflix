@@ -232,9 +232,16 @@ const styles = StyleSheet.create({
     height: 200,
     position: 'relative',
   },
-  petEmoji: {
+  petContainer: {
     alignItems: 'center',
     position: 'absolute',
+  },
+  petPhoto: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: COLORS.crimson,
   },
   petIcon: {
     fontSize: 80,
