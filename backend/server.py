@@ -334,6 +334,7 @@ async def get_daily_like_count():
     Get the count of actions that count toward daily limit for the current user today
     Counts: like + super_like + golden_bone (excludes skip)
     Used for enforcing daily limits (10 actions per day for free users)
+    Also returns user's premium status
     """
     try:
         # Mock user_id - in production, get from authenticated session
@@ -343,6 +344,7 @@ async def get_daily_like_count():
             raise HTTPException(status_code=404, detail="No user found. Please login first.")
         
         user_id = recent_user['id']
+        is_premium = recent_user.get('is_premium', False)
         
         # Get today's date range (start and end of day)
         from datetime import datetime, timedelta
@@ -359,10 +361,11 @@ async def get_daily_like_count():
             }
         })
         
-        logger.info(f"User {user_id} has {daily_actions_count} limited actions today (like+super_like+golden_bone)")
+        logger.info(f"User {user_id} (premium={is_premium}) has {daily_actions_count} limited actions today (like+super_like+golden_bone)")
         
         return {
             "user_id": user_id,
+            "is_premium": is_premium,
             "daily_likes_count": daily_actions_count,
             "limit": 10,
             "remaining": max(0, 10 - daily_actions_count)
