@@ -125,6 +125,45 @@ export default function FetchYardScreen() {
     }
   };
 
+  const handleBuyCoins = async () => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/users/${userId}/buy-coins`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          coins: 100,
+          amount: 99,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert(
+          '🎉 Success!',
+          `You bought 100 TailCoins for ₹99!\nNew balance: ${data.new_balance} coins`,
+          [{ text: 'OK', onPress: () => {
+            setShowPaywall(false);
+            fetchUserStats();
+          }}]
+        );
+      }
+    } catch (error) {
+      console.error('Error buying coins:', error);
+      Alert.alert('Error', 'Failed to purchase coins. Please try again.');
+    }
+  };
+
+  const handleUpgradePremium = () => {
+    Alert.alert(
+      '👑 Upgrade to Premium',
+      'Premium subscription is coming soon! For now, ask an admin to enable premium for your account.',
+      [{ text: 'OK' }]
+    );
+  };
+
   const animateCardEntrance = () => {
     Animated.parallel([
       Animated.spring(cardScale, {
