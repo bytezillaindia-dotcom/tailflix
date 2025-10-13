@@ -602,4 +602,39 @@ const styles = StyleSheet.create({
     color: '#FFF',
     opacity: 1,
   },
+  causeCard: {
+    borderWidth: 2,
+    borderColor: COLORS.gold,
+    shadowColor: COLORS.peach,
+    shadowOpacity: 0.4,
+  },
+  causeIconContainer: {
+    backgroundColor: 'rgba(255, 183, 178, 0.3)',
+    borderWidth: 1,
+    borderColor: COLORS.peach,
+  },
+  pawprintOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    opacity: 0.1,
+    pointerEvents: 'none',
+  },
+  pawprint: {
+    position: 'absolute',
+    fontSize: 40,
+    color: COLORS.warmBrown,
+  },
+  pawprint2: {
+    top: 20,
+    right: 30,
+    transform: [{ rotate: '15deg' }],
+  },
+  pawprint3: {
+    bottom: 30,
+    right: 60,
+    transform: [{ rotate: '-20deg' }],
+  },
 });
