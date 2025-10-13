@@ -157,6 +157,48 @@ const GoldenBoneIcon = ({ size = 32 }) => (
 
 const { width, height } = Dimensions.get('window');
 
+// Animated Action Button Component
+const AnimatedActionButton = ({ onPress, icon: Icon, label, disabled }: any) => {
+  const scale = new Animated.Value(1);
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Animated.spring(scale, {
+      toValue: 0.9,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      disabled={disabled}
+      style={styles.actionButton}
+      android_ripple={{ 
+        color: 'rgba(255, 255, 255, 0.3)', 
+        borderless: true,
+        radius: 36
+      }}
+    >
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <Icon size={label === 'Like' ? 44 : 32} />
+      </Animated.View>
+      <Text style={styles.actionLabel}>{label}</Text>
+    </Pressable>
+  );
+};
+
 interface PetCard {
   id: string;
   pet_name: string;
