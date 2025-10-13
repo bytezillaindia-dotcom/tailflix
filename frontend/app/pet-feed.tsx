@@ -255,6 +255,22 @@ export default function PetFeedScreen() {
     try {
       setActionLoading(true);
       
+      // Check daily limit ONLY for "like" action
+      if (actionType === 'like') {
+        const limitsResponse = await fetch(`${backendUrl}/api/likes/daily-count`);
+        const limitsData = await limitsResponse.json();
+        
+        if (limitsResponse.ok) {
+          // Check if user has reached daily limit (10 likes for free users)
+          if (limitsData.daily_likes_count >= limitsData.limit) {
+            setActionLoading(false);
+            // Show paywall
+            router.push('/paywall');
+            return;
+          }
+        }
+      }
+      
       const response = await fetch(`${backendUrl}/api/likes`, {
         method: 'POST',
         headers: {
