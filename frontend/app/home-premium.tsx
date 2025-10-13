@@ -100,6 +100,14 @@ const SECTIONS = [
         gradient: [COLORS.pawPinkLight, COLORS.gold],
         route: '/tailpro_home',
       },
+      {
+        id: '8',
+        title: 'My Appointments',
+        icon: '📅',
+        description: 'View & manage bookings',
+        gradient: [COLORS.softPeach, COLORS.peach],
+        route: '/tailpro_orders',
+      },
     ],
   },
   {
