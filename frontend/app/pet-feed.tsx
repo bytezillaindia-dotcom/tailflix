@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
-import { theme } from '../constants/theme';
+import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 
 const { width, height } = Dimensions.get('window');
 
