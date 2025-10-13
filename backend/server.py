@@ -85,6 +85,7 @@ class Verification(BaseModel):
     status: str = "pending"  # pending, approved, rejected
     created_at: datetime = Field(default_factory=datetime.utcnow)
     reviewed_at: Optional[datetime] = None
+    reviewed_by: Optional[str] = None
 
 class VerificationCreate(BaseModel):
     selfie_url: str
