@@ -36,6 +36,8 @@ export default function RootLayout() {
         <Stack.Screen name="matches" />
         <Stack.Screen name="likes" />
         <Stack.Screen name="chat" />
+        <Stack.Screen name="tailboard" />
+        <Stack.Screen name="post-ad" />
       </Stack>
     </AuthProvider>
   );
