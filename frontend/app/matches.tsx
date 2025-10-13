@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   matchName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: '#D2691E',
   },
   petNameSubtext: {
     fontSize: 14,
@@ -371,24 +371,24 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   fetchBadge: {
-    backgroundColor: 'rgba(100, 100, 100, 0.3)',
+    backgroundColor: '#FFB6C1',
   },
   tugBadge: {
-    backgroundColor: 'rgba(100, 100, 100, 0.3)',
+    backgroundColor: '#FFB6C1',
   },
   sourceBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#FFD700',
+    color: '#FFF',
   },
   lastMessage: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(139, 69, 19, 0.8)',
     marginBottom: 4,
   },
   matchedTime: {
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: 'rgba(139, 69, 19, 0.6)',
   },
   chevronContainer: {
     justifyContent: 'center',
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 32,
-    color: 'rgba(255, 215, 0, 0.5)',
+    color: '#FFB6C1',
     fontWeight: 'bold',
   },
   emptyContainer: {
@@ -413,19 +413,19 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: '#D2691E',
     marginBottom: SPACING.sm,
     textAlign: 'center',
   },
   emptyText: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(139, 69, 19, 0.8)',
     textAlign: 'center',
     marginBottom: SPACING.xl,
     lineHeight: 24,
   },
   browseButton: {
-    backgroundColor: '#DC143C',
+    backgroundColor: '#FFB6C1',
     paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.md,
     borderRadius: 16,
