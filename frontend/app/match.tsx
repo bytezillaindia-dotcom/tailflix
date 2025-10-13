@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
@@ -11,8 +11,11 @@ export default function MatchScreen() {
   const params = useLocalSearchParams();
   
   const matchType = params.matchType as string || 'like';
+  const matchId = params.matchId as string;
   const myPetName = params.myPetName as string || 'Your pet';
+  const myPetPhoto = params.myPetPhoto as string;
   const theirPetName = params.theirPetName as string || 'Their pet';
+  const theirPetPhoto = params.theirPetPhoto as string;
   
   // Animation values
   const leftPetPosition = new Animated.Value(-width / 2);
@@ -57,6 +60,17 @@ export default function MatchScreen() {
       }
     });
   }, []);
+  
+  const handleStartChat = () => {
+    if (matchId) {
+      router.push({
+        pathname: '/chat',
+        params: { matchId }
+      });
+    } else {
+      alert('Chat feature coming soon!');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -89,16 +103,20 @@ export default function MatchScreen() {
           </Text>
         </View>
         
-        {/* Animation area */}
+        {/* Animation area with photos */}
         <View style={styles.animationContainer}>
           {/* Left pet (mine) */}
           <Animated.View 
             style={[
-              styles.petEmoji,
+              styles.petContainer,
               { transform: [{ translateX: leftPetPosition }] }
             ]}
           >
-            <Text style={styles.petIcon}>🐕</Text>
+            {myPetPhoto ? (
+              <Image source={{ uri: myPetPhoto }} style={styles.petPhoto} />
+            ) : (
+              <Text style={styles.petIcon}>🐕</Text>
+            )}
             <Text style={styles.petLabel}>{myPetName}</Text>
           </Animated.View>
           
@@ -115,11 +133,15 @@ export default function MatchScreen() {
           {/* Right pet (theirs) */}
           <Animated.View 
             style={[
-              styles.petEmoji,
+              styles.petContainer,
               { transform: [{ translateX: rightPetPosition }] }
             ]}
           >
-            <Text style={styles.petIcon}>🐕</Text>
+            {theirPetPhoto ? (
+              <Image source={{ uri: theirPetPhoto }} style={styles.petPhoto} />
+            ) : (
+              <Text style={styles.petIcon}>🐕</Text>
+            )}
             <Text style={styles.petLabel}>{theirPetName}</Text>
           </Animated.View>
         </View>
@@ -138,10 +160,7 @@ export default function MatchScreen() {
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.chatButton}
-            onPress={() => {
-              // TODO: Navigate to chat screen
-              alert('Chat feature coming soon!');
-            }}
+            onPress={handleStartChat}
           >
             <Text style={styles.chatButtonText}>Start Chat 💬</Text>
           </TouchableOpacity>
