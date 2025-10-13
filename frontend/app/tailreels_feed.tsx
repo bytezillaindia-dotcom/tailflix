@@ -444,9 +444,6 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     fontWeight: 'bold',
   },
-  scrollView: {
-    flex: 1,
-  },
   reelContainer: {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
