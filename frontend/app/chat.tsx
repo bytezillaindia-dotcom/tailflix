@@ -223,15 +223,15 @@ export default function ChatScreen() {
 
   if (loading) {
     return (
-      <LinearGradient colors={['#000000', '#1a0505', '#2a0a0a']} style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FFD700" />
+      <LinearGradient colors={['#FFF8E7', '#FFE4B5', '#FFDAB9']} style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FFB6C1" />
         <Text style={styles.loadingText}>Loading chat...</Text>
       </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={['#000000', '#1a0505', '#2a0a0a']} style={{ flex: 1 }}>
+    <LinearGradient colors={['#FFF8E7', '#FFE4B5', '#FFDAB9']} style={{ flex: 1 }}>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
