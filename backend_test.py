@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-TailFlix Backend Comprehensive Test Suite
-Tests all flows as requested in the review: Onboarding, Verification Guard, Admin, PetFeed, Paywall, Premium
+TailFlix Backend Testing Suite - Journey-Based Testing
+Tests complete user journeys as specified in the review request
 """
 
 import requests
