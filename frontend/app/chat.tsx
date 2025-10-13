@@ -154,44 +154,70 @@ export default function ChatScreen() {
     setInputText((prev) => prev + '🐾');
   };
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => {
+  const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
     const isMyMessage = item.sender_id === userId;
     const messageTime = new Date(item.created_at).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
 
+    // Animation for message appearance
+    const messageAnim = useRef(new Animated.Value(0)).current;
+    
+    useEffect(() => {
+      Animated.parallel([
+        Animated.timing(messageAnim, {
+          toValue: 1,
+          duration: 200,
+          delay: index * 50, // Stagger animation
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, []);
+
     return (
-      <View
+      <Animated.View
         style={[
           styles.messageContainer,
           isMyMessage ? styles.myMessageContainer : styles.theirMessageContainer,
+          {
+            opacity: messageAnim,
+            transform: [
+              {
+                translateY: messageAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [20, 0],
+                }),
+              },
+            ],
+          },
         ]}
       >
-        <View
-          style={[
-            styles.messageBubble,
-            isMyMessage ? styles.myMessageBubble : styles.theirMessageBubble,
-          ]}
-        >
-          <Text
-            style={[
-              styles.messageText,
-              isMyMessage ? styles.myMessageText : styles.theirMessageText,
-            ]}
+        {isMyMessage ? (
+          <LinearGradient
+            colors={['#DC143C', '#FFD700']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.messageBubble, styles.myMessageBubble]}
           >
-            {item.message}
-          </Text>
-          <Text
-            style={[
-              styles.messageTime,
-              isMyMessage ? styles.myMessageTime : styles.theirMessageTime,
-            ]}
-          >
-            {messageTime}
-          </Text>
-        </View>
-      </View>
+            <Text style={[styles.messageText, styles.myMessageText]}>
+              {item.message}
+            </Text>
+            <Text style={[styles.messageTime, styles.myMessageTime]}>
+              {messageTime}
+            </Text>
+          </LinearGradient>
+        ) : (
+          <View style={[styles.messageBubble, styles.theirMessageBubble]}>
+            <Text style={[styles.messageText, styles.theirMessageText]}>
+              {item.message}
+            </Text>
+            <Text style={[styles.messageTime, styles.theirMessageTime]}>
+              {messageTime}
+            </Text>
+          </View>
+        )}
+      </Animated.View>
     );
   };
 
