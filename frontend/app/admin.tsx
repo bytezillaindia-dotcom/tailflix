@@ -32,6 +32,7 @@ interface User {
   created_at: string;
   last_login?: string;
   is_verified_human?: boolean;
+  is_premium?: boolean;
 }
 
 // Hardcoded admin account - replace with your actual user ID
