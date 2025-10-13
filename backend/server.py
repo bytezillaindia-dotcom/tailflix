@@ -531,12 +531,13 @@ async def get_daily_like_count(user_id: Optional[str] = None):
 
 
 @api_router.post("/likes")
-async def create_like(like_data: LikeCreate):
+async def create_like(like_data: LikeCreate, user_id: Optional[str] = None):
     """
     Record a like/skip/super_like/golden_bone action (createLikeSecure)
     Server-side validation for premium features
     Checks for mutual matches and creates match if found
-    For now, we'll use a mock user_id. In production, extract from JWT token
+    
+    Accepts user_id as query parameter or uses most recent user as fallback
     """
     try:
         # Validate action_type
@@ -547,14 +548,19 @@ async def create_like(like_data: LikeCreate):
                 detail=f"Invalid action_type. Must be one of {valid_actions}"
             )
         
-        # Mock user_id - in production, get from authenticated session
-        recent_user = await db.users.find_one(sort=[("last_login", -1)])
-        
-        if not recent_user:
-            raise HTTPException(status_code=404, detail="No user found. Please login first.")
-        
-        user_id = recent_user['id']
-        is_premium = recent_user.get('is_premium', False)
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
+            is_premium = recent_user.get('is_premium', False)
+        else:
+            # Fetch user by user_id
+            user = await db.users.find_one({"id": user_id})
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            is_premium = user.get('is_premium', False)
         
         # SERVER-SIDE PREMIUM VALIDATION (createLikeSecure logic)
         # Step 1: Check if premium features require premium status
