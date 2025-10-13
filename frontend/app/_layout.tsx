@@ -40,6 +40,8 @@ export default function RootLayout() {
         <Stack.Screen name="post-ad" />
         <Stack.Screen name="tailmarket" />
         <Stack.Screen name="post-puppy" />
+        <Stack.Screen name="tailpro" />
+        <Stack.Screen name="post-service" />
       </Stack>
     </AuthProvider>
   );
