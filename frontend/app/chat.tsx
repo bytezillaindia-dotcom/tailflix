@@ -280,20 +280,42 @@ export default function ChatScreen() {
 
       {/* Input Area */}
       <View style={styles.inputContainer}>
-        {/* Paw Button */}
+        {/* Paw Emoji Insert Button */}
         <TouchableOpacity
-          style={styles.pawButton}
-          onPress={handleSendPaw}
+          style={styles.pawEmojiButton}
+          onPress={insertPawEmoji}
           disabled={sending}
         >
-          <Text style={styles.pawButtonText}>🐾</Text>
+          <Animated.Text
+            style={[
+              styles.pawButtonText,
+              {
+                transform: [
+                  {
+                    scale: pawSparkleAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.3],
+                    }),
+                  },
+                  {
+                    rotate: pawSparkleAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['0deg', '20deg'],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            🐾
+          </Animated.Text>
         </TouchableOpacity>
 
         {/* Text Input */}
         <TextInput
           style={styles.textInput}
           placeholder="Type a message..."
-          placeholderTextColor={COLORS.gray}
+          placeholderTextColor="rgba(255, 255, 255, 0.4)"
           value={inputText}
           onChangeText={setInputText}
           multiline
@@ -301,20 +323,51 @@ export default function ChatScreen() {
           editable={!sending}
         />
 
-        {/* Send Button */}
+        {/* Send Button with Gradient */}
         <TouchableOpacity
-          style={[styles.sendButton, (!inputText.trim() || sending) && styles.sendButtonDisabled]}
-          onPress={() => sendMessage(inputText)}
+          activeOpacity={0.8}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            // Animate send button glow
+            Animated.sequence([
+              Animated.timing(sendButtonGlowAnim, {
+                toValue: 1,
+                duration: 150,
+                useNativeDriver: false,
+              }),
+              Animated.timing(sendButtonGlowAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: false,
+              }),
+            ]).start();
+            sendMessage(inputText);
+          }}
           disabled={!inputText.trim() || sending}
         >
-          {sending ? (
-            <ActivityIndicator size="small" color={COLORS.white} />
-          ) : (
-            <Text style={styles.sendButtonText}>Send</Text>
-          )}
+          <LinearGradient
+            colors={
+              !inputText.trim() || sending
+                ? ['#444', '#444']
+                : ['#DC143C', '#FFD700']
+            }
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[
+              styles.sendButton,
+              { opacity: !inputText.trim() || sending ? 0.5 : 1 },
+            ]}
+          >
+            {sending ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Text style={styles.sendButtonText}>Send</Text>
+            )}
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
