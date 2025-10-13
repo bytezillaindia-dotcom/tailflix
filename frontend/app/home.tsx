@@ -127,6 +127,18 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
   },
+  adminButton: {
+    backgroundColor: COLORS.gold,
+    padding: SPACING.md,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  adminButtonText: {
+    color: COLORS.black,
+    fontSize: FONT_SIZES.md,
+    fontWeight: 'bold',
+  },
   logoutButton: {
     backgroundColor: COLORS.darkGray,
     padding: SPACING.md,
