@@ -708,19 +708,18 @@ async def get_likes(user_id: Optional[str] = None):
 # ============ Verification Routes ============
 
 @api_router.post("/verifications", response_model=Verification)
-async def create_verification(verification_data: VerificationCreate):
+async def create_verification(verification_data: VerificationCreate, user_id: Optional[str] = None):
     """
     Create a new verification request
-    For now, we'll use a mock user_id. In production, extract from JWT token
+    Accepts user_id as query parameter or uses most recent user as fallback
     """
     try:
-        # Mock user_id - in production, get from authenticated session
-        recent_user = await db.users.find_one(sort=[("last_login", -1)])
-        
-        if not recent_user:
-            raise HTTPException(status_code=404, detail="No user found. Please login first.")
-        
-        user_id = recent_user['id']
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
         
         # Create verification object
         verification = Verification(
