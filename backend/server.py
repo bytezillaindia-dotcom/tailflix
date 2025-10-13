@@ -290,7 +290,7 @@ async def check_user_has_pets(user_id: str):
 
 
 @api_router.get("/pets/feed")
-async def get_pet_feed(limit: int = 10, debug: bool = False):
+async def get_pet_feed(user_id: Optional[str] = None, limit: int = 10, debug: bool = False):
     """
     Get pet feed for the current user
     REQUIRES: User must be verified (is_verified_human=true)
@@ -298,19 +298,25 @@ async def get_pet_feed(limit: int = 10, debug: bool = False):
     - Excludes pets already liked/skipped
     - Excludes user's own pets
     - Mock distance/location for now
-    For production: extract user_id from JWT token
     
+    Accepts user_id as query parameter or uses most recent user as fallback
     Debug mode: Set ?debug=true to see first 5 pets regardless of filters
     """
     try:
-        # Mock user_id - in production, get from authenticated session
-        recent_user = await db.users.find_one(sort=[("last_login", -1)])
-        
-        if not recent_user:
-            raise HTTPException(status_code=404, detail="No user found. Please login first.")
-        
-        current_user_id = recent_user['id']
-        is_verified = recent_user.get('is_verified_human', False)
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            current_user_id = recent_user['id']
+            is_verified = recent_user.get('is_verified_human', False)
+        else:
+            # Fetch user by user_id
+            user = await db.users.find_one({"id": user_id})
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            current_user_id = user_id
+            is_verified = user.get('is_verified_human', False)
         
         # DEBUG LOGGING
         logger.info("="*80)
