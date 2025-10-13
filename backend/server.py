@@ -96,7 +96,7 @@ class Like(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
     pet_id: str
-    action_type: str  # 'like', 'skip', 'super_like', 'boost'
+    action_type: str  # 'like', 'skip', 'super_like', 'golden_bone'
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class LikeCreate(BaseModel):
