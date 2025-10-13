@@ -167,6 +167,8 @@ export default function TugYardScreen() {
         break;
       case 'skip':
         animateButtonGlow(dropGlow);
+        // Animate rope drop
+        animateRopeDrop();
         break;
     }
 
@@ -175,6 +177,172 @@ export default function TugYardScreen() {
 
     // Advance to next card
     advanceCard();
+  };
+
+  // Handle Tug long press (1 second)
+  const handleTugPressIn = () => {
+    setIsTugging(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    // Start progress animation
+    Animated.timing(tugProgress, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+
+    // Start rope stretch animation
+    Animated.timing(ropeStretch, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+
+    // Timer to complete action after 1 second
+    tugTimer.current = setTimeout(() => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      animateRopePull();
+      handleAction('like');
+      resetTugAnimation();
+    }, 1000);
+  };
+
+  const handleTugPressOut = () => {
+    if (tugTimer.current) {
+      clearTimeout(tugTimer.current);
+      tugTimer.current = null;
+    }
+    resetTugAnimation();
+  };
+
+  const resetTugAnimation = () => {
+    setIsTugging(false);
+    tugProgress.setValue(0);
+    ropeStretch.setValue(0);
+  };
+
+  // Handle Strong Tug long press (1.5 seconds)
+  const handleStrongTugPressIn = () => {
+    setIsStrongTugging(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
+    // Start progress animation
+    Animated.timing(strongTugProgress, {
+      toValue: 1,
+      duration: 1500,
+      useNativeDriver: false,
+    }).start();
+
+    // Start rope glow animation
+    Animated.parallel([
+      Animated.timing(ropeStretch, {
+        toValue: 1.2,
+        duration: 1500,
+        useNativeDriver: true,
+      }),
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(ropeGlow, {
+            toValue: 1,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(ropeGlow, {
+            toValue: 0.5,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+        ])
+      ),
+    ]).start();
+
+    // Timer to complete action after 1.5 seconds
+    strongTugTimer.current = setTimeout(() => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      animateRopePullWithGlow();
+      handleAction('super_like');
+      resetStrongTugAnimation();
+    }, 1500);
+  };
+
+  const handleStrongTugPressOut = () => {
+    if (strongTugTimer.current) {
+      clearTimeout(strongTugTimer.current);
+      strongTugTimer.current = null;
+    }
+    resetStrongTugAnimation();
+  };
+
+  const resetStrongTugAnimation = () => {
+    setIsStrongTugging(false);
+    strongTugProgress.setValue(0);
+    ropeStretch.setValue(0);
+    ropeGlow.setValue(0);
+  };
+
+  // Rope animations
+  const animateRopePull = () => {
+    // Rope stretches then recoils
+    Animated.sequence([
+      Animated.timing(ropeStretch, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(ropeStretch, {
+        toValue: 0,
+        tension: 100,
+        friction: 5,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const animateRopePullWithGlow = () => {
+    // Rope stretches with glow then recoils
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(ropeStretch, {
+          toValue: 1.2,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ropeGlow, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.spring(ropeStretch, {
+          toValue: 0,
+          tension: 100,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ropeGlow, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+  };
+
+  const animateRopeDrop = () => {
+    // Rope falls down
+    Animated.sequence([
+      Animated.timing(ropeDrop, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(ropeDrop, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const advanceCard = () => {
