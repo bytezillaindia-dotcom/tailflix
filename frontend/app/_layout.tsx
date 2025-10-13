@@ -38,6 +38,8 @@ export default function RootLayout() {
         <Stack.Screen name="chat" />
         <Stack.Screen name="tailboard" />
         <Stack.Screen name="post-ad" />
+        <Stack.Screen name="tailmarket" />
+        <Stack.Screen name="post-puppy" />
       </Stack>
     </AuthProvider>
   );
