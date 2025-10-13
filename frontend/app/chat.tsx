@@ -115,7 +115,39 @@ export default function ChatScreen() {
   };
 
   const handleSendPaw = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // Animate paw button
+    Animated.sequence([
+      Animated.timing(pawSparkleAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(pawSparkleAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
     sendMessage('🐾');
+  };
+
+  const insertPawEmoji = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Animate paw button
+    Animated.sequence([
+      Animated.timing(pawSparkleAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(pawSparkleAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    setInputText((prev) => prev + '🐾');
   };
 
   const renderMessage = ({ item }: { item: ChatMessage }) => {
