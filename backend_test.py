@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://pet-love-app.preview.emergentagent.com/api"
+BACKEND_URL = "https://taildate.preview.emergentagent.com/api"
 
 class TailFlixAPITester:
     def __init__(self):
