@@ -654,6 +654,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255, 215, 0, 0.5)',
   },
+  skipButton: {
+    borderWidth: 2,
+    borderColor: 'rgba(255, 165, 0, 0.5)',
+  },
   superLikeButton: {
     borderWidth: 2,
     borderColor: 'rgba(220, 20, 60, 0.5)',
