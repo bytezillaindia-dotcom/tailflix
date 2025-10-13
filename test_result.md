@@ -167,27 +167,33 @@ backend:
 
   - task: "Likes Model & API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created Like model with MongoDB integration. Stores user_id, pet_id, action_type (like/skip/superlike/boost), created_at. Added POST /api/likes to record actions and GET /api/likes to retrieve them."
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Likes API working perfectly. POST /api/likes validates all 4 action types (like/skip/superlike/boost) correctly, rejects invalid action types and non-existent pet IDs. GET /api/likes returns stored likes with correct structure (id, user_id, pet_id, action_type, created_at). All validation scenarios passed (7/7 tests)."
 
   - task: "Pet Feed API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created GET /api/pets/feed endpoint. Returns verified pets from verified users, excludes user's own pets and already interacted pets. Enriches data with age calculation, mock distance (0.5-50km), and owner verification status. Supports pagination via limit parameter (default 10)."
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Pet Feed API working correctly. GET /api/pets/feed returns pets with enriched fields (age, distance_km, owner_verified). Age calculation accurate (current_year - birth_year). Distance in expected range (0.5-50km). Pagination working with different limit values (1,2,5,10). Filtering logic working - liked pets excluded from subsequent feed calls. No duplicate pets in feed."
 
 frontend:
   - task: "Splash Screen"
