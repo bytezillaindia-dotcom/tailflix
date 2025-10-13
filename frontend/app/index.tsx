@@ -22,18 +22,23 @@ export default function SplashScreen() {
 
   const checkOnboardingStatus = async () => {
     try {
+      console.log('🔍 Checking onboarding status...');
       const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
+      console.log('📦 onboarding_completed value:', onboardingCompleted);
       
       if (onboardingCompleted === 'true') {
         // User has completed onboarding, go to login
+        console.log('✅ Onboarding completed, navigating to login-premium');
         router.replace('/login-premium');
       } else {
         // First time user, show onboarding
+        console.log('🆕 First time user, navigating to onboarding-choice');
         router.replace('/onboarding-choice');
       }
     } catch (error) {
-      console.error('Error checking onboarding status:', error);
+      console.error('❌ Error checking onboarding status:', error);
       // Default to onboarding if error
+      console.log('⚠️ Defaulting to onboarding-choice');
       router.replace('/onboarding-choice');
     }
   };
