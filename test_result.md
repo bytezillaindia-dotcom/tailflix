@@ -210,6 +210,78 @@ backend:
           agent: "testing"
           comment: "✅ TESTED: Pet Feed API working correctly. GET /api/pets/feed returns pets with enriched fields (age, distance_km, owner_verified). Age calculation accurate (current_year - birth_year). Distance in expected range (0.5-50km). Pagination working with different limit values (1,2,5,10). Filtering logic working - liked pets excluded from subsequent feed calls. No duplicate pets in feed."
 
+  - task: "Premium Feature Enforcement"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "❌ CRITICAL BUG: Premium features not enforced. Free users can use super_like and golden_bone actions which should be premium-only. Backend accepts these actions without checking is_premium status. Need to add premium validation in POST /api/likes endpoint before processing super_like and golden_bone actions."
+
+  - task: "Verification Guard Implementation"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "❌ MISSING FEATURE: Verification guard not implemented. Unverified users can access GET /api/pets/feed without restriction. Should check user's is_verified_human status and block access to PetFeed and Chat endpoints for unverified users."
+
+  - task: "Admin Verification Management"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: All admin verification endpoints working correctly. GET /api/admin/verifications/pending returns pending verifications. POST /api/admin/verifications/{id}/approve updates verification status and sets user.is_verified_human=true. POST /api/admin/verifications/{id}/reject updates verification status. All database updates working correctly."
+
+  - task: "Admin Premium Management"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Admin premium management working correctly. PUT /api/admin/users/{id}/premium successfully toggles user.is_premium status. Database updates working correctly. Premium status properly reflected in user records."
+
+  - task: "Daily Limits System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: Daily limits system working correctly. GET /api/likes/daily-count returns accurate counts for like+super_like+golden_bone actions (excludes skip). Skip actions unlimited as designed. Daily limit of 10 actions enforced correctly. Golden Bones monthly reset logic working (5/month for premium users)."
+
+  - task: "Backend Bug Fix - owner_id Reference"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ FIXED: Critical backend bug causing 500 errors on all like actions. Changed 'owner_id' references to 'user_id' in POST /api/likes endpoint (lines 458 and 484) to match Pet model schema. All like actions now working correctly without server errors."
+
 frontend:
   - task: "Splash Screen"
     implemented: true
