@@ -1019,6 +1019,101 @@ async def update_user_premium_status(user_id: str, data: dict):
         raise HTTPException(status_code=500, detail="Failed to update premium status")
 
 
+# ============ Chat Routes ============
+
+@api_router.get("/chats/{match_id}")
+async def get_chat_messages(match_id: str, user_id: Optional[str] = None):
+    """
+    Get all chat messages for a specific match
+    Only users who are part of the match can access the chat
+    """
+    try:
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
+        
+        # Verify the match exists
+        match = await db.matches.find_one({"id": match_id})
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+        
+        # Verify user is part of the match
+        if user_id not in [match['user1_id'], match['user2_id']]:
+            raise HTTPException(status_code=403, detail="Unauthorized: You are not part of this match")
+        
+        # Get all messages for this match
+        messages = await db.chats.find({"match_id": match_id}).sort("created_at", 1).to_list(1000)
+        
+        # Get the other user's info
+        other_user_id = match['user2_id'] if match['user1_id'] == user_id else match['user1_id']
+        other_user = await db.users.find_one({"id": other_user_id})
+        other_pet = await db.pets.find_one({"user_id": other_user_id})
+        
+        return {
+            "match_id": match_id,
+            "messages": [ChatMessage(**msg) for msg in messages],
+            "other_user": {
+                "user_id": other_user_id,
+                "contact": other_user.get('value', 'Unknown') if other_user else 'Unknown',
+                "pet_name": other_pet.get('pet_name', 'Their Pet') if other_pet else 'Their Pet',
+                "pet_photo": other_pet.get('photos', [])[0] if other_pet and other_pet.get('photos') else None
+            }
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching chat messages: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch messages")
+
+
+@api_router.post("/chats/{match_id}")
+async def send_chat_message(match_id: str, message_data: dict, user_id: Optional[str] = None):
+    """
+    Send a chat message in a match
+    Only users who are part of the match can send messages
+    """
+    try:
+        # Get user_id from parameter or fallback to most recent user
+        if not user_id:
+            recent_user = await db.users.find_one(sort=[("last_login", -1)])
+            if not recent_user:
+                raise HTTPException(status_code=404, detail="No user found. Please login first.")
+            user_id = recent_user['id']
+        
+        # Verify the match exists
+        match = await db.matches.find_one({"id": match_id})
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+        
+        # Verify user is part of the match
+        if user_id not in [match['user1_id'], match['user2_id']]:
+            raise HTTPException(status_code=403, detail="Unauthorized: You are not part of this match")
+        
+        # Create the message
+        message = ChatMessage(
+            match_id=match_id,
+            sender_id=user_id,
+            message=message_data.get('message', '')
+        )
+        
+        # Save to database
+        await db.chats.insert_one(message.dict())
+        
+        logger.info(f"Message sent in match {match_id} by user {user_id}")
+        
+        return message
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sending chat message: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to send message")
+
+
 # ============ General Routes ============
 
 @api_router.get("/")
