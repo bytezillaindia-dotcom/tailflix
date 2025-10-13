@@ -236,6 +236,27 @@ export default function FetchYardScreen() {
 
       const data = await response.json();
 
+      // Handle error responses (insufficient coins, daily limit)
+      if (data.error) {
+        if (data.error === 'insufficient_coins') {
+          setPaywallError('insufficient_coins');
+          setShowPaywall(true);
+          return;
+        } else if (data.error === 'daily_limit_reached') {
+          setPaywallError('daily_limit_reached');
+          setShowPaywall(true);
+          return;
+        }
+      }
+
+      // Update user stats from response
+      if (data.user_stats) {
+        setTailCoins(data.user_stats.tail_coins);
+        setDailyLikesCount(data.user_stats.daily_likes_count);
+        setDailyLikesLimit(data.user_stats.daily_likes_limit);
+        setIsPremium(data.user_stats.is_premium);
+      }
+
       // Check if this resulted in a match
       if (data.match && data.match.matched) {
         router.push({
