@@ -8,7 +8,6 @@ import {
   Animated,
   Dimensions,
   PanResponder,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
