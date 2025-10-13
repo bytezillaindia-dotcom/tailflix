@@ -128,11 +128,12 @@ export default function FetchYardScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         break;
       case 'golden_bone':
-        animateButtonGlow(hyperLikeGlow);
+        animateButtonGlow(boostGlow);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         break;
       case 'skip':
-        // Just advance
+        animateButtonGlow(hyperLikeGlow);
+        // Just advance for skip
         break;
     }
 
