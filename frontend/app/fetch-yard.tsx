@@ -155,7 +155,7 @@ export default function FetchYardScreen() {
       // Check if this resulted in a match
       if (data.match && data.match.matched) {
         router.push({
-          pathname: '/match',
+          pathname: '/double-fetch',
           params: {
             matchType: data.match.match_type,
             matchId: data.match.match_id,
