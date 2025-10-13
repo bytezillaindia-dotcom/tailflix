@@ -481,8 +481,6 @@ async def get_daily_like_count(user_id: Optional[str] = None):
         
         # Check if we need to reset golden_bones count (new month)
         current_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        golden_bones_reset_date = recent_user.get('golden_bones_reset_date')
-        golden_bones_used_this_month = recent_user.get('golden_bones_used_this_month', 0)
         
         # Reset golden_bones count if we're in a new month
         if not golden_bones_reset_date or golden_bones_reset_date < current_month_start:
