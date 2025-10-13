@@ -418,7 +418,19 @@ export default function FetchYardScreen() {
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Fetch Yard 🐾</Text>
-        <View style={styles.headerSpacer} />
+        
+        {/* Coin Balance Badge */}
+        <Animated.View style={[styles.coinBadge, { transform: [{ scale: coinBadgeScale }] }]}>
+          <LinearGradient
+            colors={['#DC143C', '#8B0000']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.coinBadgeGradient}
+          >
+            <Text style={styles.coinIcon}>🪙</Text>
+            <Text style={styles.coinText}>{tailCoins}</Text>
+          </LinearGradient>
+        </Animated.View>
       </View>
 
       {/* Pet Card */}
