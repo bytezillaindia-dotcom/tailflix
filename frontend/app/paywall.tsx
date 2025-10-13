@@ -1,19 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 
 export default function PaywallScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const message = params.message as string || "You've used all 10 free likes for today";
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Daily Limit Reached! 🐾</Text>
+          <Text style={styles.title}>
+            {params.message ? 'Premium Feature 🐾' : 'Daily Limit Reached! 🐾'}
+          </Text>
           <Text style={styles.subtitle}>
-            You've used all 10 free likes for today
+            {message}
           </Text>
         </View>
 
@@ -28,12 +32,12 @@ export default function PaywallScreen() {
 
           <View style={styles.featureItem}>
             <Text style={styles.featureIcon}>🦴</Text>
-            <Text style={styles.featureText}>10 Super Likes per day</Text>
+            <Text style={styles.featureText}>Unlimited Super Likes</Text>
           </View>
 
           <View style={styles.featureItem}>
             <Text style={styles.featureIcon}>💎</Text>
-            <Text style={styles.featureText}>5 Boosts per month</Text>
+            <Text style={styles.featureText}>5 Golden Bones per month</Text>
           </View>
 
           <View style={styles.featureItem}>
@@ -74,9 +78,11 @@ export default function PaywallScreen() {
         </TouchableOpacity>
 
         {/* Info Text */}
-        <Text style={styles.infoText}>
-          Your daily likes reset at midnight. Come back tomorrow for 10 more free likes!
-        </Text>
+        {!params.message && (
+          <Text style={styles.infoText}>
+            Your daily likes reset at midnight. Come back tomorrow for 10 more free likes!
+          </Text>
+        )}
       </ScrollView>
     </View>
   );
