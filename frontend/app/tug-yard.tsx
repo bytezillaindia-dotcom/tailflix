@@ -47,6 +47,19 @@ export default function TugYardScreen() {
   const strongTugGlow = useRef(new Animated.Value(0)).current;
   const dropGlow = useRef(new Animated.Value(0)).current;
   const leashGlow = useRef(new Animated.Value(0)).current;
+  
+  // Rope pull animations
+  const ropeStretch = useRef(new Animated.Value(0)).current;
+  const ropeGlow = useRef(new Animated.Value(0)).current;
+  const ropeDrop = useRef(new Animated.Value(0)).current;
+  const tugProgress = useRef(new Animated.Value(0)).current;
+  const strongTugProgress = useRef(new Animated.Value(0)).current;
+
+  // Long press state
+  const [isTugging, setIsTugging] = useState(false);
+  const [isStrongTugging, setIsStrongTugging] = useState(false);
+  const tugTimer = useRef<NodeJS.Timeout | null>(null);
+  const strongTugTimer = useRef<NodeJS.Timeout | null>(null);
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
