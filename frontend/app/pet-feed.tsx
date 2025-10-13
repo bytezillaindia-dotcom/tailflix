@@ -619,11 +619,12 @@ export default function PetFeedScreen() {
           disabled={actionLoading}
         />
 
-        <AnimatedActionButton
-          onPress={() => handleAction('boost')}
+        <AnimatedGoldenBoneButton
+          onPress={() => handleAction('golden_bone')}
           icon={GoldenBoneIcon}
-          label="Boost"
+          label="Golden Bone"
           disabled={actionLoading}
+          isAnimating={goldenBoneAnimating}
         />
       </View>
 
