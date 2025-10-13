@@ -8,6 +8,7 @@ import {
   Animated,
   Dimensions,
   PanResponder,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 import { useAuth } from '../components/AuthContext';
 import { ActionIcon } from '../components/ActionIcon';
+import { PaywallModal } from '../components/PaywallModal';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 120;
@@ -37,6 +39,14 @@ export default function FetchYardScreen() {
   const [pets, setPets] = useState<Pet[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  // TailCoins & Stats
+  const [tailCoins, setTailCoins] = useState(0);
+  const [dailyLikesCount, setDailyLikesCount] = useState(0);
+  const [dailyLikesLimit, setDailyLikesLimit] = useState<number | null>(10);
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallError, setPaywallError] = useState<'insufficient_coins' | 'daily_limit_reached'>('daily_limit_reached');
 
   // Animation values
   const position = useRef(new Animated.ValueXY()).current;
@@ -47,6 +57,7 @@ export default function FetchYardScreen() {
   const superLikeGlow = useRef(new Animated.Value(0)).current;
   const hyperLikeGlow = useRef(new Animated.Value(0)).current;
   const boostGlow = useRef(new Animated.Value(0)).current;
+  const coinBadgeScale = useRef(new Animated.Value(1)).current;
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
