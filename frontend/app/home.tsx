@@ -1,9 +1,29 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
+import { useAuth } from '../components/AuthContext';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/login');
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -55,7 +75,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => router.replace('/login')}
+          onPress={handleLogout}
         >
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
