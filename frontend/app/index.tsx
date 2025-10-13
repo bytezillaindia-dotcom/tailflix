@@ -116,6 +116,14 @@ export default function SplashScreen() {
 
   return (
     <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
+      {/* Gradient Background */}
+      <LinearGradient
+        colors={['#FFF8E7', '#FFE4B5', '#FFD700']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBackground}
+      />
+
       {/* Animated Glow Background */}
       <Animated.View
         style={[
@@ -126,7 +134,18 @@ export default function SplashScreen() {
         ]}
       />
 
-      {/* Rotating Ring Effect */}
+      {/* Sparkle particles */}
+      <Animated.View style={[styles.sparkle, { top: '20%', left: '15%', opacity: glowOpacity }]}>
+        <Text style={styles.sparkleText}>✨</Text>
+      </Animated.View>
+      <Animated.View style={[styles.sparkle, { top: '70%', right: '20%', opacity: glowOpacity }]}>
+        <Text style={styles.sparkleText}>✨</Text>
+      </Animated.View>
+      <Animated.View style={[styles.sparkle, { top: '40%', right: '10%', opacity: glowOpacity }]}>
+        <Text style={styles.sparkleText}>✨</Text>
+      </Animated.View>
+
+      {/* Rotating Ring Effect - Golden Leash Arc */}
       <Animated.View
         style={[
           styles.rotatingRing,
