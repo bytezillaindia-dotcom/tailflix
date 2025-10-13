@@ -38,6 +38,9 @@ class User(BaseModel):
     is_premium: bool = False  # Premium subscription status
     golden_bones_used_this_month: int = 0  # Count of golden_bones used this month
     golden_bones_reset_date: Optional[datetime] = None  # Last reset date (first day of month)
+    tail_coins: int = 0  # TailCoins balance
+    daily_likes_count: int = 0  # Number of free likes used today
+    daily_likes_reset_date: Optional[datetime] = None  # Last reset date for daily likes
 
 class SendOtpRequest(BaseModel):
     method: str  # 'phone' or 'email'
