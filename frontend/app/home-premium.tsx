@@ -92,6 +92,14 @@ const SECTIONS = [
         gradient: [COLORS.goldenBeige, COLORS.gold],
         route: '/tailmarket',
       },
+      {
+        id: '7',
+        title: 'TailPro',
+        icon: '💼',
+        description: 'Book premium pet services',
+        gradient: [COLORS.pawPinkLight, COLORS.gold],
+        route: '/tailpro',
+      },
     ],
   },
   {
