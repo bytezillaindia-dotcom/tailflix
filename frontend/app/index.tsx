@@ -1,16 +1,25 @@
-import { Text, View, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 
-const EXPO_PUBLIC_BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+export default function SplashScreen() {
+  const router = useRouter();
 
-export default function Index() {
-  console.log(EXPO_PUBLIC_BACKEND_URL, "EXPO_PUBLIC_BACKEND_URL");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.replace('/login');
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/images/app-image.png")}
-        style={styles.image}
-      />
+      <View style={styles.content}>
+        <Text style={styles.logo}>TailFlix</Text>
+        <Text style={styles.tagline}>Where pets lead the way to love.</Text>
+      </View>
     </View>
   );
 }
@@ -18,13 +27,25 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0c0c0c",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: COLORS.black,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  image: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
+  content: {
+    alignItems: 'center',
+  },
+  logo: {
+    fontSize: FONT_SIZES.xxxl,
+    fontWeight: 'bold',
+    color: COLORS.crimson,
+    marginBottom: SPACING.md,
+    letterSpacing: 2,
+  },
+  tagline: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.gold,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    paddingHorizontal: SPACING.xl,
   },
 });

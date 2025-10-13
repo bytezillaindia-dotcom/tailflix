@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime
 
@@ -26,31 +26,148 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
-class StatusCheck(BaseModel):
+# ============ Models ============
+
+class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    method: str  # 'phone' or 'email'
+    value: str  # phone number or email
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    last_login: Optional[datetime] = None
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class SendOtpRequest(BaseModel):
+    method: str  # 'phone' or 'email'
+    value: str  # phone number or email
 
-# Add your routes to the router instead of directly to app
+class VerifyOtpRequest(BaseModel):
+    method: str
+    value: str
+    otp: str
+
+class OtpResponse(BaseModel):
+    success: bool
+    message: str
+    mock_otp: Optional[str] = None
+
+class VerifyResponse(BaseModel):
+    success: bool
+    message: str
+    user_id: Optional[str] = None
+    token: Optional[str] = None
+
+
+# ============ Auth Routes ============
+
+@api_router.post("/auth/send-otp", response_model=OtpResponse)
+async def send_otp(request: SendOtpRequest):
+    """
+    Mock OTP sending - accepts any valid phone/email
+    In production, this would integrate with SMS/Email service
+    """
+    try:
+        # Validate method
+        if request.method not in ['phone', 'email']:
+            raise HTTPException(status_code=400, detail="Invalid method. Use 'phone' or 'email'")
+        
+        # Validate value
+        if not request.value or len(request.value) < 3:
+            raise HTTPException(status_code=400, detail="Invalid phone number or email")
+        
+        # Check if user exists, create if not
+        user = await db.users.find_one({"method": request.method, "value": request.value})
+        
+        if not user:
+            new_user = User(method=request.method, value=request.value)
+            await db.users.insert_one(new_user.dict())
+            logger.info(f"New user created: {request.value}")
+        
+        # Mock OTP - in production, send actual OTP via SMS/Email
+        mock_otp = "123456"
+        
+        logger.info(f"OTP sent to {request.value}: {mock_otp}")
+        
+        return OtpResponse(
+            success=True,
+            message="OTP sent successfully (Mock)",
+            mock_otp=mock_otp
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sending OTP: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to send OTP")
+
+
+@api_router.post("/auth/verify-otp", response_model=VerifyResponse)
+async def verify_otp(request: VerifyOtpRequest):
+    """
+    Mock OTP verification - accepts any 6-digit code
+    In production, this would verify against stored OTP
+    """
+    try:
+        # Validate OTP format
+        if not request.otp or len(request.otp) != 6 or not request.otp.isdigit():
+            return VerifyResponse(
+                success=False,
+                message="Invalid OTP format. Must be 6 digits"
+            )
+        
+        # Find user
+        user = await db.users.find_one({"method": request.method, "value": request.value})
+        
+        if not user:
+            return VerifyResponse(
+                success=False,
+                message="User not found. Please request OTP first."
+            )
+        
+        # Mock verification - accept any 6-digit code
+        # In production, verify against stored OTP with expiry check
+        
+        # Update last login
+        await db.users.update_one(
+            {"method": request.method, "value": request.value},
+            {"$set": {"last_login": datetime.utcnow()}}
+        )
+        
+        # Generate mock token (in production, use JWT)
+        mock_token = f"token_{user['id']}_{uuid.uuid4().hex[:16]}"
+        
+        logger.info(f"User logged in: {request.value}")
+        
+        return VerifyResponse(
+            success=True,
+            message="Login successful",
+            user_id=user['id'],
+            token=mock_token
+        )
+    
+    except Exception as e:
+        logger.error(f"Error verifying OTP: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to verify OTP")
+
+
+# ============ General Routes ============
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {
+        "message": "TailFlix API - Where pets lead the way to love",
+        "version": "1.0.0",
+        "endpoints": {
+            "auth": ["/api/auth/send-otp", "/api/auth/verify-otp"],
+            "users": ["/api/users"]
+        }
+    }
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
+@api_router.get("/users", response_model=List[User])
+async def get_users():
+    """Get all users (for testing/admin purposes)"""
+    users = await db.users.find().to_list(1000)
+    return [User(**user) for user in users]
+
 
 # Include the router in the main app
 app.include_router(api_router)
