@@ -31,7 +31,7 @@ export default function TailProPartnerSignup() {
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validation
     if (!name || !phone || !category || !city || !price || !password) {
       Alert.alert('Missing Fields', 'Please fill in all required fields');
@@ -51,6 +51,33 @@ export default function TailProPartnerSignup() {
     if (!agreeTerms || !agreePrivacy) {
       Alert.alert('Agreement Required', 'Please agree to Terms & Conditions and Privacy Policy');
       return;
+    }
+
+    // Generate vendor ID
+    const vendorId = `VENDOR${Date.now()}`;
+    
+    // Save pending vendor data to AsyncStorage
+    try {
+      const partnerData = {
+        vendorId,
+        name,
+        phone,
+        category,
+        city,
+        price: parseInt(price),
+        role: 'pending_vendor',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+      
+      const existingPartnersStr = await AsyncStorage.getItem('tailpro_partners');
+      const existingPartners = existingPartnersStr ? JSON.parse(existingPartnersStr) : [];
+      existingPartners.push(partnerData);
+      await AsyncStorage.setItem('tailpro_partners', JSON.stringify(existingPartners));
+      
+      console.log('Partner application saved:', partnerData);
+    } catch (error) {
+      console.error('Error saving partner data:', error);
     }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
