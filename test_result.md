@@ -191,6 +191,9 @@ backend:
         - working: true
           agent: "main"
           comment: "✅ PREMIUM FEATURE UPDATE: Super Like now premium-only. Backend: Added 'is_premium' field to User model (default False). Updated GET /api/likes/daily-count to return is_premium status. Frontend: Added premium check before super_like action - free users redirected to paywall with message 'Super Likes are a premium feature 🦴✨', premium users can use it (counts toward 10/day limit). Paywall: Updated to accept dynamic message via params. Comprehensive testing: Free user blocked from Super Like, premium user allowed (9 super_likes counted correctly, 10th hit limit). All 4 tests passed."
+        - working: true
+          agent: "main"
+          comment: "✅ GOLDEN BONE PREMIUM + MONTHLY LIMITS: Backend: Added golden_bones_used_this_month and golden_bones_reset_date fields to User model. Updated GET /api/likes/daily-count to return golden_bones info (used/limit/remaining) and auto-reset counter on 1st of month. Updated POST /api/likes to increment golden_bones counter when golden_bone action recorded. Frontend: Added premium check + monthly limit check for golden_bone - free users see paywall 'Golden Bones are a premium feature ✨🍖', premium users with 0 remaining see Alert 'You've used all your Golden Bones this month', premium users with remaining can use (glow+sparkle animation plays). Comprehensive testing (6/6 passed): Free user blocked (0 limit), Premium user gets 5/month, Usage decrements counter (3 used = 2 remaining), Hitting limit (5/5 used = 0 remaining), Monthly auto-reset works (last month → 0 used, 5 available), Golden Bones count toward daily limit (9 likes + 1 GB = 10/10)."
 
   - task: "Pet Feed API"
     implemented: true
