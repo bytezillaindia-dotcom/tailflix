@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
 """
-TailFlix Backend API Testing Suite - PetFeed Features
-Tests the new PetFeed functionality including likes and pet feed endpoints
+TailFlix Backend Comprehensive Test Suite
+Tests all flows as requested in the review: Onboarding, Verification Guard, Admin, PetFeed, Paywall, Premium
 """
 
 import requests
 import json
 import time
-from datetime import datetime
-from typing import Dict, List, Any
+from datetime import datetime, timedelta
+import os
+from dotenv import load_dotenv
 
-# Backend URL from frontend .env
-BACKEND_URL = "https://tailflix-swipe.preview.emergentagent.com/api"
+# Load environment variables
+load_dotenv('/app/frontend/.env')
 
-class TailFlixAPITester:
+# Get backend URL from frontend env
+BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'http://localhost:8001')
+API_BASE = f"{BACKEND_URL}/api"
+
+print(f"🔗 Testing TailFlix Backend at: {API_BASE}")
+print("=" * 80)
+
+class TailFlixTester:
     def __init__(self):
         self.base_url = BACKEND_URL
         self.test_results = []
