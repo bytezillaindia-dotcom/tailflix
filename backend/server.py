@@ -36,6 +36,8 @@ class User(BaseModel):
     last_login: Optional[datetime] = None
     is_verified_human: bool = False
     is_premium: bool = False  # Premium subscription status
+    golden_bones_used_this_month: int = 0  # Count of golden_bones used this month
+    golden_bones_reset_date: Optional[datetime] = None  # Last reset date (first day of month)
 
 class SendOtpRequest(BaseModel):
     method: str  # 'phone' or 'email'
