@@ -75,6 +75,21 @@ class PetCreate(BaseModel):
     temperaments: List[str]
     photos: List[str]
 
+class Verification(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    selfie_url: str
+    pet_pose_url: str
+    doc_url: Optional[str] = None
+    status: str = "pending"  # pending, approved, rejected
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    reviewed_at: Optional[datetime] = None
+
+class VerificationCreate(BaseModel):
+    selfie_url: str
+    pet_pose_url: str
+    doc_url: Optional[str] = None
+
 
 # ============ Auth Routes ============
 
