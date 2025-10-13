@@ -455,7 +455,7 @@ async def create_like(like_data: LikeCreate):
         if not liked_pet:
             raise HTTPException(status_code=404, detail="Pet not found")
         
-        other_user_id = liked_pet['owner_id']
+        other_user_id = liked_pet['user_id']
         
         # If action is golden_bone, increment the monthly counter
         if like_data.action_type == 'golden_bone':
