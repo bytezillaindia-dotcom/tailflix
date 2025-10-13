@@ -47,6 +47,10 @@ export default function ChatScreen() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
 
+  // Animation values
+  const pawSparkleAnim = useRef(new Animated.Value(0)).current;
+  const sendButtonGlowAnim = useRef(new Animated.Value(0)).current;
+
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
