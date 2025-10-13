@@ -838,7 +838,7 @@ const styles = StyleSheet.create({
   },
   partnerDetailRow: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.lightGray,
+    color: COLORS.gray,
     marginBottom: 4,
   },
   partnerDetailLabel: {
