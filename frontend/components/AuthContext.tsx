@@ -4,16 +4,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface AuthContextType {
   userId: string | null;
   token: string | null;
+  role: string | null;
+  status: string | null;
+  vendorId: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (userId: string, token: string) => Promise<void>;
+  login: (userId: string, token: string, role?: string, status?: string, vendorId?: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateVendorStatus: (role: string, status: string, vendorId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = '@tailflix_user_id';
 const TOKEN_STORAGE_KEY = '@tailflix_token';
+const ROLE_STORAGE_KEY = '@tailflix_role';
+const STATUS_STORAGE_KEY = '@tailflix_status';
+const VENDOR_ID_STORAGE_KEY = '@tailflix_vendor_id';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
