@@ -30,11 +30,11 @@ interface DashboardCard {
 const DASHBOARD_CARDS: DashboardCard[] = [
   {
     id: '1',
-    title: 'Pet Feed',
+    title: 'Fetch Yard',
     icon: '🎾',
     description: 'Discover adorable pets looking for playdates',
     colors: [COLORS.crimson, '#8B0000'],
-    route: '/pet-feed',
+    route: '/fetch-yard',
   },
   {
     id: '2',
