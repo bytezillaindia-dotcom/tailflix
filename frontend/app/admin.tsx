@@ -289,6 +289,26 @@ export default function AdminScreen() {
         </View>
       </View>
       <View style={styles.userRow}>
+        <Text style={styles.userLabel}>Premium:</Text>
+        <TouchableOpacity
+          style={[
+            styles.premiumToggle,
+            user.is_premium ? styles.premiumToggleOn : styles.premiumToggleOff,
+            processingId === user.id && styles.buttonDisabled
+          ]}
+          onPress={() => handleTogglePremium(user.id, user.is_premium || false)}
+          disabled={processingId === user.id}
+        >
+          {processingId === user.id ? (
+            <ActivityIndicator size="small" color={COLORS.white} />
+          ) : (
+            <Text style={styles.premiumToggleText}>
+              {user.is_premium ? '✓ Premium' : 'Set Premium'}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+      <View style={styles.userRow}>
         <Text style={styles.userLabel}>Joined:</Text>
         <Text style={styles.userValue}>
           {new Date(user.created_at).toLocaleDateString()}
