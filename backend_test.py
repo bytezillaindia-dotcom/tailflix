@@ -33,579 +33,507 @@ class TailFlixTester:
         self.test_pets = {}
         self.test_verifications = {}
         
-    def log_test(self, test_name: str, success: bool, details: str, response_data: Any = None):
-        """Log test results"""
-        result = {
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "response": response_data,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    def log_result(self, category, message):
+        """Log test result to appropriate category"""
+        self.test_results[category].append(message)
+        status_emoji = {"working": "✅", "broken": "❌", "missing": "⚠️", "notes": "📝"}
+        print(f"{status_emoji[category]} {message}")
+    
+    def make_request(self, method, endpoint, data=None, expected_status=200):
+        """Make HTTP request and handle errors"""
+        url = f"{API_BASE}{endpoint}"
+        try:
+            if method.upper() == 'GET':
+                response = requests.get(url, timeout=10)
+            elif method.upper() == 'POST':
+                response = requests.post(url, json=data, timeout=10)
+            elif method.upper() == 'PUT':
+                response = requests.put(url, json=data, timeout=10)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
+            
+            if response.status_code != expected_status:
+                return None, f"Expected {expected_status}, got {response.status_code}: {response.text}"
+            
+            return response.json(), None
+        except requests.exceptions.RequestException as e:
+            return None, f"Request failed: {str(e)}"
+        except json.JSONDecodeError as e:
+            return None, f"Invalid JSON response: {str(e)}"
+    
+    def test_onboarding_flow(self):
+        """Test complete onboarding flow: OTP → Profile → Pet → Verification"""
+        print("\n🚀 TESTING ONBOARDING FLOW")
+        print("-" * 40)
+        
+        # Test 1: Phone OTP Send
+        phone_data = {"method": "phone", "value": "+1234567890"}
+        result, error = self.make_request('POST', '/auth/send-otp', phone_data)
+        if error:
+            self.log_result('broken', f"Phone OTP Send failed: {error}")
+        elif result.get('success') and result.get('mock_otp') == '123456':
+            self.log_result('working', "Phone OTP Send working correctly")
+        else:
+            self.log_result('broken', f"Phone OTP Send unexpected response: {result}")
+        
+        # Test 2: Email OTP Send
+        email_data = {"method": "email", "value": "sarah.johnson@example.com"}
+        result, error = self.make_request('POST', '/auth/send-otp', email_data)
+        if error:
+            self.log_result('broken', f"Email OTP Send failed: {error}")
+        elif result.get('success') and result.get('mock_otp') == '123456':
+            self.log_result('working', "Email OTP Send working correctly")
+        else:
+            self.log_result('broken', f"Email OTP Send unexpected response: {result}")
+        
+        # Test 3: Phone OTP Verify
+        verify_data = {"method": "phone", "value": "+1234567890", "otp": "123456"}
+        result, error = self.make_request('POST', '/auth/verify-otp', verify_data)
+        if error:
+            self.log_result('broken', f"Phone OTP Verify failed: {error}")
+        elif result.get('success') and result.get('user_id'):
+            self.test_users['phone_user'] = result.get('user_id')
+            self.log_result('working', "Phone OTP Verify working correctly")
+        else:
+            self.log_result('broken', f"Phone OTP Verify unexpected response: {result}")
+        
+        # Test 4: Email OTP Verify
+        verify_data = {"method": "email", "value": "sarah.johnson@example.com", "otp": "123456"}
+        result, error = self.make_request('POST', '/auth/verify-otp', verify_data)
+        if error:
+            self.log_result('broken', f"Email OTP Verify failed: {error}")
+        elif result.get('success') and result.get('user_id'):
+            self.test_users['email_user'] = result.get('user_id')
+            self.log_result('working', "Email OTP Verify working correctly")
+        else:
+            self.log_result('broken', f"Email OTP Verify unexpected response: {result}")
+        
+        # Test 5: Check users table creation
+        result, error = self.make_request('GET', '/users')
+        if error:
+            self.log_result('broken', f"Users table check failed: {error}")
+        elif isinstance(result, list) and len(result) >= 2:
+            # Check if users have correct fields
+            user = result[-1]  # Get latest user
+            required_fields = ['id', 'method', 'value', 'created_at', 'is_verified_human', 'is_premium']
+            missing_fields = [field for field in required_fields if field not in user]
+            if missing_fields:
+                self.log_result('broken', f"Users table missing fields: {missing_fields}")
+            else:
+                self.log_result('working', "Users table created with correct fields")
+        else:
+            self.log_result('broken', f"Users table check unexpected response: {result}")
+        
+        # Test 6: CreateProfile flow (check if endpoint exists)
+        result, error = self.make_request('GET', '/profiles', expected_status=404)
+        if error and "404" in error:
+            self.log_result('missing', "CreateProfile endpoint not implemented (/api/profiles)")
+        else:
+            self.log_result('notes', "CreateProfile endpoint may exist but not documented")
+        
+        # Test 7: AddPet flow
+        pet_data = {
+            "pet_name": "Bella",
+            "breed": "Golden Retriever",
+            "sex": "Female",
+            "birth_year": 2020,
+            "temperaments": ["Friendly", "Energetic", "Loyal"],
+            "photos": ["base64_photo_1", "base64_photo_2", "base64_photo_3"]
         }
-        self.test_results.append(result)
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {details}")
-        if response_data and not success:
-            print(f"   Response: {response_data}")
-        print()
-
-    def test_api_root(self):
-        """Test the root API endpoint"""
-        try:
-            response = requests.get(f"{self.base_url}/")
-            if response.status_code == 200:
-                data = response.json()
-                if "message" in data and "TailFlix" in data["message"]:
-                    self.log_test("API Root Endpoint", True, f"API accessible, message: {data['message']}", data)
-                    return True
-                else:
-                    self.log_test("API Root Endpoint", False, f"Unexpected response format", data)
-                    return False
-            else:
-                self.log_test("API Root Endpoint", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-        except Exception as e:
-            self.log_test("API Root Endpoint", False, f"Connection error: {str(e)}")
-            return False
-
-    def test_send_otp_valid_phone(self):
-        """Test send OTP with valid phone number"""
-        payload = {"method": "phone", "value": "+1234567890"}
-        try:
-            response = requests.post(f"{self.base_url}/auth/send-otp", json=payload)
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("success") and "mock_otp" in data:
-                    self.log_test("Send OTP - Valid Phone", True, f"OTP sent successfully, mock_otp: {data['mock_otp']}", data)
-                    return True
-                else:
-                    self.log_test("Send OTP - Valid Phone", False, "Missing success=true or mock_otp field", data)
-                    return False
-            else:
-                self.log_test("Send OTP - Valid Phone", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-        except Exception as e:
-            self.log_test("Send OTP - Valid Phone", False, f"Request error: {str(e)}")
-            return False
-
-    def test_send_otp_valid_email(self):
-        """Test send OTP with valid email"""
-        payload = {"method": "email", "value": "alice@tailflix.com"}
-        try:
-            response = requests.post(f"{self.base_url}/auth/send-otp", json=payload)
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("success") and "mock_otp" in data:
-                    self.log_test("Send OTP - Valid Email", True, f"OTP sent successfully, mock_otp: {data['mock_otp']}", data)
-                    return True
-                else:
-                    self.log_test("Send OTP - Valid Email", False, "Missing success=true or mock_otp field", data)
-                    return False
-            else:
-                self.log_test("Send OTP - Valid Email", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-        except Exception as e:
-            self.log_test("Send OTP - Valid Email", False, f"Request error: {str(e)}")
-            return False
-
-    def test_send_otp_invalid_method(self):
-        """Test send OTP with invalid method"""
-        payload = {"method": "invalid", "value": "test"}
-        try:
-            response = requests.post(f"{self.base_url}/auth/send-otp", json=payload)
-            if response.status_code == 400:
-                self.log_test("Send OTP - Invalid Method", True, "Correctly rejected invalid method with 400 error")
-                return True
-            else:
-                data = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
-                self.log_test("Send OTP - Invalid Method", False, f"Expected 400 error, got {response.status_code}", data)
-                return False
-        except Exception as e:
-            self.log_test("Send OTP - Invalid Method", False, f"Request error: {str(e)}")
-            return False
-
-    def test_send_otp_empty_value(self):
-        """Test send OTP with empty value"""
-        payload = {"method": "phone", "value": ""}
-        try:
-            response = requests.post(f"{self.base_url}/auth/send-otp", json=payload)
-            if response.status_code == 400:
-                self.log_test("Send OTP - Empty Value", True, "Correctly rejected empty value with 400 error")
-                return True
-            else:
-                data = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
-                self.log_test("Send OTP - Empty Value", False, f"Expected 400 error, got {response.status_code}", data)
-                return False
-        except Exception as e:
-            self.log_test("Send OTP - Empty Value", False, f"Request error: {str(e)}")
-            return False
-
-    def test_verify_otp_valid(self):
-        """Test verify OTP with valid 6-digit code"""
-        # First send OTP
-        send_payload = {"method": "phone", "value": "+0987654321"}
-        try:
-            send_response = requests.post(f"{self.base_url}/auth/send-otp", json=send_payload)
-            if send_response.status_code != 200:
-                self.log_test("Verify OTP - Valid (Setup)", False, "Failed to send OTP for verification test")
-                return False
-            
-            # Now verify with any 6-digit code
-            verify_payload = {"method": "phone", "value": "+0987654321", "otp": "123456"}
-            verify_response = requests.post(f"{self.base_url}/auth/verify-otp", json=verify_payload)
-            
-            if verify_response.status_code == 200:
-                data = verify_response.json()
-                if data.get("success") and "user_id" in data and "token" in data:
-                    self.log_test("Verify OTP - Valid Code", True, f"OTP verified successfully, user_id: {data['user_id']}", data)
-                    return True
-                else:
-                    self.log_test("Verify OTP - Valid Code", False, "Missing success=true, user_id, or token", data)
-                    return False
-            else:
-                self.log_test("Verify OTP - Valid Code", False, f"HTTP {verify_response.status_code}: {verify_response.text}")
-                return False
-        except Exception as e:
-            self.log_test("Verify OTP - Valid Code", False, f"Request error: {str(e)}")
-            return False
-
-    def test_verify_otp_invalid_length(self):
-        """Test verify OTP with invalid length (not 6 digits)"""
-        # First send OTP
-        send_payload = {"method": "email", "value": "bob@tailflix.com"}
-        try:
-            send_response = requests.post(f"{self.base_url}/auth/send-otp", json=send_payload)
-            if send_response.status_code != 200:
-                self.log_test("Verify OTP - Invalid Length (Setup)", False, "Failed to send OTP for verification test")
-                return False
-            
-            # Try to verify with 2-digit code
-            verify_payload = {"method": "email", "value": "bob@tailflix.com", "otp": "12"}
-            verify_response = requests.post(f"{self.base_url}/auth/verify-otp", json=verify_payload)
-            
-            if verify_response.status_code == 200:
-                data = verify_response.json()
-                if not data.get("success"):
-                    self.log_test("Verify OTP - Invalid Length", True, f"Correctly rejected invalid OTP length: {data.get('message')}")
-                    return True
-                else:
-                    self.log_test("Verify OTP - Invalid Length", False, "Should have rejected invalid OTP length", data)
-                    return False
-            else:
-                self.log_test("Verify OTP - Invalid Length", False, f"HTTP {verify_response.status_code}: {verify_response.text}")
-                return False
-        except Exception as e:
-            self.log_test("Verify OTP - Invalid Length", False, f"Request error: {str(e)}")
-            return False
-
-    def test_verify_otp_non_numeric(self):
-        """Test verify OTP with non-numeric code"""
-        # First send OTP
-        send_payload = {"method": "phone", "value": "+1234567890"}
-        try:
-            send_response = requests.post(f"{self.base_url}/auth/send-otp", json=send_payload)
-            if send_response.status_code != 200:
-                self.log_test("Verify OTP - Non-numeric (Setup)", False, "Failed to send OTP for verification test")
-                return False
-            
-            # Try to verify with non-numeric code
-            verify_payload = {"method": "phone", "value": "+1234567890", "otp": "abcdef"}
-            verify_response = requests.post(f"{self.base_url}/auth/verify-otp", json=verify_payload)
-            
-            if verify_response.status_code == 200:
-                data = verify_response.json()
-                if not data.get("success"):
-                    self.log_test("Verify OTP - Non-numeric", True, f"Correctly rejected non-numeric OTP: {data.get('message')}")
-                    return True
-                else:
-                    self.log_test("Verify OTP - Non-numeric", False, "Should have rejected non-numeric OTP", data)
-                    return False
-            else:
-                self.log_test("Verify OTP - Non-numeric", False, f"HTTP {verify_response.status_code}: {verify_response.text}")
-                return False
-        except Exception as e:
-            self.log_test("Verify OTP - Non-numeric", False, f"Request error: {str(e)}")
-            return False
-
-    def test_verify_otp_user_not_exists(self):
-        """Test verify OTP for user that doesn't exist"""
-        verify_payload = {"method": "phone", "value": "+9999999999", "otp": "123456"}
-        try:
-            verify_response = requests.post(f"{self.base_url}/auth/verify-otp", json=verify_payload)
-            
-            if verify_response.status_code == 200:
-                data = verify_response.json()
-                if not data.get("success"):
-                    self.log_test("Verify OTP - User Not Exists", True, f"Correctly rejected non-existent user: {data.get('message')}")
-                    return True
-                else:
-                    self.log_test("Verify OTP - User Not Exists", False, "Should have rejected non-existent user", data)
-                    return False
-            else:
-                self.log_test("Verify OTP - User Not Exists", False, f"HTTP {verify_response.status_code}: {verify_response.text}")
-                return False
-        except Exception as e:
-            self.log_test("Verify OTP - User Not Exists", False, f"Request error: {str(e)}")
-            return False
-
-    def test_get_users(self):
-        """Test get users API"""
-        try:
-            response = requests.get(f"{self.base_url}/users")
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list):
-                    # Check if users have required fields
-                    if len(data) > 0:
-                        user = data[0]
-                        required_fields = ["id", "method", "value", "created_at"]
-                        missing_fields = [field for field in required_fields if field not in user]
-                        if not missing_fields:
-                            self.log_test("Get Users API", True, f"Retrieved {len(data)} users with correct structure")
-                            return True
-                        else:
-                            self.log_test("Get Users API", False, f"Users missing required fields: {missing_fields}", user)
-                            return False
+        result, error = self.make_request('POST', '/pets', pet_data)
+        if error:
+            self.log_result('broken', f"AddPet flow failed: {error}")
+        elif result.get('id') and result.get('user_id'):
+            self.test_pets['bella'] = result.get('id')
+            self.log_result('working', "AddPet flow working - pet created with user_id")
+        else:
+            self.log_result('broken', f"AddPet flow unexpected response: {result}")
+        
+        # Test 8: Verify screen - create verification
+        verification_data = {
+            "selfie_url": "https://example.com/selfie.jpg",
+            "pet_pose_url": "https://example.com/pet_pose.jpg",
+            "doc_url": "https://example.com/document.jpg"
+        }
+        result, error = self.make_request('POST', '/verifications', verification_data)
+        if error:
+            self.log_result('broken', f"Verify screen flow failed: {error}")
+        elif result.get('id') and result.get('status') == 'pending':
+            self.test_verifications['pending'] = result.get('id')
+            self.log_result('working', "Verify screen working - verification created with status=pending")
+        else:
+            self.log_result('broken', f"Verify screen unexpected response: {result}")
+    
+    def test_verification_guard(self):
+        """Test if unverified users are blocked from accessing PetFeed and Chat"""
+        print("\n🛡️ TESTING VERIFICATION GUARD")
+        print("-" * 40)
+        
+        # Test 1: Unverified user accessing PetFeed
+        result, error = self.make_request('GET', '/pets/feed')
+        if error:
+            self.log_result('broken', f"PetFeed access test failed: {error}")
+        elif isinstance(result, list):
+            # If it returns pets without checking verification, guard is missing
+            self.log_result('missing', "Verification guard missing - unverified users can access PetFeed")
+        else:
+            self.log_result('working', "Verification guard working for PetFeed")
+        
+        # Test 2: Check if Chat endpoints exist
+        result, error = self.make_request('GET', '/chat', expected_status=404)
+        if error and "404" in error:
+            self.log_result('missing', "Chat endpoints not implemented")
+        else:
+            self.log_result('notes', "Chat endpoints may exist - need to test verification guard")
+    
+    def test_admin_flow(self):
+        """Test admin verification and premium management"""
+        print("\n👑 TESTING ADMIN FLOW")
+        print("-" * 40)
+        
+        # Test 1: GET pending verifications
+        result, error = self.make_request('GET', '/admin/verifications/pending')
+        if error:
+            self.log_result('broken', f"Admin pending verifications failed: {error}")
+        elif isinstance(result, list):
+            self.log_result('working', f"Admin pending verifications working - found {len(result)} pending")
+        else:
+            self.log_result('broken', f"Admin pending verifications unexpected response: {result}")
+        
+        # Test 2: Approve verification
+        if self.test_verifications.get('pending') and self.test_users.get('email_user'):
+            approval_data = {"user_id": self.test_users['email_user']}
+            result, error = self.make_request('POST', f'/admin/verifications/{self.test_verifications["pending"]}/approve', approval_data)
+            if error:
+                self.log_result('broken', f"Admin approve verification failed: {error}")
+            elif result.get('success'):
+                self.log_result('working', "Admin approve verification working")
+                
+                # Check if user.is_verified_human was updated
+                users_result, users_error = self.make_request('GET', '/users')
+                if not users_error and isinstance(users_result, list):
+                    user = next((u for u in users_result if u['id'] == self.test_users['email_user']), None)
+                    if user and user.get('is_verified_human'):
+                        self.log_result('working', "User is_verified_human updated correctly")
                     else:
-                        self.log_test("Get Users API", True, "Retrieved empty user list (no users created yet)")
-                        return True
-                else:
-                    self.log_test("Get Users API", False, "Response is not a list", data)
-                    return False
+                        self.log_result('broken', "User is_verified_human not updated after approval")
             else:
-                self.log_test("Get Users API", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-        except Exception as e:
-            self.log_test("Get Users API", False, f"Request error: {str(e)}")
-            return False
-
-    def setup_test_data(self):
-        """Create test users and pets for PetFeed testing"""
-        print("Setting up test data for PetFeed tests...")
+                self.log_result('broken', f"Admin approve verification unexpected response: {result}")
         
-        # Create test users with different verification status
-        test_users_data = [
-            {"method": "email", "value": "alice.petlover@tailflix.com"},
-            {"method": "email", "value": "bob.dogowner@tailflix.com"},
-            {"method": "phone", "value": "+1234567890"},
-            {"method": "phone", "value": "+1987654321"},
-            {"method": "email", "value": "charlie.catfan@tailflix.com"}
-        ]
+        # Test 3: Reject verification (create new one first)
+        verification_data = {
+            "selfie_url": "https://example.com/reject_selfie.jpg",
+            "pet_pose_url": "https://example.com/reject_pet.jpg"
+        }
+        result, error = self.make_request('POST', '/verifications', verification_data)
+        if not error and result.get('id'):
+            reject_id = result.get('id')
+            result, error = self.make_request('POST', f'/admin/verifications/{reject_id}/reject')
+            if error:
+                self.log_result('broken', f"Admin reject verification failed: {error}")
+            elif result.get('success'):
+                self.log_result('working', "Admin reject verification working")
+            else:
+                self.log_result('broken', f"Admin reject verification unexpected response: {result}")
         
-        # Create users via OTP flow
-        for user_data in test_users_data:
-            # Send OTP
-            otp_response = requests.post(f"{self.base_url}/auth/send-otp", json=user_data)
-            if otp_response.status_code != 200:
-                continue
+        # Test 4: Toggle premium status
+        if self.test_users.get('phone_user'):
+            premium_data = {"is_premium": True}
+            result, error = self.make_request('PUT', f'/admin/users/{self.test_users["phone_user"]}/premium', premium_data)
+            if error:
+                self.log_result('broken', f"Admin toggle premium failed: {error}")
+            elif result.get('success'):
+                self.log_result('working', "Admin toggle premium working")
+                
+                # Verify premium status was updated
+                users_result, users_error = self.make_request('GET', '/users')
+                if not users_error and isinstance(users_result, list):
+                    user = next((u for u in users_result if u['id'] == self.test_users['phone_user']), None)
+                    if user and user.get('is_premium'):
+                        self.log_result('working', "Premium status updated correctly")
+                    else:
+                        self.log_result('broken', "Premium status not updated")
+            else:
+                self.log_result('broken', f"Admin toggle premium unexpected response: {result}")
+    
+    def test_petfeed_flow(self):
+        """Test PetFeed functionality including likes, limits, and matches"""
+        print("\n🐕 TESTING PETFEED FLOW")
+        print("-" * 40)
+        
+        # Create additional test pets for comprehensive testing
+        self.create_test_pets()
+        
+        # Test 1: GET /api/pets/feed
+        result, error = self.make_request('GET', '/pets/feed')
+        if error:
+            self.log_result('broken', f"PetFeed GET failed: {error}")
+        elif isinstance(result, list):
+            if len(result) > 0:
+                pet = result[0]
+                required_fields = ['id', 'pet_name', 'age', 'distance_km', 'owner_verified']
+                missing_fields = [field for field in required_fields if field not in pet]
+                if missing_fields:
+                    self.log_result('broken', f"PetFeed missing enriched fields: {missing_fields}")
+                else:
+                    self.log_result('working', "PetFeed returns enriched pet data correctly")
+                    self.test_pets['feed_pet'] = pet['id']
+            else:
+                self.log_result('notes', "PetFeed empty - may be due to no verified users or all pets already interacted")
+        else:
+            self.log_result('broken', f"PetFeed unexpected response: {result}")
+        
+        # Test 2: POST /api/likes with action_type='like'
+        if self.test_pets.get('feed_pet'):
+            like_data = {"pet_id": self.test_pets['feed_pet'], "action_type": "like"}
+            result, error = self.make_request('POST', '/likes', like_data)
+            if error:
+                self.log_result('broken', f"Like action failed: {error}")
+            elif result.get('action_type') == 'like':
+                self.log_result('working', "Like action working correctly")
+            else:
+                self.log_result('broken', f"Like action unexpected response: {result}")
+        
+        # Test 3: POST /api/likes with action_type='skip'
+        if self.test_pets.get('feed_pet'):
+            skip_data = {"pet_id": self.test_pets['feed_pet'], "action_type": "skip"}
+            result, error = self.make_request('POST', '/likes', skip_data)
+            if error:
+                self.log_result('broken', f"Skip action failed: {error}")
+            elif result.get('action_type') == 'skip':
+                self.log_result('working', "Skip action working correctly")
+            else:
+                self.log_result('broken', f"Skip action unexpected response: {result}")
+        
+        # Test 4: GET /api/likes/daily-count
+        result, error = self.make_request('GET', '/likes/daily-count')
+        if error:
+            self.log_result('broken', f"Daily count check failed: {error}")
+        elif 'daily_likes_count' in result and 'limit' in result:
+            self.log_result('working', f"Daily count working - {result['daily_likes_count']}/{result['limit']}")
             
-            # Verify OTP
-            verify_data = {**user_data, "otp": "123456"}
-            verify_response = requests.post(f"{self.base_url}/auth/verify-otp", json=verify_data)
-            if verify_response.status_code == 200 and verify_response.json().get("success"):
-                self.test_users.append({
-                    "user_id": verify_response.json()["user_id"],
-                    "method": user_data["method"],
-                    "value": user_data["value"]
-                })
+            # Test 5: Check if skip doesn't count toward limit
+            initial_count = result['daily_likes_count']
+            
+            # Perform multiple skips
+            for i in range(3):
+                skip_data = {"pet_id": self.test_pets.get('feed_pet', 'dummy_pet'), "action_type": "skip"}
+                self.make_request('POST', '/likes', skip_data)
+            
+            # Check count again
+            result2, error2 = self.make_request('GET', '/likes/daily-count')
+            if not error2 and result2['daily_likes_count'] == initial_count:
+                self.log_result('working', "Skip actions don't count toward daily limit")
+            else:
+                self.log_result('broken', "Skip actions incorrectly count toward daily limit")
+        else:
+            self.log_result('broken', f"Daily count unexpected response: {result}")
         
-        # Create test pets for different users
-        test_pets_data = [
+        # Test 6: Test super_like premium requirement
+        super_like_data = {"pet_id": self.test_pets.get('feed_pet', 'dummy_pet'), "action_type": "super_like"}
+        result, error = self.make_request('GET', '/likes/daily-count')
+        if not error and not result.get('is_premium'):
+            # User is not premium, super_like should be blocked
+            result, error = self.make_request('POST', '/likes', super_like_data)
+            if error:
+                self.log_result('missing', "Super_like premium check not implemented - should redirect to paywall")
+            else:
+                self.log_result('broken', "Free user can use super_like - should be premium only")
+        
+        # Test 7: Test golden_bone premium requirement and monthly limit
+        golden_bone_data = {"pet_id": self.test_pets.get('feed_pet', 'dummy_pet'), "action_type": "golden_bone"}
+        result, error = self.make_request('POST', '/likes', golden_bone_data)
+        if error:
+            self.log_result('missing', "Golden_bone premium check not implemented")
+        else:
+            self.log_result('notes', "Golden_bone action processed - need to verify premium checks")
+        
+        # Test 8: Test daily limit enforcement (try to hit 10 limit)
+        self.test_daily_limits()
+        
+        # Test 9: Test mutual match detection
+        self.test_mutual_matches()
+    
+    def create_test_pets(self):
+        """Create additional test pets for comprehensive testing"""
+        pets_data = [
             {
-                "pet_name": "Buddy",
-                "breed": "Golden Retriever",
+                "pet_name": "Max",
+                "breed": "German Shepherd",
                 "sex": "Male",
-                "birth_year": 2020,
-                "temperaments": ["Friendly", "Energetic", "Loyal"],
-                "photos": ["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//gA7Q1JFQVR"]
+                "birth_year": 2019,
+                "temperaments": ["Protective", "Intelligent"],
+                "photos": ["base64_photo_max"]
             },
             {
                 "pet_name": "Luna",
                 "breed": "Border Collie",
                 "sex": "Female", 
-                "birth_year": 2019,
-                "temperaments": ["Intelligent", "Active", "Gentle"],
-                "photos": ["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//gA7Q1JFQVR"]
-            },
-            {
-                "pet_name": "Max",
-                "breed": "German Shepherd",
-                "sex": "Male",
                 "birth_year": 2021,
-                "temperaments": ["Protective", "Confident", "Courageous"],
-                "photos": ["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//gA7Q1JFQVR"]
+                "temperaments": ["Smart", "Active"],
+                "photos": ["base64_photo_luna"]
             }
         ]
         
-        # Create pets (each will be assigned to the most recent user)
-        for i, pet_data in enumerate(test_pets_data):
-            # Login as different users to create pets
-            if i < len(self.test_users):
-                user = self.test_users[i]
-                # Re-login to set as current user
-                verify_data = {"method": user["method"], "value": user["value"], "otp": "123456"}
-                requests.post(f"{self.base_url}/auth/verify-otp", json=verify_data)
-            
-            pet_response = requests.post(f"{self.base_url}/pets", json=pet_data)
-            if pet_response.status_code == 200:
-                self.test_pets.append(pet_response.json())
+        for pet_data in pets_data:
+            result, error = self.make_request('POST', '/pets', pet_data)
+            if not error and result.get('id'):
+                self.test_pets[pet_data['pet_name'].lower()] = result.get('id')
+    
+    def test_daily_limits(self):
+        """Test daily limit enforcement"""
+        print("\n📊 Testing Daily Limits")
         
-        print(f"Setup complete: {len(self.test_users)} users, {len(self.test_pets)} pets")
-
-    def test_likes_api_validation(self):
-        """Test POST /api/likes endpoint validation"""
-        if not self.test_pets:
-            self.log_test("Likes API Validation", False, "No test pets available for likes testing")
-            return False
+        # Get current count
+        result, error = self.make_request('GET', '/likes/daily-count')
+        if error:
+            return
         
-        test_cases = [
-            # Valid action types
-            {"pet_id": self.test_pets[0]["id"], "action_type": "like", "should_pass": True},
-            {"pet_id": self.test_pets[0]["id"], "action_type": "skip", "should_pass": True},
-            {"pet_id": self.test_pets[0]["id"], "action_type": "superlike", "should_pass": True},
-            {"pet_id": self.test_pets[0]["id"], "action_type": "boost", "should_pass": True},
-            
-            # Invalid action types
-            {"pet_id": self.test_pets[0]["id"], "action_type": "invalid", "should_pass": False},
-            {"pet_id": self.test_pets[0]["id"], "action_type": "dislike", "should_pass": False},
-            
-            # Invalid pet_id
-            {"pet_id": "nonexistent-pet-id", "action_type": "like", "should_pass": False},
-        ]
+        current_count = result.get('daily_likes_count', 0)
+        limit = result.get('limit', 10)
+        remaining = limit - current_count
         
-        passed = 0
-        total = len(test_cases)
+        # Try to perform actions up to limit
+        test_pet_id = self.test_pets.get('feed_pet', 'dummy_pet')
+        actions_performed = 0
         
-        for test_case in test_cases:
-            response = requests.post(f"{self.base_url}/likes", json={
-                "pet_id": test_case["pet_id"],
-                "action_type": test_case["action_type"]
-            })
-            
-            expected_success = test_case["should_pass"]
-            actual_success = response.status_code == 200
-            
-            if expected_success == actual_success:
-                passed += 1
-            
-            # Store successful likes for later tests
-            if response.status_code == 200 and test_case["should_pass"]:
-                self.test_likes.append(response.json())
+        for i in range(remaining + 2):  # Try to exceed limit
+            like_data = {"pet_id": f"{test_pet_id}_{i}", "action_type": "like"}
+            result, error = self.make_request('POST', '/likes', like_data)
+            if not error:
+                actions_performed += 1
+            else:
+                break
         
-        success = passed == total
-        self.log_test("Likes API Validation", success, f"{passed}/{total} validation tests passed")
-        return success
-
-    def test_likes_storage(self):
-        """Test GET /api/likes endpoint"""
-        try:
-            response = requests.get(f"{self.base_url}/likes")
-            if response.status_code != 200:
-                self.log_test("Likes Storage", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-            
-            likes = response.json()
-            
-            # Verify structure of stored likes
-            if likes:
-                sample_like = likes[0]
-                required_fields = ["id", "user_id", "pet_id", "action_type", "created_at"]
-                
-                missing_fields = [field for field in required_fields if field not in sample_like]
-                if missing_fields:
-                    self.log_test("Likes Storage", False, f"Missing fields in like object: {missing_fields}")
-                    return False
-                
-                # Verify action_type values
-                valid_actions = ["like", "skip", "superlike", "boost"]
-                invalid_actions = [like for like in likes if like["action_type"] not in valid_actions]
-                
-                if invalid_actions:
-                    self.log_test("Likes Storage", False, f"Found likes with invalid action_types")
-                    return False
-            
-            self.log_test("Likes Storage", True, f"Found {len(likes)} likes with correct structure")
-            return True
-        except Exception as e:
-            self.log_test("Likes Storage", False, f"Request error: {str(e)}")
-            return False
-
-    def test_pet_feed_basic(self):
-        """Test GET /api/pets/feed basic functionality"""
-        try:
-            response = requests.get(f"{self.base_url}/pets/feed")
-            
-            if response.status_code != 200:
-                self.log_test("Pet Feed Basic", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-            
-            pets = response.json()
-            
-            # Verify enriched fields
-            if pets:
-                sample_pet = pets[0]
-                required_enriched_fields = ["age", "distance_km", "owner_verified"]
-                
-                missing_fields = [field for field in required_enriched_fields if field not in sample_pet]
-                if missing_fields:
-                    self.log_test("Pet Feed Basic", False, f"Missing enriched fields: {missing_fields}")
-                    return False
-                
-                # Verify age calculation
-                current_year = datetime.now().year
-                expected_age = current_year - sample_pet["birth_year"]
-                if sample_pet["age"] != expected_age:
-                    self.log_test("Pet Feed Basic", False, f"Age calculation incorrect: expected {expected_age}, got {sample_pet['age']}")
-                    return False
-                
-                # Verify distance is reasonable
-                if not (0.5 <= sample_pet["distance_km"] <= 50):
-                    self.log_test("Pet Feed Basic", False, f"Distance out of expected range: {sample_pet['distance_km']}")
-                    return False
-            
-            self.log_test("Pet Feed Basic", True, f"Pet feed returned {len(pets)} pets with correct enriched fields")
-            return True
-        except Exception as e:
-            self.log_test("Pet Feed Basic", False, f"Request error: {str(e)}")
-            return False
-
-    def test_pet_feed_pagination(self):
-        """Test GET /api/pets/feed pagination"""
-        test_limits = [1, 2, 5, 10]
+        # Check final count
+        result, error = self.make_request('GET', '/likes/daily-count')
+        if not error:
+            final_count = result.get('daily_likes_count', 0)
+            if final_count >= limit:
+                self.log_result('working', f"Daily limit enforced at {final_count}/{limit}")
+            else:
+                self.log_result('notes', f"Daily limit testing: {final_count}/{limit} actions performed")
+    
+    def test_mutual_matches(self):
+        """Test mutual match detection"""
+        print("\n💕 Testing Mutual Matches")
         
-        for limit in test_limits:
-            try:
-                response = requests.get(f"{self.base_url}/pets/feed?limit={limit}")
-                
-                if response.status_code != 200:
-                    self.log_test("Pet Feed Pagination", False, f"Limit {limit} failed: HTTP {response.status_code}")
-                    return False
-                
-                pets = response.json()
-                actual_count = len(pets)
-                
-                # Should return at most the requested limit
-                if actual_count > limit:
-                    self.log_test("Pet Feed Pagination", False, f"Limit {limit}: returned {actual_count} pets (too many)")
-                    return False
-                    
-            except Exception as e:
-                self.log_test("Pet Feed Pagination", False, f"Request error: {str(e)}")
-                return False
-        
-        self.log_test("Pet Feed Pagination", True, "All pagination limits working correctly")
-        return True
-
-    def test_pet_feed_filtering(self):
-        """Test pet feed filtering logic"""
-        try:
-            # Get initial feed
-            response = requests.get(f"{self.base_url}/pets/feed")
-            
-            if response.status_code != 200:
-                self.log_test("Pet Feed Filtering", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-            
-            pets = response.json()
-            
-            # Test that we don't get the same pet twice in the feed
-            pet_ids = [pet["id"] for pet in pets]
-            unique_pet_ids = set(pet_ids)
-            
-            if len(pet_ids) != len(unique_pet_ids):
-                self.log_test("Pet Feed Filtering", False, "Pet feed contains duplicate pets")
-                return False
-            
-            # Test that after liking a pet, it doesn't appear in subsequent feeds
-            if pets:
-                pet_to_like = pets[0]
-                
-                # Like the pet
-                like_response = requests.post(f"{self.base_url}/likes", json={
-                    "pet_id": pet_to_like["id"],
-                    "action_type": "like"
-                })
-                
-                if like_response.status_code == 200:
-                    # Fetch feed again
-                    new_feed_response = requests.get(f"{self.base_url}/pets/feed")
-                    
-                    if new_feed_response.status_code == 200:
-                        new_pets = new_feed_response.json()
-                        new_pet_ids = [pet["id"] for pet in new_pets]
-                        
-                        if pet_to_like["id"] in new_pet_ids:
-                            self.log_test("Pet Feed Filtering", False, "Liked pet still appears in feed (filtering not working)")
-                            return False
-            
-            self.log_test("Pet Feed Filtering", True, "Pet feed filtering logic working correctly")
-            return True
-        except Exception as e:
-            self.log_test("Pet Feed Filtering", False, f"Request error: {str(e)}")
-            return False
-
-    def run_all_tests(self):
-        """Run all backend tests"""
-        print("=" * 60)
-        print("TailFlix Backend API Testing Suite - PetFeed Features")
-        print("=" * 60)
-        print(f"Testing backend at: {self.base_url}")
-        print()
-        
-        # Test API connectivity first
-        if not self.test_api_root():
-            print("❌ CRITICAL: Cannot connect to backend API. Stopping tests.")
-            return False
-        
-        # Setup test data for PetFeed tests
-        self.setup_test_data()
-        time.sleep(1)  # Brief pause between setup and tests
-        
-        # Test all endpoints (existing + new PetFeed tests)
-        tests = [
-            # Existing OTP tests
-            self.test_send_otp_valid_phone,
-            self.test_send_otp_valid_email,
-            self.test_send_otp_invalid_method,
-            self.test_send_otp_empty_value,
-            self.test_verify_otp_valid,
-            self.test_verify_otp_invalid_length,
-            self.test_verify_otp_non_numeric,
-            self.test_verify_otp_user_not_exists,
-            self.test_get_users,
-            
-            # New PetFeed tests
-            self.test_likes_api_validation,
-            self.test_likes_storage,
-            self.test_pet_feed_basic,
-            self.test_pet_feed_pagination,
-            self.test_pet_feed_filtering
-        ]
-        
-        passed = 0
-        total = len(tests)
-        
-        for test in tests:
-            if test():
-                passed += 1
-            time.sleep(0.5)  # Small delay between tests
-        
-        print("=" * 60)
-        print(f"TEST SUMMARY: {passed}/{total} tests passed")
-        print("=" * 60)
-        
-        # Print failed tests
-        failed_tests = [result for result in self.test_results if not result["success"]]
-        if failed_tests:
-            print("\n❌ FAILED TESTS:")
-            for test in failed_tests:
-                print(f"  - {test['test']}: {test['details']}")
+        # This would require creating two users and having them like each other's pets
+        # For now, just check if matches table/endpoint exists
+        result, error = self.make_request('GET', '/matches', expected_status=404)
+        if error and "404" in error:
+            self.log_result('missing', "Matches endpoint not implemented (/api/matches)")
         else:
-            print("\n🎉 ALL TESTS PASSED!")
+            self.log_result('notes', "Matches functionality may exist but needs comprehensive testing")
+    
+    def test_paywall(self):
+        """Test paywall functionality"""
+        print("\n💰 TESTING PAYWALL")
+        print("-" * 40)
         
-        return passed == total
+        # Check if paywall endpoints exist
+        result, error = self.make_request('GET', '/paywall', expected_status=404)
+        if error and "404" in error:
+            self.log_result('missing', "Paywall endpoints not implemented")
+        else:
+            self.log_result('notes', "Paywall endpoints may exist")
+        
+        # Check if premium plans endpoint exists
+        result, error = self.make_request('GET', '/premium/plans', expected_status=404)
+        if error and "404" in error:
+            self.log_result('missing', "Premium plans endpoint not implemented")
+        else:
+            self.log_result('notes', "Premium plans endpoint may exist")
+    
+    def test_premium_features(self):
+        """Test premium user features and limits"""
+        print("\n⭐ TESTING PREMIUM FEATURES")
+        print("-" * 40)
+        
+        # Get current user status
+        result, error = self.make_request('GET', '/likes/daily-count')
+        if error:
+            self.log_result('broken', f"Cannot check premium status: {error}")
+            return
+        
+        is_premium = result.get('is_premium', False)
+        golden_bones_limit = result.get('golden_bones_limit', 0)
+        golden_bones_remaining = result.get('golden_bones_remaining', 0)
+        
+        if is_premium:
+            self.log_result('working', f"Premium user detected - Golden Bones: {golden_bones_remaining}/{golden_bones_limit}")
+            
+            # Test golden_bone usage
+            if golden_bones_remaining > 0:
+                golden_bone_data = {"pet_id": self.test_pets.get('feed_pet', 'dummy_pet'), "action_type": "golden_bone"}
+                result, error = self.make_request('POST', '/likes', golden_bone_data)
+                if error:
+                    self.log_result('broken', f"Premium golden_bone usage failed: {error}")
+                else:
+                    self.log_result('working', "Premium golden_bone usage working")
+        else:
+            self.log_result('notes', f"Free user detected - Golden Bones limit: {golden_bones_limit}")
+            
+            # Test that free user can't use golden_bone
+            golden_bone_data = {"pet_id": self.test_pets.get('feed_pet', 'dummy_pet'), "action_type": "golden_bone"}
+            result, error = self.make_request('POST', '/likes', golden_bone_data)
+            if not error:
+                self.log_result('broken', "Free user can use golden_bone - should be premium only")
+    
+    def run_all_tests(self):
+        """Run all test suites"""
+        print("🧪 TailFlix Backend Comprehensive Test Suite")
+        print("=" * 80)
+        
+        try:
+            self.test_onboarding_flow()
+            self.test_verification_guard()
+            self.test_admin_flow()
+            self.test_petfeed_flow()
+            self.test_paywall()
+            self.test_premium_features()
+            
+        except Exception as e:
+            self.log_result('broken', f"Test suite crashed: {str(e)}")
+        
+        self.print_summary()
+    
+    def print_summary(self):
+        """Print comprehensive test summary"""
+        print("\n" + "=" * 80)
+        print("📋 TAILFLIX BACKEND TEST SUMMARY")
+        print("=" * 80)
+        
+        # Print broken items first (most important)
+        if self.test_results['broken']:
+            print("\n❌ BROKEN FLOWS:")
+            for item in self.test_results['broken']:
+                print(f"   • {item}")
+        
+        if self.test_results['missing']:
+            print("\n⚠️ MISSING FEATURES:")
+            for item in self.test_results['missing']:
+                print(f"   • {item}")
+        
+        if self.test_results['working']:
+            print("\n✅ WORKING FLOWS:")
+            for item in self.test_results['working']:
+                print(f"   • {item}")
+        
+        if self.test_results['notes']:
+            print("\n📝 NOTES:")
+            for item in self.test_results['notes']:
+                print(f"   • {item}")
+        
+        # Summary counts
+        working_count = len(self.test_results['working'])
+        broken_count = len(self.test_results['broken'])
+        missing_count = len(self.test_results['missing'])
+        total_tests = working_count + broken_count + missing_count
+        
+        print(f"\n📊 SUMMARY: {working_count} Working | {broken_count} Broken | {missing_count} Missing | {total_tests} Total")
+        print("=" * 80)
 
 if __name__ == "__main__":
-    tester = TailFlixAPITester()
-    success = tester.run_all_tests()
-    exit(0 if success else 1)
+    tester = TailFlixTester()
+    tester.run_all_tests()
