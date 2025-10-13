@@ -92,6 +92,17 @@ class VerificationCreate(BaseModel):
     pet_pose_url: str
     doc_url: Optional[str] = None
 
+class Like(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    pet_id: str
+    action_type: str  # 'like', 'skip', 'superlike', 'boost'
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class LikeCreate(BaseModel):
+    pet_id: str
+    action_type: str
+
 
 # ============ Auth Routes ============
 
