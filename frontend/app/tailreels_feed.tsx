@@ -181,15 +181,10 @@ export default function TailReelsFeed() {
       </View>
 
       {/* Video Feed */}
-      <ScrollView
-        ref={scrollViewRef}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        style={styles.scrollView}
-      >
-        {reels.map((reel, index) => (
+      <FlashList
+        ref={flashListRef}
+        data={reels}
+        renderItem={({ item: reel, index }) => (
           <ReelCard
             key={reel.id}
             reel={reel}
@@ -198,8 +193,14 @@ export default function TailReelsFeed() {
             onComment={() => handleComment(reel)}
             onShare={() => handleShare(reel.id)}
           />
-        ))}
-      </ScrollView>
+        )}
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        estimatedItemSize={SCREEN_HEIGHT}
+        keyExtractor={(item) => item.id.toString()}
+      />
 
       {/* Floating Upload Button */}
       <TouchableOpacity
