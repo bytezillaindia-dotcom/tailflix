@@ -223,19 +223,20 @@ export default function ChatScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.crimson} />
+      <LinearGradient colors={['#000000', '#1a0505', '#2a0a0a']} style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FFD700" />
         <Text style={styles.loadingText}>Loading chat...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={90}
-    >
+    <LinearGradient colors={['#000000', '#1a0505', '#2a0a0a']} style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={90}
+      >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
