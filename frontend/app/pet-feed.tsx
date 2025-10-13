@@ -115,7 +115,7 @@ export default function PetFeedScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.colors.crimson} />
+        <ActivityIndicator size="large" color={COLORS.crimson} />
         <Text style={styles.loadingText}>Loading pets...</Text>
       </View>
     );
