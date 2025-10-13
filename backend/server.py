@@ -336,7 +336,7 @@ async def get_daily_like_count():
     Get the count of actions that count toward daily limit for the current user today
     Counts: like + super_like + golden_bone (excludes skip)
     Used for enforcing daily limits (10 actions per day for free users)
-    Also returns user's premium status
+    Also returns user's premium status and Golden Bone monthly count (5/month for premium)
     """
     try:
         # Mock user_id - in production, get from authenticated session
@@ -353,6 +353,25 @@ async def get_daily_like_count():
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         today_end = today_start + timedelta(days=1)
         
+        # Check if we need to reset golden_bones count (new month)
+        current_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        golden_bones_reset_date = recent_user.get('golden_bones_reset_date')
+        golden_bones_used_this_month = recent_user.get('golden_bones_used_this_month', 0)
+        
+        # Reset golden_bones count if we're in a new month
+        if not golden_bones_reset_date or golden_bones_reset_date < current_month_start:
+            await db.users.update_one(
+                {"id": user_id},
+                {
+                    "$set": {
+                        "golden_bones_used_this_month": 0,
+                        "golden_bones_reset_date": current_month_start
+                    }
+                }
+            )
+            golden_bones_used_this_month = 0
+            logger.info(f"Reset golden_bones for user {user_id} (new month)")
+        
         # Count actions that count toward limit: like + super_like + golden_bone (excludes skip)
         daily_actions_count = await db.likes.count_documents({
             "user_id": user_id,
@@ -363,14 +382,21 @@ async def get_daily_like_count():
             }
         })
         
-        logger.info(f"User {user_id} (premium={is_premium}) has {daily_actions_count} limited actions today (like+super_like+golden_bone)")
+        # Golden Bones: 5 per month for premium users
+        golden_bones_limit = 5 if is_premium else 0
+        golden_bones_remaining = max(0, golden_bones_limit - golden_bones_used_this_month)
+        
+        logger.info(f"User {user_id} (premium={is_premium}) has {daily_actions_count} limited actions today, {golden_bones_remaining} golden_bones remaining")
         
         return {
             "user_id": user_id,
             "is_premium": is_premium,
             "daily_likes_count": daily_actions_count,
             "limit": 10,
-            "remaining": max(0, 10 - daily_actions_count)
+            "remaining": max(0, 10 - daily_actions_count),
+            "golden_bones_used": golden_bones_used_this_month,
+            "golden_bones_limit": golden_bones_limit,
+            "golden_bones_remaining": golden_bones_remaining
         }
     
     except HTTPException:
