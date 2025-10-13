@@ -330,8 +330,9 @@ async def get_pet_feed(limit: int = 10):
 @api_router.get("/likes/daily-count")
 async def get_daily_like_count():
     """
-    Get the count of likes for the current user today
-    Used for enforcing daily limits
+    Get the count of actions that count toward daily limit for the current user today
+    Counts: like + super_like + boost (excludes skip)
+    Used for enforcing daily limits (10 actions per day for free users)
     """
     try:
         # Mock user_id - in production, get from authenticated session
@@ -347,23 +348,23 @@ async def get_daily_like_count():
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         today_end = today_start + timedelta(days=1)
         
-        # Count likes made today by this user with action_type = 'like'
-        daily_likes_count = await db.likes.count_documents({
+        # Count actions that count toward limit: like + super_like + boost (excludes skip)
+        daily_actions_count = await db.likes.count_documents({
             "user_id": user_id,
-            "action_type": "like",
+            "action_type": {"$in": ["like", "super_like", "boost"]},
             "created_at": {
                 "$gte": today_start,
                 "$lt": today_end
             }
         })
         
-        logger.info(f"User {user_id} has {daily_likes_count} likes today")
+        logger.info(f"User {user_id} has {daily_actions_count} limited actions today (like+super_like+boost)")
         
         return {
             "user_id": user_id,
-            "daily_likes_count": daily_likes_count,
+            "daily_likes_count": daily_actions_count,
             "limit": 10,
-            "remaining": max(0, 10 - daily_likes_count)
+            "remaining": max(0, 10 - daily_actions_count)
         }
     
     except HTTPException:
