@@ -421,6 +421,30 @@ export default function PetFeedScreen() {
     try {
       setActionLoading(true);
       
+      // Special check for super_like: Premium-only feature
+      if (actionType === 'super_like') {
+        const limitsResponse = await fetch(`${backendUrl}/api/likes/daily-count`);
+        const limitsData = await limitsResponse.json();
+        
+        if (limitsResponse.ok) {
+          // If user is not premium, redirect to paywall with custom message
+          if (!limitsData.is_premium) {
+            setActionLoading(false);
+            router.push({
+              pathname: '/paywall',
+              params: { message: 'Super Likes are a premium feature 🦴✨' }
+            });
+            return;
+          }
+          // Premium users: super_like counts toward daily limit, check it
+          if (limitsData.daily_likes_count >= limitsData.limit) {
+            setActionLoading(false);
+            router.push('/paywall');
+            return;
+          }
+        }
+      }
+      
       // Special animation for Golden Bone before action
       if (actionType === 'golden_bone') {
         // Trigger animation
@@ -436,9 +460,9 @@ export default function PetFeedScreen() {
         setGoldenBoneAnimating(false);
       }
       
-      // Check daily limit for actions that count toward the limit: like, super_like, golden_bone
-      // Skip actions are unlimited
-      const limitedActions = ['like', 'super_like', 'golden_bone'];
+      // Check daily limit for other limited actions: like, golden_bone
+      // Skip actions are unlimited, super_like already checked above
+      const limitedActions = ['like', 'golden_bone'];
       if (limitedActions.includes(actionType)) {
         const limitsResponse = await fetch(`${backendUrl}/api/likes/daily-count`);
         const limitsData = await limitsResponse.json();
