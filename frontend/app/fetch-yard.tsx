@@ -498,6 +498,15 @@ export default function FetchYardScreen() {
         </View>
       </Animated.View>
 
+      {/* Daily Likes Counter - Only show for non-premium users */}
+      {!isPremium && dailyLikesLimit && (
+        <View style={styles.dailyLikesCounter}>
+          <Text style={styles.dailyLikesText}>
+            Likes today: {dailyLikesCount}/{dailyLikesLimit} free
+          </Text>
+        </View>
+      )}
+
       {/* Floating Action Dock */}
       <View style={styles.actionDock}>
         {/* Skip Button (Frisbee) */}
