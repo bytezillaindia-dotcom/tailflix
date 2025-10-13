@@ -64,9 +64,9 @@ class Pet(BaseModel):
     user_id: str
     pet_name: str
     breed: str
-    sex: str  # 'Male' or 'Female'
+    sex: Optional[str] = None  # 'Male' or 'Female'
     birth_year: int
-    temperaments: List[str]
+    temperaments: Optional[List[str]] = []
     photos: List[str]  # Base64 encoded images
     created_at: datetime = Field(default_factory=datetime.utcnow)
     verified: bool = False
