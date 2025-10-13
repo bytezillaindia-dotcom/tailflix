@@ -331,7 +331,7 @@ async def get_pet_feed(limit: int = 10):
 async def get_daily_like_count():
     """
     Get the count of actions that count toward daily limit for the current user today
-    Counts: like + super_like + boost (excludes skip)
+    Counts: like + super_like + golden_bone (excludes skip)
     Used for enforcing daily limits (10 actions per day for free users)
     """
     try:
@@ -348,17 +348,17 @@ async def get_daily_like_count():
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         today_end = today_start + timedelta(days=1)
         
-        # Count actions that count toward limit: like + super_like + boost (excludes skip)
+        # Count actions that count toward limit: like + super_like + golden_bone (excludes skip)
         daily_actions_count = await db.likes.count_documents({
             "user_id": user_id,
-            "action_type": {"$in": ["like", "super_like", "boost"]},
+            "action_type": {"$in": ["like", "super_like", "golden_bone"]},
             "created_at": {
                 "$gte": today_start,
                 "$lt": today_end
             }
         })
         
-        logger.info(f"User {user_id} has {daily_actions_count} limited actions today (like+super_like+boost)")
+        logger.info(f"User {user_id} has {daily_actions_count} limited actions today (like+super_like+golden_bone)")
         
         return {
             "user_id": user_id,
