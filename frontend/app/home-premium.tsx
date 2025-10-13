@@ -38,6 +38,14 @@ const DASHBOARD_CARDS: DashboardCard[] = [
   },
   {
     id: '2',
+    title: 'Tug Yard',
+    icon: '💕',
+    description: 'Connect with pet owners for dating',
+    colors: ['#FF1493', '#C71585'],
+    route: '/tug-yard',
+  },
+  {
+    id: '3',
     title: 'Add Your Pet',
     icon: '🐶',
     description: 'Create a profile for your furry friend',
@@ -45,15 +53,15 @@ const DASHBOARD_CARDS: DashboardCard[] = [
     route: '/add-pet',
   },
   {
-    id: '3',
+    id: '4',
     title: 'Matches & Chat',
     icon: '💌',
     description: 'Connect with your pet matches',
-    colors: ['#FF1493', '#FF69B4'],
+    colors: ['#FF69B4', '#FF1493'],
     route: '/likes',
   },
   {
-    id: '4',
+    id: '5',
     title: 'Admin Panel',
     icon: '🔒',
     description: 'Manage app settings and verifications',
