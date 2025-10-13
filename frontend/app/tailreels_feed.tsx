@@ -290,14 +290,19 @@ interface ReelCardProps {
 }
 
 function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps) {
-  const videoRef = useRef<Video>(null);
   const likeScale = new Animated.Value(1);
+  
+  // Initialize video player with expo-video
+  const player = useVideoPlayer(reel.video_url, (player) => {
+    player.loop = true;
+    player.muted = false;
+  });
 
   useEffect(() => {
-    if (isActive && videoRef.current) {
-      videoRef.current.playAsync();
-    } else if (videoRef.current) {
-      videoRef.current.pauseAsync();
+    if (isActive) {
+      player.play();
+    } else {
+      player.pause();
     }
   }, [isActive]);
 
@@ -318,13 +323,13 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
   return (
     <View style={styles.reelContainer}>
       {/* Video */}
-      <Video
-        ref={videoRef}
-        source={{ uri: reel.video_url }}
+      <VideoView
+        player={player}
         style={styles.video}
-        resizeMode={ResizeMode.COVER}
-        isLooping
-        shouldPlay={isActive}
+        contentFit="cover"
+        nativeControls={false}
+        allowsFullscreen={false}
+        allowsPictureInPicture={false}
       />
 
       {/* Gradient Overlays */}
