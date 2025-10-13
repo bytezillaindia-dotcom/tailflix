@@ -199,6 +199,171 @@ const AnimatedActionButton = ({ onPress, icon: Icon, label, disabled }: any) => 
   );
 };
 
+// Special Animated Golden Bone Button Component with glow and sparkle animation
+const AnimatedGoldenBoneButton = ({ onPress, icon: Icon, label, disabled, isAnimating }: any) => {
+  const scale = new Animated.Value(1);
+  const glowOpacity = new Animated.Value(0);
+  const sparkle1Opacity = new Animated.Value(0);
+  const sparkle2Opacity = new Animated.Value(0);
+  const sparkle1Rotate = new Animated.Value(0);
+  const sparkle2Rotate = new Animated.Value(0);
+
+  React.useEffect(() => {
+    if (isAnimating) {
+      // Glow effect
+      Animated.sequence([
+        Animated.timing(glowOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Sparkle animations
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(sparkle1Opacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(sparkle1Opacity, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.sequence([
+          Animated.delay(200),
+          Animated.timing(sparkle2Opacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(sparkle2Opacity, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.timing(sparkle1Rotate, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sparkle2Rotate, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.sequence([
+          Animated.timing(scale, {
+            toValue: 1.2,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scale, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
+    }
+  }, [isAnimating]);
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Animated.spring(scale, {
+      toValue: 0.9,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const sparkle1RotateInterpolate = sparkle1Rotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const sparkle2RotateInterpolate = sparkle2Rotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '-360deg'],
+  });
+
+  return (
+    <View style={styles.goldenBoneContainer}>
+      {/* Glow effect */}
+      <Animated.View 
+        style={[
+          styles.goldenBoneGlow,
+          { 
+            opacity: glowOpacity,
+          }
+        ]} 
+      />
+      
+      {/* Sparkles */}
+      <Animated.Text 
+        style={[
+          styles.sparkle,
+          styles.sparkle1,
+          { 
+            opacity: sparkle1Opacity,
+            transform: [{ rotate: sparkle1RotateInterpolate }],
+          }
+        ]}
+      >
+        ✨
+      </Animated.Text>
+      <Animated.Text 
+        style={[
+          styles.sparkle,
+          styles.sparkle2,
+          { 
+            opacity: sparkle2Opacity,
+            transform: [{ rotate: sparkle2RotateInterpolate }],
+          }
+        ]}
+      >
+        ✨
+      </Animated.Text>
+      
+      {/* Button */}
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        style={styles.actionButton}
+        android_ripple={{ 
+          color: 'rgba(255, 215, 0, 0.3)', 
+          borderless: true,
+          radius: 36
+        }}
+      >
+        <Animated.View style={{ transform: [{ scale }] }}>
+          <Icon size={32} />
+        </Animated.View>
+        <Text style={styles.actionLabel}>{label}</Text>
+      </Pressable>
+    </View>
+  );
+};
+
 interface PetCard {
   id: string;
   pet_name: string;
