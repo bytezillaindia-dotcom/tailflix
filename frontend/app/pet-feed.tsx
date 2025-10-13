@@ -432,7 +432,7 @@ export default function PetFeedScreen() {
         />
 
         <AnimatedActionButton
-          onPress={() => handleAction('superlike')}
+          onPress={() => handleAction('super_like')}
           icon={BoneIcon}
           label="Super Like"
           disabled={actionLoading}
