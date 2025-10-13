@@ -434,6 +434,14 @@ async def create_like(like_data: LikeCreate):
         if not pet:
             raise HTTPException(status_code=404, detail="Pet not found")
         
+        # If action is golden_bone, increment the monthly counter
+        if like_data.action_type == 'golden_bone':
+            await db.users.update_one(
+                {"id": user_id},
+                {"$inc": {"golden_bones_used_this_month": 1}}
+            )
+            logger.info(f"Incremented golden_bones count for user {user_id}")
+        
         # Create like object
         like = Like(
             user_id=user_id,
