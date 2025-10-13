@@ -87,6 +87,15 @@ const SECTIONS = [
         gradient: [COLORS.softPeach, COLORS.peach],
         route: '/tailtales_feed',
       },
+      {
+        id: '10',
+        title: 'TailReels',
+        icon: '🎥',
+        description: 'Laughs, Tricks & Tails',
+        gradient: ['#000000', '#330000'],
+        route: '/tailreels_feed',
+        special: 'neon',
+      },
     ],
   },
   {
