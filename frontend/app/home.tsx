@@ -107,6 +107,18 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     textAlign: 'center',
   },
+  addPetButton: {
+    backgroundColor: COLORS.crimson,
+    padding: SPACING.md,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  addPetButtonText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+  },
   logoutButton: {
     backgroundColor: COLORS.darkGray,
     padding: SPACING.md,
