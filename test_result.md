@@ -410,12 +410,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Double Fetch Animation Screen"
-    - "Fetch Yard Action Mechanics"
-  stuck_tasks:
-    - "Premium Feature Enforcement"
-    - "Verification Guard Implementation"
+  current_focus: []
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
