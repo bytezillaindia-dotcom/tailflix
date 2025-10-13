@@ -366,35 +366,35 @@ export default function PetFeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.black,
+    backgroundColor: COLORS.black,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.black,
+    backgroundColor: COLORS.black,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: theme.colors.white,
+    color: COLORS.white,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.black,
+    backgroundColor: COLORS.black,
     padding: 24,
   },
   emptyTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: theme.colors.white,
+    color: COLORS.white,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: theme.colors.white,
+    color: COLORS.white,
     opacity: 0.7,
     textAlign: 'center',
     marginBottom: 24,
@@ -402,20 +402,20 @@ const styles = StyleSheet.create({
   refreshButton: {
     paddingVertical: 12,
     paddingHorizontal: 32,
-    backgroundColor: theme.colors.crimson,
+    backgroundColor: COLORS.crimson,
     borderRadius: 24,
   },
   refreshButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: theme.colors.white,
+    color: COLORS.white,
   },
   cardContainer: {
     flex: 1,
     margin: 16,
     borderRadius: 24,
     overflow: 'hidden',
-    backgroundColor: theme.colors.charcoal,
+    backgroundColor: COLORS.charcoal,
   },
   backgroundImage: {
     ...StyleSheet.absoluteFillObject,
