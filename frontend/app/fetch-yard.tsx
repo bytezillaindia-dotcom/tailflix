@@ -63,7 +63,8 @@ export default function FetchYardScreen() {
 
   useEffect(() => {
     fetchPets();
-  }, []);
+    fetchUserStats();
+  }, [userId]);
 
   useEffect(() => {
     if (pets.length > 0) {
