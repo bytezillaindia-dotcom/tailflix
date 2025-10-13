@@ -390,7 +390,24 @@ export default function FetchYardScreen() {
 
       {/* Floating Action Dock */}
       <View style={styles.actionDock}>
-        {/* Like Button */}
+        {/* Skip Button (Frisbee) */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => handleAction('skip')}
+        >
+          <Animated.View
+            style={[
+              styles.actionButton,
+              styles.skipButton,
+              { shadowColor: hyperLikeGlowColor },
+            ]}
+          >
+            <Text style={styles.actionIcon}>🥏</Text>
+            <Text style={styles.actionLabel}>Skip</Text>
+          </Animated.View>
+        </TouchableOpacity>
+
+        {/* Fetch/Like Button (Tennis Ball) */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => handleAction('like')}
@@ -403,11 +420,11 @@ export default function FetchYardScreen() {
             ]}
           >
             <Text style={styles.actionIcon}>🎾</Text>
-            <Text style={styles.actionLabel}>Like</Text>
+            <Text style={styles.actionLabel}>Fetch</Text>
           </Animated.View>
         </TouchableOpacity>
 
-        {/* Super Like Button */}
+        {/* Super Like Button (Bone) */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => handleAction('super_like')}
@@ -424,40 +441,7 @@ export default function FetchYardScreen() {
           </Animated.View>
         </TouchableOpacity>
 
-        {/* Hyper Like Button (Long Press) */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => {
-            Alert.alert(
-              'Hyper Like! 🥏',
-              'Send a special Hyper Like to stand out?',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Send!',
-                  onPress: () => handleAction('super_like'),
-                },
-              ]
-            );
-          }}
-          onLongPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-            handleAction('super_like');
-          }}
-        >
-          <Animated.View
-            style={[
-              styles.actionButton,
-              styles.hyperLikeButton,
-              { shadowColor: hyperLikeGlowColor },
-            ]}
-          >
-            <Text style={styles.actionIcon}>🥏</Text>
-            <Text style={styles.actionLabel}>Hyper</Text>
-          </Animated.View>
-        </TouchableOpacity>
-
-        {/* Boost Button */}
+        {/* Boost Button (Golden Bone) */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => handleAction('golden_bone')}
