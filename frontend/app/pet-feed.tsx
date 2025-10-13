@@ -611,6 +611,13 @@ export default function PetFeedScreen() {
   if (pets.length === 0 || currentIndex >= pets.length) {
     return (
       <View style={styles.emptyContainer}>
+        <TouchableOpacity
+          style={styles.backButtonEmpty}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+        
         <Text style={styles.emptyTitle}>No more pets!</Text>
         <Text style={styles.emptyText}>Check back later for more matches 🐾</Text>
         <TouchableOpacity
