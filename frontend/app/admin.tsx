@@ -579,6 +579,20 @@ export default function AdminScreen() {
             TailPro
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            activeTab === 'earnings' && styles.tabActive
+          ]}
+          onPress={() => setActiveTab('earnings')}
+        >
+          <Text style={[
+            styles.tabText,
+            activeTab === 'earnings' && styles.tabTextActive
+          ]}>
+            Earnings
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {renderContent()}
