@@ -79,6 +79,14 @@ const SECTIONS = [
         gradient: [COLORS.peach, COLORS.pawPink],
         route: '/tailboard',
       },
+      {
+        id: '9',
+        title: 'TailTales',
+        icon: '🐾',
+        description: 'Share your pet\'s world',
+        gradient: [COLORS.softPeach, COLORS.peach],
+        route: '/tailtales_feed',
+      },
     ],
   },
   {
