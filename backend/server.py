@@ -106,6 +106,26 @@ class LikeCreate(BaseModel):
     pet_id: str
     action_type: str
 
+class Match(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user1_id: str
+    user2_id: str
+    pet1_id: str
+    pet2_id: str
+    match_type: str  # 'like', 'super_like', 'golden_bone' - what triggered the match
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ChatMessage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    match_id: str
+    sender_id: str
+    message: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ChatMessageCreate(BaseModel):
+    match_id: str
+    message: str
+
 
 # ============ Auth Routes ============
 
