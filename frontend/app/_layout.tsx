@@ -21,6 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="verification-success" />
         <Stack.Screen name="admin" />
         <Stack.Screen name="pet-feed" />
+        <Stack.Screen name="paywall" />
       </Stack>
     </>
   );
