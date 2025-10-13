@@ -102,7 +102,21 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Create TailFlix mobile app - Splash screen, Login with Phone/Email OTP (mock), and Home screen placeholder"
+user_problem_statement: |
+  TailFlix is a complete pet dating mobile app with the following features:
+  1. Splash Screen with logo animation → Onboarding Choice (first launch) → OTP Login
+  2. Two modes: "For My Pet" (pet dating) and "For Myself & My Pet" (owner dating)
+  3. OTP authentication with phone/email
+  4. Human verification gate before accessing Fetch Yard
+  5. Fetch Yard: Tinder-style pet feed with Like/Skip/Super Like/Golden Bone actions
+  6. TailCoins economy: 10 free likes/day, then coins required (1 coin/like, 5 coins/super like, 50 coins/boost)
+  7. Mutual match detection → "Double Fetch" animation → Chat
+  8. Chat system for matched users
+  9. Notifications: Red badge for normal likes, gold badge for super likes
+  10. Premium users: Unlimited likes, no paywall
+  11. Admin panel to toggle premium status and add coins
+  
+  COMPREHENSIVE QA TEST REQUIRED for all flows listed above.
 
 backend:
   - task: "Mock OTP Send API"
