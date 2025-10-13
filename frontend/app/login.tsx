@@ -93,7 +93,7 @@ export default function LoginScreen() {
 
         // Redirect based on whether user has pets
         if (hasPetsData.has_pets) {
-          router.replace('/home');
+          router.replace('/home-premium');
         } else {
           router.replace('/add-pet');
         }
