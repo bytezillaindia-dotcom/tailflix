@@ -148,6 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     role,
     status,
     vendorId,
+    vendorType,
     isAuthenticated: !!userId && !!token,
     loading,
     login,
