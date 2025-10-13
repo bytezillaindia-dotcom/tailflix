@@ -33,6 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="match" />
         <Stack.Screen name="double-fetch" />
         <Stack.Screen name="tug-match" />
+        <Stack.Screen name="matches" />
         <Stack.Screen name="likes" />
         <Stack.Screen name="chat" />
       </Stack>
