@@ -201,6 +201,24 @@ export default function TailReelsFeed() {
         ))}
       </ScrollView>
 
+      {/* Floating Upload Button */}
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          router.push('/tailreels_upload');
+        }}
+      >
+        <LinearGradient
+          colors={[COLORS.pawPink, COLORS.gold]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.floatingButtonGradient}
+        >
+          <Text style={styles.floatingButtonIcon}>➕</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+
       {/* Comments Modal */}
       <Modal
         visible={commentsModalVisible}
