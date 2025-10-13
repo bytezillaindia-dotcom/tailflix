@@ -161,18 +161,62 @@ export default function PremiumLoginScreen() {
 
       if (response.ok && data.success) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        
+        // Save userId to AsyncStorage via AuthContext
         await login(data.user_id, data.token);
 
+        // Small delay to ensure context updates
         setTimeout(async () => {
-          const hasPetsResponse = await fetch(
-            `${BACKEND_URL}/api/users/${data.user_id}/has-pets`
-          );
-          const hasPetsData = await hasPetsResponse.json();
+          try {
+            // Check if user has pets
+            const hasPetsResponse = await fetch(
+              `${BACKEND_URL}/api/users/${data.user_id}/has-pets`
+            );
+            const hasPetsData = await hasPetsResponse.json();
 
-          if (hasPetsData.has_pets) {
-            router.replace('/home-premium');
-          } else {
-            router.replace('/add-pet');
+            // Navigate with error handling
+            try {
+              if (hasPetsData.has_pets) {
+                router.replace('/home-premium');
+              } else {
+                router.replace('/add-pet');
+              }
+            } catch (navError) {
+              console.error('Navigation error:', navError);
+              Alert.alert(
+                'Navigation Issue',
+                'Please retry. If the issue persists, restart the app.',
+                [
+                  {
+                    text: 'Retry',
+                    onPress: () => {
+                      if (hasPetsData.has_pets) {
+                        router.replace('/home-premium');
+                      } else {
+                        router.replace('/add-pet');
+                      }
+                    },
+                  },
+                ]
+              );
+            }
+          } catch (petsError) {
+            console.error('Error checking pets:', petsError);
+            // Default to home-premium if pets check fails
+            try {
+              router.replace('/home-premium');
+            } catch (navError) {
+              Alert.alert(
+                'Navigation Issue',
+                'Please retry. If the issue persists, restart the app.',
+                [
+                  {
+                    text: 'Retry',
+                    onPress: () => router.replace('/home-premium'),
+                  },
+                ]
+              );
+            }
           }
         }, 300);
       } else {
@@ -181,6 +225,7 @@ export default function PremiumLoginScreen() {
         otpRefs[0].current?.focus();
       }
     } catch (error) {
+      console.error('OTP verification error:', error);
       Alert.alert('Error', 'Network error. Please try again.');
       setOtp(['', '', '', '', '', '']);
     } finally {
