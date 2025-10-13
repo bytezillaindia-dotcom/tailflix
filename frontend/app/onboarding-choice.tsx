@@ -13,141 +13,92 @@ import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING } from '../constants/theme';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function OnboardingChoiceScreen() {
   const router = useRouter();
   
   // Animation values
-  const mascotScale = useRef(new Animated.Value(0)).current;
-  const mascotX = useRef(new Animated.Value(-SCREEN_WIDTH)).current;
   const badge1Scale = useRef(new Animated.Value(0)).current;
   const badge2Scale = useRef(new Animated.Value(0)).current;
   const badge1Glow = useRef(new Animated.Value(0)).current;
   const badge2Glow = useRef(new Animated.Value(0)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
-  const tailWag = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    startCinematicAnimation();
+    startAnimation();
   }, []);
 
-  const startCinematicAnimation = () => {
-    // Step 1: Mascot runs in from left
-    Animated.parallel([
-      Animated.spring(mascotX, {
-        toValue: SCREEN_WIDTH / 2 - 60,
-        tension: 40,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-      Animated.spring(mascotScale, {
-        toValue: 1,
-        tension: 50,
-        friction: 5,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      // Step 2: Tail wagging animation (loop)
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(tailWag, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(tailWag, {
-            toValue: -1,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(tailWag, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
+  const startAnimation = () => {
+    // Text fades in first
+    Animated.timing(textOpacity, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
 
-      // Step 3: Drop badges
-      setTimeout(() => {
-        Animated.parallel([
-          Animated.spring(badge1Scale, {
-            toValue: 1,
-            tension: 100,
-            friction: 5,
-            useNativeDriver: true,
-          }),
-          Animated.spring(badge2Scale, {
-            toValue: 1,
-            delay: 200,
-            tension: 100,
-            friction: 5,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
-          // Step 4: Glowing badges loop
-          Animated.loop(
-            Animated.sequence([
-              Animated.timing(badge1Glow, {
-                toValue: 1,
-                duration: 1500,
-                useNativeDriver: false,
-              }),
-              Animated.timing(badge1Glow, {
-                toValue: 0,
-                duration: 1500,
-                useNativeDriver: false,
-              }),
-            ])
-          ).start();
-
-          Animated.loop(
-            Animated.sequence([
-              Animated.timing(badge2Glow, {
-                toValue: 1,
-                duration: 1500,
-                delay: 750,
-                useNativeDriver: false,
-              }),
-              Animated.timing(badge2Glow, {
-                toValue: 0,
-                duration: 1500,
-                useNativeDriver: false,
-              }),
-            ])
-          ).start();
-        });
-
-        // Step 5: Text fades in
-        Animated.timing(textOpacity, {
+    // Badges drop down
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.spring(badge1Scale, {
           toValue: 1,
-          duration: 1000,
-          delay: 500,
+          tension: 80,
+          friction: 5,
           useNativeDriver: true,
-        }).start();
-      }, 300);
-    });
+        }),
+        Animated.spring(badge2Scale, {
+          toValue: 1,
+          delay: 150,
+          tension: 80,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        // Start glowing badges loop
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(badge1Glow, {
+              toValue: 1,
+              duration: 1500,
+              useNativeDriver: false,
+            }),
+            Animated.timing(badge1Glow, {
+              toValue: 0,
+              duration: 1500,
+              useNativeDriver: false,
+            }),
+          ])
+        ).start();
+
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(badge2Glow, {
+              toValue: 1,
+              duration: 1500,
+              delay: 750,
+              useNativeDriver: false,
+            }),
+            Animated.timing(badge2Glow, {
+              toValue: 0,
+              duration: 1500,
+              useNativeDriver: false,
+            }),
+          ])
+        ).start();
+      });
+    }, 300);
   };
 
   const handleChoice = async (mode: 'pet' | 'owner_pet') => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     
-    // Store the chosen mode
+    // Store the chosen mode and mark onboarding as completed
     await AsyncStorage.setItem('onboarding_mode', mode);
+    await AsyncStorage.setItem('onboarding_completed', 'true');
     
-    // Navigate to respective onboarding flow
-    if (mode === 'pet') {
-      router.push('/onboarding-pet');
-    } else {
-      router.push('/onboarding-owner-pet');
-    }
+    // Navigate directly to OTP login
+    router.replace('/login-premium');
   };
-
-  const tailRotate = tailWag.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ['-30deg', '0deg', '30deg'],
-  });
 
   const badge1GlowColor = badge1Glow.interpolate({
     inputRange: [0, 1],
@@ -161,22 +112,6 @@ export default function OnboardingChoiceScreen() {
 
   return (
     <LinearGradient colors={['#000000', '#1a0a00', '#2a0000']} style={styles.container}>
-      {/* Mascot "Flix" */}
-      <Animated.View
-        style={[
-          styles.mascotContainer,
-          {
-            transform: [
-              { translateX: mascotX },
-              { scale: mascotScale },
-              { rotate: tailRotate }
-            ],
-          },
-        ]}
-      >
-        <Text style={styles.mascot}>🐕</Text>
-      </Animated.View>
-
       {/* Tagline */}
       <Animated.View style={[styles.taglineContainer, { opacity: textOpacity }]}>
         <Text style={styles.tagline}>
@@ -265,16 +200,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.xl,
   },
-  mascotContainer: {
-    position: 'absolute',
-    top: SCREEN_HEIGHT * 0.15,
-  },
-  mascot: {
-    fontSize: 120,
-  },
   taglineContainer: {
     position: 'absolute',
-    top: SCREEN_HEIGHT * 0.35,
+    top: '25%',
     alignItems: 'center',
   },
   tagline: {
@@ -293,8 +221,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   choicesContainer: {
-    position: 'absolute',
-    bottom: SCREEN_HEIGHT * 0.15,
     width: '100%',
     gap: SPACING.lg,
   },
