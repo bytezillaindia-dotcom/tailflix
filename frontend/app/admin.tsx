@@ -351,6 +351,274 @@ export default function AdminScreen() {
     }
   };
 
+  const renderEarningsTab = () => {
+    const [earningsData, setEarningsData] = React.useState({
+      totalRevenue: 0,
+      vendorPayouts: 0,
+      platformCommission: 0,
+      activeVendors: 0,
+    });
+    const [earningsSubTab, setEarningsSubTab] = React.useState<'overview' | 'category' | 'payouts' | 'transactions'>('overview');
+
+    React.useEffect(() => {
+      loadEarningsData();
+    }, []);
+
+    const loadEarningsData = async () => {
+      try {
+        // Load vendor earnings to calculate totals
+        const earningsStr = await AsyncStorage.getItem('vendor_earnings');
+        if (earningsStr) {
+          const allEarnings = JSON.parse(earningsStr);
+          const vendors = Object.keys(allEarnings);
+          
+          let totalVendorEarnings = 0;
+          let totalPendingPayouts = 0;
+          
+          vendors.forEach((vendorId) => {
+            totalVendorEarnings += allEarnings[vendorId].total;
+            totalPendingPayouts += allEarnings[vendorId].pending;
+          });
+          
+          // Calculate platform commission (20% average)
+          const commission = Math.round(totalVendorEarnings * 0.25);
+          const revenue = totalVendorEarnings + commission;
+          
+          setEarningsData({
+            totalRevenue: revenue,
+            vendorPayouts: totalVendorEarnings,
+            platformCommission: commission,
+            activeVendors: vendors.length,
+          });
+        }
+      } catch (error) {
+        console.error('Error loading earnings data:', error);
+      }
+    };
+
+    const renderOverview = () => (
+      <View>
+        <View style={styles.earningsOverviewGrid}>
+          <View style={[styles.earningsCard, { backgroundColor: '#E8F5E9' }]}>
+            <Text style={styles.earningsCardLabel}>Total Revenue</Text>
+            <Text style={styles.earningsCardValue}>₹{earningsData.totalRevenue.toLocaleString('en-IN')}</Text>
+          </View>
+          <View style={[styles.earningsCard, { backgroundColor: '#E3F2FD' }]}>
+            <Text style={styles.earningsCardLabel}>Vendor Payouts</Text>
+            <Text style={styles.earningsCardValue}>₹{earningsData.vendorPayouts.toLocaleString('en-IN')}</Text>
+          </View>
+          <View style={[styles.earningsCard, { backgroundColor: '#FFF3E0' }]}>
+            <Text style={styles.earningsCardLabel}>Platform Commission</Text>
+            <Text style={styles.earningsCardValue}>₹{earningsData.platformCommission.toLocaleString('en-IN')}</Text>
+          </View>
+          <View style={[styles.earningsCard, { backgroundColor: '#F3E5F5' }]}>
+            <Text style={styles.earningsCardLabel}>Active Vendors</Text>
+            <Text style={styles.earningsCardValue}>{earningsData.activeVendors}</Text>
+          </View>
+        </View>
+      </View>
+    );
+
+    const renderByCategory = () => (
+      <View>
+        <View style={styles.categoryRow}>
+          <Text style={styles.categoryName}>TailPro Services</Text>
+          <View style={styles.categoryStats}>
+            <Text style={styles.categoryRevenue}>₹25,000</Text>
+            <Text style={styles.categoryCommission}>Commission: ₹5,000 (20%)</Text>
+          </View>
+        </View>
+        <View style={styles.categoryRow}>
+          <Text style={styles.categoryName}>TailMarket Puppies</Text>
+          <View style={styles.categoryStats}>
+            <Text style={styles.categoryRevenue}>₹15,000</Text>
+            <Text style={styles.categoryCommission}>Commission: ₹7,500 (50%)</Text>
+          </View>
+        </View>
+        <View style={styles.categoryRow}>
+          <Text style={styles.categoryName}>TailBoard Ads</Text>
+          <View style={styles.categoryStats}>
+            <Text style={styles.categoryRevenue}>₹5,000</Text>
+            <Text style={styles.categoryCommission}>Commission: ₹2,500 (50%)</Text>
+          </View>
+        </View>
+      </View>
+    );
+
+    const renderVendorPayouts = () => {
+      const [vendorEarnings, setVendorEarnings] = React.useState<any>({});
+
+      React.useEffect(() => {
+        loadVendorEarnings();
+      }, []);
+
+      const loadVendorEarnings = async () => {
+        const earningsStr = await AsyncStorage.getItem('vendor_earnings');
+        if (earningsStr) {
+          setVendorEarnings(JSON.parse(earningsStr));
+        }
+      };
+
+      const handleMarkPaid = async (vendorId: string) => {
+        Alert.alert(
+          'Mark Payout as Paid',
+          `Mark all pending payouts for this vendor as completed?`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Mark Paid',
+              onPress: async () => {
+                try {
+                  const earningsStr = await AsyncStorage.getItem('vendor_earnings');
+                  if (earningsStr) {
+                    const allEarnings = JSON.parse(earningsStr);
+                    if (allEarnings[vendorId] && allEarnings[vendorId].pending > 0) {
+                      allEarnings[vendorId].completed += allEarnings[vendorId].pending;
+                      allEarnings[vendorId].pending = 0;
+                      await AsyncStorage.setItem('vendor_earnings', JSON.stringify(allEarnings));
+                      await loadVendorEarnings();
+                      await loadEarningsData();
+                      Alert.alert('Success', 'Payout marked as paid');
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error marking payout as paid:', error);
+                  Alert.alert('Error', 'Failed to update payout status');
+                }
+              },
+            },
+          ]
+        );
+      };
+
+      return (
+        <View>
+          {Object.keys(vendorEarnings).length === 0 ? (
+            <Text style={styles.emptyText}>No vendor earnings yet</Text>
+          ) : (
+            Object.keys(vendorEarnings).map((vendorId) => {
+              const earnings = vendorEarnings[vendorId];
+              return (
+                <View key={vendorId} style={styles.vendorPayoutCard}>
+                  <View style={styles.vendorPayoutHeader}>
+                    <Text style={styles.vendorPayoutName}>Vendor: {vendorId}</Text>
+                    {earnings.pending > 0 && (
+                      <View style={styles.pendingBadge}>
+                        <Text style={styles.pendingBadgeText}>PENDING</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.vendorPayoutStats}>
+                    <View style={styles.vendorPayoutStat}>
+                      <Text style={styles.vendorPayoutStatLabel}>Total Earned</Text>
+                      <Text style={styles.vendorPayoutStatValue}>₹{earnings.total}</Text>
+                    </View>
+                    <View style={styles.vendorPayoutStat}>
+                      <Text style={styles.vendorPayoutStatLabel}>Pending</Text>
+                      <Text style={[styles.vendorPayoutStatValue, styles.pendingAmount]}>₹{earnings.pending}</Text>
+                    </View>
+                    <View style={styles.vendorPayoutStat}>
+                      <Text style={styles.vendorPayoutStatLabel}>Completed</Text>
+                      <Text style={[styles.vendorPayoutStatValue, styles.completedAmount]}>₹{earnings.completed}</Text>
+                    </View>
+                  </View>
+                  {earnings.pending > 0 && (
+                    <TouchableOpacity
+                      onPress={() => handleMarkPaid(vendorId)}
+                      style={styles.markPaidButton}
+                    >
+                      <Text style={styles.markPaidButtonText}>✓ Mark Paid</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              );
+            })
+          )}
+        </View>
+      );
+    };
+
+    const renderTransactions = () => {
+      const mockTransactions = [
+        { id: 'TXN101', type: 'TailPro Booking', amount: 999, user: 'User A', vendor: 'Happy Paws', status: 'Completed', date: '2025-10-10' },
+        { id: 'TXN102', type: 'TailMarket Contact', amount: 499, user: 'User B', vendor: 'Breeder X', status: 'Completed', date: '2025-10-11' },
+        { id: 'TXN103', type: 'TailBoard Boost', amount: 199, user: 'User C', vendor: 'Poster Y', status: 'Completed', date: '2025-10-12' },
+      ];
+
+      return (
+        <View>
+          {mockTransactions.map((txn) => (
+            <View key={txn.id} style={styles.transactionCard}>
+              <View style={styles.transactionHeader}>
+                <Text style={styles.transactionId}>{txn.id}</Text>
+                <View style={[styles.transactionStatus, { backgroundColor: '#27AE60' }]}>
+                  <Text style={styles.transactionStatusText}>{txn.status}</Text>
+                </View>
+              </View>
+              <Text style={styles.transactionType}>{txn.type}</Text>
+              <View style={styles.transactionDetails}>
+                <Text style={styles.transactionDetail}>User: {txn.user}</Text>
+                <Text style={styles.transactionDetail}>Vendor: {txn.vendor}</Text>
+                <Text style={styles.transactionDetail}>Date: {txn.date}</Text>
+              </View>
+              <Text style={styles.transactionAmount}>₹{txn.amount}</Text>
+            </View>
+          ))}
+        </View>
+      );
+    };
+
+    return (
+      <View style={styles.tabContent}>
+        <Text style={styles.tabTitle}>Earnings & Payouts 💰</Text>
+
+        {/* Sub-tabs */}
+        <View style={styles.earningsSubTabs}>
+          <TouchableOpacity
+            onPress={() => setEarningsSubTab('overview')}
+            style={[styles.earningsSubTab, earningsSubTab === 'overview' && styles.earningsSubTabActive]}
+          >
+            <Text style={[styles.earningsSubTabText, earningsSubTab === 'overview' && styles.earningsSubTabTextActive]}>
+              Overview
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setEarningsSubTab('category')}
+            style={[styles.earningsSubTab, earningsSubTab === 'category' && styles.earningsSubTabActive]}
+          >
+            <Text style={[styles.earningsSubTabText, earningsSubTab === 'category' && styles.earningsSubTabTextActive]}>
+              By Category
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setEarningsSubTab('payouts')}
+            style={[styles.earningsSubTab, earningsSubTab === 'payouts' && styles.earningsSubTabActive]}
+          >
+            <Text style={[styles.earningsSubTabText, earningsSubTab === 'payouts' && styles.earningsSubTabTextActive]}>
+              Payouts
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setEarningsSubTab('transactions')}
+            style={[styles.earningsSubTab, earningsSubTab === 'transactions' && styles.earningsSubTabActive]}
+          >
+            <Text style={[styles.earningsSubTabText, earningsSubTab === 'transactions' && styles.earningsSubTabTextActive]}>
+              Transactions
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Sub-tab content */}
+        <View style={styles.earningsSubTabContent}>
+          {earningsSubTab === 'overview' && renderOverview()}
+          {earningsSubTab === 'category' && renderByCategory()}
+          {earningsSubTab === 'payouts' && renderVendorPayouts()}
+          {earningsSubTab === 'transactions' && renderTransactions()}
+        </View>
+      </View>
+    );
+  };
+
   const renderTailProTab = () => {
     const [partners, setPartners] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
