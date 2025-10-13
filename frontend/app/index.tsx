@@ -2,11 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
-import { useAuth } from '../components/AuthContext';
 
 export default function SplashScreen() {
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
 
   // Animation values
   const logoOpacity = useRef(new Animated.Value(0)).current;
@@ -15,12 +13,11 @@ export default function SplashScreen() {
   const glowOpacity = useRef(new Animated.Value(0)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const taglineY = useRef(new Animated.Value(30)).current;
+  const screenOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (!loading) {
-      startAnimations();
-    }
-  }, [loading]);
+    startAnimations();
+  }, []);
 
   const startAnimations = () => {
     // Sequence of animations
@@ -40,23 +37,13 @@ export default function SplashScreen() {
           useNativeDriver: true,
         }),
       ]),
-      // Glow effect
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(glowOpacity, {
-            toValue: 0.8,
-            duration: 1500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(glowOpacity, {
-            toValue: 0.3,
-            duration: 1500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      ),
+      // Glow effect (loops in background)
+      Animated.timing(glowOpacity, {
+        toValue: 0.6,
+        duration: 600,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }),
     ]).start();
 
     // Ring rotation (continuous)
@@ -68,6 +55,26 @@ export default function SplashScreen() {
         useNativeDriver: true,
       })
     ).start();
+
+    // Glow pulse effect (continuous after initial glow)
+    setTimeout(() => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowOpacity, {
+            toValue: 0.8,
+            duration: 1500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(glowOpacity, {
+            toValue: 0.4,
+            duration: 1500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }, 800);
 
     // Tagline fade up after delay
     setTimeout(() => {
@@ -86,14 +93,18 @@ export default function SplashScreen() {
       ]).start();
     }, 1000);
 
-    // Navigate after animations
+    // Fade out entire screen and navigate to login
     setTimeout(() => {
-      if (isAuthenticated) {
-        router.replace('/home-premium');
-      } else {
+      Animated.timing(screenOpacity, {
+        toValue: 0,
+        duration: 400,
+        easing: Easing.in(Easing.ease),
+        useNativeDriver: true,
+      }).start(() => {
+        // Always navigate to login screen after splash
         router.replace('/login');
-      }
-    }, 3500);
+      });
+    }, 2500); // 2.5 seconds total duration
   };
 
   const rotate = ringRotation.interpolate({
@@ -102,7 +113,7 @@ export default function SplashScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
       {/* Animated Glow Background */}
       <Animated.View
         style={[
@@ -126,7 +137,7 @@ export default function SplashScreen() {
         <View style={styles.ring} />
       </Animated.View>
 
-      {/* Logo */}
+      {/* Logo - Perfectly Centered */}
       <Animated.View
         style={[
           styles.logoContainer,
@@ -160,7 +171,7 @@ export default function SplashScreen() {
           <Text style={styles.paw}>🐾</Text>
         </View>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -173,9 +184,9 @@ const styles = StyleSheet.create({
   },
   glowBackground: {
     position: 'absolute',
-    width: 400,
-    height: 400,
-    borderRadius: 200,
+    width: 350,
+    height: 350,
+    borderRadius: 175,
     backgroundColor: COLORS.gold,
     opacity: 0.2,
     shadowColor: COLORS.gold,
@@ -186,30 +197,32 @@ const styles = StyleSheet.create({
   },
   rotatingRing: {
     position: 'absolute',
-    width: 350,
-    height: 350,
+    width: 320,
+    height: 320,
     justifyContent: 'center',
     alignItems: 'center',
   },
   ring: {
     width: '100%',
     height: '100%',
-    borderRadius: 175,
+    borderRadius: 160,
     borderWidth: 3,
     borderColor: COLORS.gold,
     borderStyle: 'solid',
-    opacity: 0.4,
+    opacity: 0.5,
   },
   logoContainer: {
-    marginBottom: SPACING.xxl,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logo: {
-    width: 300,
-    height: 300,
+    width: 280,
+    height: 280,
   },
   taglineContainer: {
+    position: 'absolute',
+    bottom: 100,
     alignItems: 'center',
-    marginTop: SPACING.xl,
   },
   tagline: {
     fontSize: FONT_SIZES.lg,
