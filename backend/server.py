@@ -277,7 +277,7 @@ async def get_pets(user_id: Optional[str] = None):
 
 
 @api_router.get("/pets/feed")
-async def get_pet_feed(limit: int = 10):
+async def get_pet_feed(limit: int = 10, debug: bool = False):
     """
     Get pet feed for the current user
     REQUIRES: User must be verified (is_verified_human=true)
@@ -286,6 +286,8 @@ async def get_pet_feed(limit: int = 10):
     - Excludes user's own pets
     - Mock distance/location for now
     For production: extract user_id from JWT token
+    
+    Debug mode: Set ?debug=true to see first 5 pets regardless of filters
     """
     try:
         # Mock user_id - in production, get from authenticated session
@@ -297,8 +299,17 @@ async def get_pet_feed(limit: int = 10):
         current_user_id = recent_user['id']
         is_verified = recent_user.get('is_verified_human', False)
         
+        # DEBUG LOGGING
+        logger.info("="*80)
+        logger.info("DEBUG: PET FEED FILTERING")
+        logger.info("="*80)
+        
+        # 1. Log total pets in database
+        total_pets_count = await db.pets.count_documents({})
+        logger.info(f"1. TOTAL PETS IN DATABASE: {total_pets_count}")
+        
         # SERVER-SIDE VERIFICATION GUARD
-        if not is_verified:
+        if not is_verified and not debug:
             logger.warning(f"User {current_user_id} (unverified) attempted to access pet feed - blocked")
             return {
                 "error": "verification_required",
@@ -306,13 +317,60 @@ async def get_pet_feed(limit: int = 10):
                 "redirect": "/verify"
             }
         
-        # Get all pet IDs that the user has already interacted with
+        # 2. Log user's own pets (excluded)
+        own_pets_count = await db.pets.count_documents({"user_id": current_user_id})
+        logger.info(f"2. EXCLUDED (own pets): {own_pets_count} pets belong to current user")
+        
+        # 3. Log already liked/skipped pets (excluded)
         user_interactions = await db.likes.find({"user_id": current_user_id}).to_list(10000)
         interacted_pet_ids = [like['pet_id'] for like in user_interactions]
+        logger.info(f"3. EXCLUDED (already interacted): {len(interacted_pet_ids)} pets already liked/skipped")
         
-        # Find verified users only
+        # 4. Log verified vs unverified users
         verified_users = await db.users.find({"is_verified_human": True}).to_list(10000)
         verified_user_ids = [user['id'] for user in verified_users]
+        total_users_count = await db.users.count_documents({})
+        unverified_users_count = total_users_count - len(verified_user_ids)
+        logger.info(f"4. VERIFIED USERS: {len(verified_user_ids)} verified, {unverified_users_count} unverified")
+        
+        # 5. Count pets from unverified users (excluded)
+        unverified_pets_count = await db.pets.count_documents({
+            "user_id": {"$nin": verified_user_ids}
+        })
+        logger.info(f"5. EXCLUDED (unverified owners): {unverified_pets_count} pets from unverified users")
+        
+        # DEBUG MODE: Return first 5 pets regardless of filters
+        if debug:
+            logger.info("="*80)
+            logger.info("DEBUG MODE ENABLED: Returning first 5 pets WITHOUT filters")
+            logger.info("="*80)
+            
+            debug_pets = await db.pets.find().limit(5).to_list(5)
+            debug_result = []
+            
+            for pet_doc in debug_pets:
+                pet = Pet(**pet_doc)
+                owner = await db.users.find_one({"id": pet.user_id})
+                current_year = datetime.utcnow().year
+                age = current_year - pet.birth_year
+                
+                debug_result.append({
+                    **pet.dict(),
+                    "age": age,
+                    "distance_km": 5.0,
+                    "owner_verified": owner.get("is_verified_human", False) if owner else False,
+                    "owner_id": pet.user_id,
+                    "is_own_pet": pet.user_id == current_user_id,
+                    "is_interacted": pet.id in interacted_pet_ids
+                })
+            
+            logger.info(f"Returning {len(debug_result)} pets in DEBUG mode")
+            return debug_result
+        
+        # NORMAL MODE: Apply all filters
+        logger.info("="*80)
+        logger.info("APPLYING FILTERS")
+        logger.info("="*80)
         
         # Build query to get eligible pets
         query = {
@@ -320,8 +378,13 @@ async def get_pet_feed(limit: int = 10):
             "id": {"$nin": interacted_pet_ids}  # Not already interacted with
         }
         
+        # Count eligible pets before limit
+        eligible_count = await db.pets.count_documents(query)
+        logger.info(f"ELIGIBLE PETS (after all filters): {eligible_count}")
+        
         # Fetch pets
         pets = await db.pets.find(query).limit(limit).to_list(limit)
+        logger.info(f"RETURNING: {len(pets)} pets (limit={limit})")
         
         # Enrich pet data with owner info and mock distance
         enriched_pets = []
@@ -348,7 +411,9 @@ async def get_pet_feed(limit: int = 10):
             
             enriched_pets.append(enriched_pet)
         
-        logger.info(f"Fetched {len(enriched_pets)} pets for feed")
+        logger.info("="*80)
+        logger.info(f"FINAL RESULT: {len(enriched_pets)} pets returned")
+        logger.info("="*80)
         
         return enriched_pets
     
