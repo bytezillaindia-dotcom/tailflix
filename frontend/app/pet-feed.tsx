@@ -423,11 +423,17 @@ export default function PetFeedScreen() {
       
       // Special animation for Golden Bone before action
       if (actionType === 'golden_bone') {
+        // Trigger animation
+        setGoldenBoneAnimating(true);
+        
         // Trigger strong haptic feedback for premium action
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         
         // Wait for animation to complete (1 second)
         await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Reset animation state
+        setGoldenBoneAnimating(false);
       }
       
       // Check daily limit for actions that count toward the limit: like, super_like, golden_bone
