@@ -367,6 +367,30 @@ frontend:
           agent: "main"
           comment: "Created PetFeed screen with Tinder-style card design. Features: Full-screen pet photo with gradient overlay, pet info (name, age, breed, temperament tags), distance badge, owner verification badge. Action buttons: 🎾 Like, 🥏 Skip, 🍖 Super Like, ✨🍖 Boost. Tap card opens full profile modal with 3-photo gallery. Fetches from GET /api/pets/feed and posts actions to POST /api/likes. Empty state with refresh button. Loading states for initial load and actions."
 
+  - task: "Double Fetch Animation Screen"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/double-fetch.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Created new Double Fetch animation screen for mutual matches. Features: 1) Animated pets running toward each other from both sides 2) Tail wagging loop animation 3) Heart puff appearing in center with glow rings 4) 'It's a Double Fetch!' title with spring animation 5) Golden badge for golden_bone matches 6) Confetti particles (12 sparkles) for golden_bone matches with rotation 7) Two action buttons: 'Start Chat 💌' (gradient button) and 'Keep Fetching 🎾' (outlined button). Uses expo-av (mocked sound for now) and react-native-reanimated for smooth animations. Triggered when backend detects mutual match via POST /api/likes response."
+
+  - task: "Fetch Yard Action Mechanics"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/fetch-yard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Updated Fetch Yard action mechanics per Dog Dating Mode spec. BUTTON MAPPINGS: 🥏 Frisbee=Skip, 🎾 Tennis Ball=Like/Fetch, 🍖 Bone=Super Like, 🦴 Golden Bone=Boost. SWIPE GESTURES: Swipe Right=Like/Fetch, Swipe Left=Skip (removed swipe-up for boost to simplify UX). ANIMATIONS: Added button glow animations for all 4 actions including skip. ROUTING: Changed mutual match routing from /match to /double-fetch screen. SWIPE HINTS: Updated right swipe hint from 'LIKE' to 'FETCH'. All actions properly call POST /api/likes with correct action_type and handle mutual match redirects."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
@@ -375,12 +399,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Premium Feature Enforcement"
-    - "Verification Guard Implementation"
+    - "Double Fetch Animation Screen"
+    - "Fetch Yard Action Mechanics"
   stuck_tasks:
     - "Premium Feature Enforcement"
     - "Verification Guard Implementation"
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
   - task: "Backend Model Fix - Optional Fields"
