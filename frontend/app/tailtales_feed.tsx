@@ -182,9 +182,20 @@ export default function TailTalesFeed() {
       </View>
 
       {/* Feed */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+      <FlashList
+        data={posts}
+        renderItem={({ item, index }) => (
+          <PostCard
+            key={item.id}
+            post={item}
+            index={index}
+            onLike={() => handleLike(item.id)}
+            onComment={() => handleComment(item)}
+            onShare={handleShare}
+          />
+        )}
+        estimatedItemSize={400}
+        keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -193,18 +204,8 @@ export default function TailTalesFeed() {
             tintColor={COLORS.pawPink}
           />
         }
-      >
-        {posts.map((post, index) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            index={index}
-            onLike={() => handleLike(post.id)}
-            onComment={() => handleComment(post)}
-            onShare={handleShare}
-          />
-        ))}
-      </ScrollView>
+        contentContainerStyle={styles.contentContainer}
+      />
 
       {/* Comments Modal */}
       <Modal
