@@ -638,48 +638,20 @@ const styles = StyleSheet.create({
     minWidth: 72,
     minHeight: 72,
   },
-  actionButton: {
-    width: 70,
-    height: 84,
-    borderRadius: 16,
+  actionButtonContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(26, 26, 26, 0.95)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-    paddingVertical: SPACING.sm,
-  },
-  likeButton: {
-    borderWidth: 2,
-    borderColor: 'rgba(154, 205, 50, 0.5)',
-  },
-  skipButton: {
-    borderWidth: 2,
-    borderColor: 'rgba(255, 107, 107, 0.5)',
-  },
-  superLikeButton: {
-    borderWidth: 2,
-    borderColor: 'rgba(220, 20, 60, 0.5)',
-  },
-  hyperLikeButton: {
-    borderWidth: 2,
-    borderColor: 'rgba(255, 165, 0, 0.5)',
-  },
-  boostButton: {
-    borderWidth: 2,
-    borderColor: 'rgba(255, 215, 0, 0.6)',
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    paddingVertical: SPACING.xs,
   },
   actionLabel: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '600',
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '700',
     marginTop: SPACING.xs,
-  },
-  boostLabel: {
-    color: '#FFD700',
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+    letterSpacing: 0.5,
   },
   swipeHint: {
     position: 'absolute',
