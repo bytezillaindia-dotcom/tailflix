@@ -165,6 +165,30 @@ backend:
           agent: "testing"
           comment: "✅ TESTED: Get users API working correctly. Returns list of users with proper structure including all required fields (id, method, value, created_at, last_login). Verified 5 test users created during testing."
 
+  - task: "Likes Model & API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Created Like model with MongoDB integration. Stores user_id, pet_id, action_type (like/skip/superlike/boost), created_at. Added POST /api/likes to record actions and GET /api/likes to retrieve them."
+
+  - task: "Pet Feed API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Created GET /api/pets/feed endpoint. Returns verified pets from verified users, excludes user's own pets and already interacted pets. Enriches data with age calculation, mock distance (0.5-50km), and owner verification status. Supports pagination via limit parameter (default 10)."
+
 frontend:
   - task: "Splash Screen"
     implemented: true
