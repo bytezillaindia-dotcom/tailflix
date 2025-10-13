@@ -570,7 +570,8 @@ async def root():
         "endpoints": {
             "auth": ["/api/auth/send-otp", "/api/auth/verify-otp"],
             "users": ["/api/users"],
-            "pets": ["/api/pets"],
+            "pets": ["/api/pets", "/api/pets/feed"],
+            "likes": ["/api/likes"],
             "verifications": ["/api/verifications", "/api/verifications/status/{user_id}"],
             "admin": ["/api/admin/verifications/pending", "/api/admin/verifications/{id}/approve", "/api/admin/verifications/{id}/reject"]
         }
