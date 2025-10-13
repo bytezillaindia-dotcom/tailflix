@@ -8,66 +8,83 @@ import {
   Alert,
   ScrollView,
   Dimensions,
+  ImageBackground,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
+import * as Haptics from 'expo-haptics';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 import { useAuth } from '../components/AuthContext';
 
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - SPACING.xl * 2;
+const { width, height } = Dimensions.get('window');
+const CARD_WIDTH = width * 0.7;
+const CARD_HEIGHT = 200;
 
 interface DashboardCard {
   id: string;
   title: string;
   icon: string;
   description: string;
-  colors: string[];
+  gradient: string[];
   route: string;
-  adminOnly?: boolean;
+  image?: string;
 }
 
-const DASHBOARD_CARDS: DashboardCard[] = [
+const SECTIONS = [
   {
-    id: '1',
-    title: 'Fetch Yard',
-    icon: '🎾',
-    description: 'Find perfect playmates for your pet',
-    colors: [COLORS.crimson, '#8B0000'],
-    route: '/fetch-yard',
+    title: 'For Your Pet 🐾',
+    cards: [
+      {
+        id: '1',
+        title: 'Fetch Yard',
+        icon: '🎾',
+        description: 'Find perfect playmates for your pet',
+        gradient: [COLORS.pawPink, COLORS.gold],
+        route: '/fetch-yard',
+      },
+      {
+        id: '2',
+        title: 'Tug Yard',
+        icon: '🪢',
+        description: 'Connect with owners for dating',
+        gradient: [COLORS.crimson, COLORS.gold],
+        route: '/tug-yard',
+      },
+    ],
   },
   {
-    id: '2',
-    title: 'Tug Yard',
-    icon: '🪢',
-    description: 'Connect with pet owners for dating',
-    colors: ['#DC143C', '#8B0000'],
-    route: '/tug-yard',
+    title: 'Connections 💞',
+    cards: [
+      {
+        id: '3',
+        title: 'Matches',
+        icon: '💌',
+        description: 'See who likes you back',
+        gradient: [COLORS.pawPinkLight, COLORS.pawPink],
+        route: '/matches',
+      },
+      {
+        id: '4',
+        title: 'Chat',
+        icon: '💬',
+        description: 'Message your matches',
+        gradient: [COLORS.goldenBeige, COLORS.goldShimmer],
+        route: '/chat',
+      },
+    ],
   },
   {
-    id: '3',
-    title: 'Matches',
-    icon: '💌',
-    description: 'See who likes you back',
-    colors: ['#FF1493', '#C71585'],
-    route: '/likes',
-  },
-  {
-    id: '4',
-    title: 'Chat',
-    icon: '💬',
-    description: 'Message your matches',
-    colors: ['#FFD700', '#FFA500'],
-    route: '/chat',
-  },
-  {
-    id: '5',
-    title: 'Admin',
-    icon: '⚙️',
-    description: 'Manage verifications and settings',
-    colors: ['#4B0082', '#8B008B'],
-    route: '/admin',
-    adminOnly: true,
+    title: 'Control Center ⚙️',
+    cards: [
+      {
+        id: '5',
+        title: 'Admin Panel',
+        icon: '⚙️',
+        description: 'Manage verifications and settings',
+        gradient: [COLORS.warmBrown, COLORS.chocolateBrown],
+        route: '/admin',
+      },
+    ],
   },
 ];
 
