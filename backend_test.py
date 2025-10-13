@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-TailFlix Backend Testing Suite - Journey-Based Testing
-Tests complete user journeys as specified in the review request
+TailFlix Backend Testing Suite - Double Fetch & Action Mechanics
+Tests the newly implemented mutual match animation and action mechanics
 """
 
 import requests
