@@ -34,6 +34,7 @@ class User(BaseModel):
     value: str  # phone number or email
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
+    is_verified_human: bool = False
 
 class SendOtpRequest(BaseModel):
     method: str  # 'phone' or 'email'
