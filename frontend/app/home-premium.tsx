@@ -302,6 +302,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xl,
     paddingBottom: SPACING.xxl,
   },
+  sectionTitle: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: 'bold',
+    color: COLORS.gold,
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.md,
+  },
   cardWrapper: {
     marginBottom: SPACING.lg,
   },
