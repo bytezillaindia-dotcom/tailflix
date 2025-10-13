@@ -143,6 +143,30 @@ export default function AdminScreen() {
     }
   };
 
+  const handleTogglePremium = async (userId: string, currentStatus: boolean) => {
+    setProcessingId(userId);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/admin/users/${userId}/premium`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_premium: !currentStatus }),
+      });
+
+      if (response.ok) {
+        Alert.alert('Success', `User ${!currentStatus ? 'upgraded to' : 'downgraded from'} Premium`);
+        await loadUsers();
+      } else {
+        const data = await response.json();
+        Alert.alert('Error', data.detail || 'Failed to update premium status');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Network error. Please try again.');
+      console.error(error);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const renderVerificationItem = (verification: Verification) => (
     <View key={verification.id} style={styles.verificationCard}>
       <View style={styles.verificationHeader}>
