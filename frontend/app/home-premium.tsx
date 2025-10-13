@@ -129,6 +129,20 @@ const SECTIONS = [
     ],
   },
   {
+    title: 'Give Back ❤️',
+    cards: [
+      {
+        id: '11',
+        title: 'TailCause',
+        icon: '❤️',
+        description: 'Adopt or Donate to pets in need',
+        gradient: [COLORS.cream, COLORS.softPeach],
+        route: '/tailcause_home',
+        special: 'cause',
+      },
+    ],
+  },
+  {
     title: 'Control Center ⚙️',
     cards: [
       {
