@@ -123,18 +123,23 @@ export default function PremiumHome() {
         </TouchableOpacity>
       </View>
 
-      {/* Dashboard Cards */}
+      {/* Dashboard Sections */}
       <ScrollView
         contentContainerStyle={styles.cardsContainer}
         showsVerticalScrollIndicator={false}
       >
-        {DASHBOARD_CARDS.filter(card => !card.adminOnly || isAdmin).map((card, index) => (
-          <AnimatedCard
-            key={card.id}
-            card={card}
-            index={index}
-            onPress={() => router.push(card.route as any)}
-          />
+        {SECTIONS.map((section) => (
+          <View key={section.title}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            {section.cards.map((card, index) => (
+              <AnimatedCard
+                key={card.id}
+                card={card}
+                index={index}
+                onPress={() => router.push(card.route as any)}
+              />
+            ))}
+          </View>
         ))}
 
         {/* Footer */}
