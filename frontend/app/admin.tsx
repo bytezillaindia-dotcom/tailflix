@@ -1152,4 +1152,198 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
     alignItems: 'center',
   },
+  // Earnings Tab Styles
+  earningsSubTabs: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.charcoal,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 4,
+    marginBottom: SPACING.lg,
+  },
+  earningsSubTab: {
+    flex: 1,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.xs,
+    borderRadius: BORDER_RADIUS.sm,
+    alignItems: 'center',
+  },
+  earningsSubTabActive: {
+    backgroundColor: COLORS.crimson,
+  },
+  earningsSubTabText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.gray,
+  },
+  earningsSubTabTextActive: {
+    color: COLORS.white,
+  },
+  earningsSubTabContent: {
+    flex: 1,
+  },
+  earningsOverviewGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+  },
+  earningsCard: {
+    width: '48%',
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  earningsCardLabel: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: SPACING.xs,
+  },
+  earningsCardValue: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  categoryRow: {
+    backgroundColor: COLORS.charcoal,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.darkGray,
+  },
+  categoryName: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: SPACING.xs,
+  },
+  categoryStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  categoryRevenue: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+    color: '#10B981',
+  },
+  categoryCommission: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray,
+  },
+  vendorPayoutCard: {
+    backgroundColor: COLORS.charcoal,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.darkGray,
+  },
+  vendorPayoutHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  vendorPayoutName: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  pendingBadge: {
+    backgroundColor: '#FFA500',
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  pendingBadgeText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  vendorPayoutStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
+  },
+  vendorPayoutStat: {
+    alignItems: 'center',
+  },
+  vendorPayoutStatLabel: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray,
+    marginBottom: 4,
+  },
+  vendorPayoutStatValue: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  pendingAmount: {
+    color: '#FFA500',
+  },
+  completedAmount: {
+    color: '#10B981',
+  },
+  markPaidButton: {
+    backgroundColor: '#10B981',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  markPaidButtonText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  transactionCard: {
+    backgroundColor: COLORS.charcoal,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.darkGray,
+  },
+  transactionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
+  },
+  transactionId: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  transactionStatus: {
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  transactionStatusText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  transactionType: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.white,
+    marginBottom: SPACING.xs,
+  },
+  transactionDetails: {
+    marginBottom: SPACING.xs,
+  },
+  transactionDetail: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray,
+    marginBottom: 2,
+  },
+  transactionAmount: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+    color: '#10B981',
+    textAlign: 'right',
+  },
 });
