@@ -671,8 +671,16 @@ async def create_like(like_data: LikeCreate, user_id: Optional[str] = None):
                             "matched": True,
                             "match_id": match.id,
                             "match_type": like_data.action_type,
-                            "my_pet_name": my_pet.get('pet_name', 'Your pet'),
-                            "their_pet_name": liked_pet.get('pet_name', 'Their pet')
+                            "my_pet": {
+                                "id": my_pet['id'],
+                                "name": my_pet.get('pet_name', 'Your pet'),
+                                "photo": my_pet.get('photos', [])[0] if my_pet.get('photos') else None
+                            },
+                            "their_pet": {
+                                "id": liked_pet['id'],
+                                "name": liked_pet.get('pet_name', 'Their pet'),
+                                "photo": liked_pet.get('photos', [])[0] if liked_pet.get('photos') else None
+                            }
                         }
         
         return {
