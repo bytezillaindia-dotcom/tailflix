@@ -89,7 +89,7 @@ export default function SplashScreen() {
     // Navigate after animations
     setTimeout(() => {
       if (isAuthenticated) {
-        router.replace('/home');
+        router.replace('/home-premium');
       } else {
         router.replace('/login');
       }
