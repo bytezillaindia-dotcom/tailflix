@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 24,
-    color: theme.colors.white,
+    color: COLORS.white,
   },
   menuButton: {
     width: 40,
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 24,
-    color: theme.colors.white,
+    color: COLORS.white,
     fontWeight: 'bold',
   },
   infoOverlay: {
