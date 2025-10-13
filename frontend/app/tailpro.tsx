@@ -92,8 +92,15 @@ export default function TailPro() {
     const service = services.find(s => s.id === serviceId);
     if (!service) return;
     
-    setSelectedService(service);
-    setShowPaywall(true);
+    // Navigate to booking flow with service details
+    router.push({
+      pathname: '/booking-flow',
+      params: {
+        service: service.service,
+        provider: service.provider,
+        price: service.price,
+      },
+    });
   };
 
   const handlePayWithMoney = () => {
