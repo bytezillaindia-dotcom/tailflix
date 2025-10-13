@@ -481,7 +481,7 @@ async def create_like(like_data: LikeCreate):
         match_info = None
         if like_data.action_type in ['like', 'super_like', 'golden_bone']:
             # Get current user's pet (most recent)
-            my_pet = await db.pets.find_one({"owner_id": user_id}, sort=[("created_at", -1)])
+            my_pet = await db.pets.find_one({"user_id": user_id}, sort=[("created_at", -1)])
             
             if my_pet:
                 # Check if the other user already liked my pet
