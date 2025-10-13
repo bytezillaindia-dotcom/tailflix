@@ -377,12 +377,12 @@ async def get_daily_like_count():
 @api_router.post("/likes", response_model=Like)
 async def create_like(like_data: LikeCreate):
     """
-    Record a like/skip/super_like/boost action
+    Record a like/skip/super_like/golden_bone action
     For now, we'll use a mock user_id. In production, extract from JWT token
     """
     try:
         # Validate action_type
-        valid_actions = ['like', 'skip', 'super_like', 'boost']
+        valid_actions = ['like', 'skip', 'super_like', 'golden_bone']
         if like_data.action_type not in valid_actions:
             raise HTTPException(
                 status_code=400, 
