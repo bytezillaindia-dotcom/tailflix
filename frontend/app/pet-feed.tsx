@@ -541,6 +541,19 @@ export default function PetFeedScreen() {
           return;
         }
         
+        // Check for server-side daily limit error
+        if (data.error === 'daily_limit_reached') {
+          setActionLoading(false);
+          // Navigate to paywall
+          router.push({
+            pathname: '/paywall',
+            params: { 
+              message: `You've used all ${data.limit} free actions today. Upgrade for unlimited! 🐾` 
+            }
+          });
+          return;
+        }
+        
         // Check if this resulted in a match
         if (data.match && data.match.matched) {
           setActionLoading(false);
