@@ -23,7 +23,47 @@ export default function TailReelsUpload() {
   const router = useRouter();
   const [petName, setPetName] = useState('');
   const [caption, setCaption] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
+  const [videoUri, setVideoUri] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const requestPermissions = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please grant media library permissions to upload videos');
+      return false;
+    }
+    return true;
+  };
+
+  const handlePickVideo = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+        quality: 1,
+        videoMaxDuration: 60, // 60 seconds max
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedVideo = result.assets[0];
+        setVideoUri(selectedVideo.uri);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    } catch (error) {
+      console.error('Error picking video:', error);
+      Alert.alert('Error', 'Failed to pick video');
+    }
+  };
+
+  const handleRemoveVideo = () => {
+    setVideoUri(null);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
 
   const handlePost = async () => {
     if (!petName.trim() || !caption.trim()) {
@@ -31,15 +71,27 @@ export default function TailReelsUpload() {
       return;
     }
 
+    if (!videoUri) {
+      Alert.alert('Missing Video', 'Please select a video to upload');
+      return;
+    }
+
+    setIsUploading(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
     try {
+      // Mock upload: In real app, upload to server here
+      // For MVP, we'll use the local video URI or fallback to sample video
+      const mockUploadedUrl = videoUri.startsWith('file://') 
+        ? 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' 
+        : videoUri;
+
       const newReel = {
         id: Date.now(),
         pet_name: petName,
         owner: 'You',
         caption: caption,
-        video_url:
-          videoUrl ||
-          'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        video_url: mockUploadedUrl,
         likes: 0,
         comments: [],
         shares: 0,
@@ -52,7 +104,9 @@ export default function TailReelsUpload() {
       reels.unshift(newReel);
       await AsyncStorage.setItem('tailreels_videos', JSON.stringify(reels));
 
+      setIsUploading(false);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      
       Alert.alert('Success!', 'Your TailReel has been posted! 🎬', [
         {
           text: 'View Feed',
@@ -61,6 +115,7 @@ export default function TailReelsUpload() {
       ]);
     } catch (error) {
       console.error('Error posting reel:', error);
+      setIsUploading(false);
       Alert.alert('Error', 'Failed to post your reel');
     }
   };
@@ -74,7 +129,7 @@ export default function TailReelsUpload() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Cancel</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Upload Reel</Text>
+        <Text style={styles.headerTitle}>Post a TailReel</Text>
         <View style={{ width: 60 }} />
       </View>
 
@@ -88,6 +143,42 @@ export default function TailReelsUpload() {
             <Text style={styles.iconEmoji}>🎬</Text>
           </View>
 
+          {/* Video Upload Section */}
+          {!videoUri ? (
+            <TouchableOpacity 
+              style={styles.uploadBox} 
+              onPress={handlePickVideo}
+              activeOpacity={0.8}
+            >
+              <View style={styles.uploadIconContainer}>
+                <Text style={styles.uploadIcon}>📹</Text>
+              </View>
+              <Text style={styles.uploadTitle}>Upload Video</Text>
+              <Text style={styles.uploadSubtitle}>Tap to select a video</Text>
+              <Text style={styles.uploadNote}>MP4, MOV, WebM (max 60s)</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.videoPreviewContainer}>
+              <Text style={styles.previewLabel}>Video Preview</Text>
+              <View style={styles.videoPreview}>
+                <Video
+                  source={{ uri: videoUri }}
+                  style={styles.videoPlayer}
+                  useNativeControls
+                  resizeMode={ResizeMode.CONTAIN}
+                  isLooping
+                />
+              </View>
+              <TouchableOpacity 
+                style={styles.removeVideoButton}
+                onPress={handleRemoveVideo}
+              >
+                <Text style={styles.removeVideoText}>✕ Remove Video</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Pet Name Input */}
           <Text style={styles.inputLabel}>Pet Name *</Text>
           <TextInput
             style={styles.textInput}
@@ -97,6 +188,7 @@ export default function TailReelsUpload() {
             placeholderTextColor="#999"
           />
 
+          {/* Caption Input */}
           <Text style={styles.inputLabel}>Caption *</Text>
           <TextInput
             style={[styles.textInput, styles.textArea]}
@@ -108,31 +200,31 @@ export default function TailReelsUpload() {
             numberOfLines={4}
           />
 
-          <Text style={styles.inputLabel}>Video URL (Optional)</Text>
-          <TextInput
-            style={styles.textInput}
-            value={videoUrl}
-            onChangeText={setVideoUrl}
-            placeholder="https://... (leave empty for sample)"
-            placeholderTextColor="#999"
-          />
-
           <View style={styles.uploadNote}>
             <Text style={styles.uploadNoteIcon}>💡</Text>
             <Text style={styles.uploadNoteText}>
-              Leave video URL empty for a sample video. Real video upload coming soon!
+              Videos are stored locally for MVP. Real cloud upload coming soon!
             </Text>
           </View>
         </View>
 
-        <TouchableOpacity onPress={handlePost} style={styles.postButton}>
+        {/* Post Button */}
+        <TouchableOpacity 
+          onPress={handlePost} 
+          style={styles.postButton}
+          disabled={isUploading}
+        >
           <LinearGradient
-            colors={[COLORS.pawPink, COLORS.gold]}
+            colors={isUploading ? ['#999', '#666'] : [COLORS.pawPink, COLORS.gold]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.postButtonGradient}
           >
-            <Text style={styles.postButtonText}>Post Reel 🎬</Text>
+            {isUploading ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.postButtonText}>Post Reel 🐾</Text>
+            )}
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>
