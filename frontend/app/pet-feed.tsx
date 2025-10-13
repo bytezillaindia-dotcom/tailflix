@@ -247,7 +247,7 @@ export default function PetFeedScreen() {
     }
   };
 
-  const handleAction = async (actionType: 'like' | 'skip' | 'super_like' | 'boost') => {
+  const handleAction = async (actionType: 'like' | 'skip' | 'super_like' | 'golden_bone') => {
     if (currentIndex >= pets.length) return;
 
     const currentPet = pets[currentIndex];
@@ -255,9 +255,18 @@ export default function PetFeedScreen() {
     try {
       setActionLoading(true);
       
-      // Check daily limit for actions that count toward the limit: like, super_like, boost
+      // Special animation for Golden Bone before action
+      if (actionType === 'golden_bone') {
+        // Trigger strong haptic feedback for premium action
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        
+        // Wait for animation to complete (1 second)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      // Check daily limit for actions that count toward the limit: like, super_like, golden_bone
       // Skip actions are unlimited
-      const limitedActions = ['like', 'super_like', 'boost'];
+      const limitedActions = ['like', 'super_like', 'golden_bone'];
       if (limitedActions.includes(actionType)) {
         const limitsResponse = await fetch(`${backendUrl}/api/likes/daily-count`);
         const limitsData = await limitsResponse.json();
