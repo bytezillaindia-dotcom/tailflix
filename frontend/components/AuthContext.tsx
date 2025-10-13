@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [vendorId, setVendorId] = useState<string | null>(null);
+  const [vendorType, setVendorType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Load auth state from AsyncStorage on app start
@@ -39,12 +40,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadAuthState = async () => {
     try {
-      const [storedUserId, storedToken, storedRole, storedStatus, storedVendorId] = await Promise.all([
+      const [storedUserId, storedToken, storedRole, storedStatus, storedVendorId, storedVendorType] = await Promise.all([
         AsyncStorage.getItem(AUTH_STORAGE_KEY),
         AsyncStorage.getItem(TOKEN_STORAGE_KEY),
         AsyncStorage.getItem(ROLE_STORAGE_KEY),
         AsyncStorage.getItem(STATUS_STORAGE_KEY),
         AsyncStorage.getItem(VENDOR_ID_STORAGE_KEY),
+        AsyncStorage.getItem(VENDOR_TYPE_STORAGE_KEY),
       ]);
 
       if (storedUserId && storedToken) {
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRole(storedRole);
         setStatus(storedStatus);
         setVendorId(storedVendorId);
+        setVendorType(storedVendorType);
       }
     } catch (error) {
       console.error('Error loading auth state:', error);
@@ -61,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (newUserId: string, newToken: string, newRole?: string, newStatus?: string, newVendorId?: string) => {
+  const login = async (newUserId: string, newToken: string, newRole?: string, newStatus?: string, newVendorId?: string, newVendorType?: string) => {
     try {
       // Save to state
       setUserId(newUserId);
@@ -69,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRole(newRole || null);
       setStatus(newStatus || null);
       setVendorId(newVendorId || null);
+      setVendorType(newVendorType || null);
 
       // Persist to AsyncStorage
       const storagePromises = [
