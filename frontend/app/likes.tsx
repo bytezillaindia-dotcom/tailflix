@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 import { useAuth } from '../components/AuthContext';
 
@@ -17,6 +18,7 @@ interface ReceivedLike {
   id: string;
   action_type: string;
   created_at: string;
+  seen?: boolean;
   sender: {
     user_id: string;
     contact: string;
@@ -37,58 +39,105 @@ interface ReceivedLike {
 export default function LikesScreen() {
   const router = useRouter();
   const { userId } = useAuth();
-  const [likes, setLikes] = useState<ReceivedLike[]>([]);
-  const [superLikes, setSuperLikes] = useState<ReceivedLike[]>([]);
-  const [goldenBones, setGoldenBones] = useState<ReceivedLike[]>([]);
+  const [allLikes, setAllLikes] = useState<ReceivedLike[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'all' | 'super'>('all');
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     fetchReceivedLikes();
-  }, []);
+    markLikesAsSeen();
+  }, [userId]);
 
   const fetchReceivedLikes = async () => {
     try {
-      const url = userId 
+      const url = userId
         ? `${BACKEND_URL}/api/likes/received?user_id=${userId}`
         : `${BACKEND_URL}/api/likes/received`;
-        
+
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (response.ok) {
-        setLikes(data.likes || []);
-        setSuperLikes(data.super_likes || []);
-        setGoldenBones(data.golden_bones || []);
+        // Combine all likes into one list, sorted by time
+        const combined = [
+          ...data.likes.map((like: any) => ({ ...like, category: 'like' })),
+          ...data.super_likes.map((like: any) => ({ ...like, category: 'super_like' })),
+          ...data.golden_bones.map((like: any) => ({ ...like, category: 'golden_bone' })),
+        ];
+        
+        // Sort by created_at (most recent first)
+        combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        
+        setAllLikes(combined);
       }
     } catch (error) {
-      console.error('Error fetching received likes:', error);
+      console.error('Error fetching likes:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  const handleRefresh = () => {
+  const markLikesAsSeen = async () => {
+    if (!userId) return;
+    
+    try {
+      await fetch(`${BACKEND_URL}/api/likes/mark-seen?user_id=${userId}`, {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.error('Error marking likes as seen:', error);
+    }
+  };
+
+  const onRefresh = () => {
     setRefreshing(true);
     fetchReceivedLikes();
   };
 
-  const handleLikeBack = (senderPetId: string) => {
-    // Navigate to pet feed and auto-like that pet
-    router.push({
-      pathname: '/pet-feed',
-      params: { autoLikePetId: senderPetId }
-    });
+  const getActionIcon = (actionType: string) => {
+    switch (actionType) {
+      case 'like':
+        return '🎾';
+      case 'super_like':
+        return '🍖';
+      case 'golden_bone':
+        return '🦴';
+      default:
+        return '❤️';
+    }
+  };
+
+  const getActionText = (like: ReceivedLike) => {
+    const petName = like.sender_pet.name;
+    switch (like.action_type) {
+      case 'like':
+        return `${petName} liked you!`;
+      case 'super_like':
+        return `${petName} sent you a Super Like!`;
+      case 'golden_bone':
+        return `${petName} boosted you with Golden Bone!`;
+      default:
+        return `${petName} liked you!`;
+    }
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const then = new Date(dateString);
+    const seconds = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    return `${Math.floor(seconds / 604800)}w ago`;
   };
 
   const renderLikeItem = ({ item }: { item: ReceivedLike }) => {
     const isSpecial = item.action_type === 'super_like' || item.action_type === 'golden_bone';
-    const icon = item.action_type === 'golden_bone' ? '✨🍖' : 
-                 item.action_type === 'super_like' ? '🦴' : '❤️';
     
     return (
       <TouchableOpacity
@@ -96,339 +145,234 @@ export default function LikesScreen() {
           styles.likeCard,
           isSpecial && styles.specialLikeCard
         ]}
-        onPress={() => handleLikeBack(item.sender_pet.id)}
+        activeOpacity={0.8}
       >
-        {/* Pet Photo */}
-        <View style={styles.petPhotoContainer}>
-          {item.sender_pet.photo ? (
-            <Image
-              source={{ uri: item.sender_pet.photo }}
-              style={styles.petPhoto}
-            />
-          ) : (
-            <View style={styles.petPhotoPlaceholder}>
-              <Text style={styles.petPhotoPlaceholderText}>🐾</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Like Info */}
-        <View style={styles.likeInfo}>
-          <View style={styles.likeHeader}>
-            <Text style={[styles.petName, isSpecial && styles.specialText]}>
-              {item.sender_pet.name}
-            </Text>
-            <Text style={styles.likeIcon}>{icon}</Text>
+        {isSpecial && (
+          <LinearGradient
+            colors={['rgba(255, 215, 0, 0.2)', 'rgba(255, 165, 0, 0.1)']}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
+        
+        <View style={styles.likeContent}>
+          {/* Pet Photo */}
+          <View style={[styles.photoContainer, isSpecial && styles.specialPhotoContainer]}>
+            {item.sender_pet.photo ? (
+              <Image source={{ uri: item.sender_pet.photo }} style={styles.petPhoto} />
+            ) : (
+              <View style={[styles.petPhoto, styles.placeholderPhoto]}>
+                <Text style={styles.placeholderText}>🐕</Text>
+              </View>
+            )}
+            
+            {isSpecial && (
+              <View style={styles.specialBadge}>
+                <Text style={styles.specialBadgeText}>⭐</Text>
+              </View>
+            )}
           </View>
-          
-          {isSpecial && (
-            <View style={styles.specialBadge}>
-              <Text style={styles.specialBadgeText}>
-                {item.action_type === 'golden_bone' ? '✨ Golden Bone' : '🦴 Super Like'}
-              </Text>
-            </View>
-          )}
-          
-          <Text style={styles.petBreed}>{item.sender_pet.breed}</Text>
-          <Text style={styles.likeSubtext}>
-            Liked your pet: {item.my_pet.name}
-          </Text>
-          
-          {item.sender.is_verified && (
-            <View style={styles.verifiedBadge}>
-              <Text style={styles.verifiedText}>✓ Verified</Text>
-            </View>
-          )}
-        </View>
 
-        {/* Action Button */}
-        <TouchableOpacity
-          style={[styles.likeBackButton, isSpecial && styles.specialLikeBackButton]}
-          onPress={() => handleLikeBack(item.sender_pet.id)}
-        >
-          <Text style={[styles.likeBackText, isSpecial && styles.specialLikeBackText]}>
-            ❤️
-          </Text>
-        </TouchableOpacity>
+          {/* Like Info */}
+          <View style={styles.likeInfo}>
+            <Text style={[styles.actionText, isSpecial && styles.specialActionText]}>
+              {getActionIcon(item.action_type)} {getActionText(item)}
+            </Text>
+            <Text style={styles.breedText}>{item.sender_pet.breed}</Text>
+            <Text style={styles.timeText}>{getTimeAgo(item.created_at)}</Text>
+          </View>
+
+          {/* Action Arrow */}
+          <Text style={styles.arrowText}>›</Text>
+        </View>
       </TouchableOpacity>
     );
   };
 
-  const allLikes = [...goldenBones, ...superLikes, ...likes];
-  const specialLikes = [...goldenBones, ...superLikes];
-  const displayLikes = activeTab === 'all' ? allLikes : specialLikes;
+  const renderEmptyState = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyEmoji}>💌</Text>
+      <Text style={styles.emptyTitle}>No Likes Yet</Text>
+      <Text style={styles.emptyText}>
+        When someone likes your pet, you'll see it here!
+      </Text>
+      <TouchableOpacity
+        style={styles.goBackButton}
+        onPress={() => router.back()}
+      >
+        <Text style={styles.goBackButtonText}>Go to Fetch Yard</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.crimson} />
-        <Text style={styles.loadingText}>Loading likes...</Text>
-      </View>
+      <LinearGradient colors={['#000000', '#1a0000']} style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FFD700" />
+        </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#000000', '#1a0000']} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Likes</Text>
+        <Text style={styles.headerTitle}>Likes & Super Likes</Text>
         <View style={styles.headerSpacer} />
       </View>
 
-      {/* Tab Selector */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'all' && styles.activeTab]}
-          onPress={() => setActiveTab('all')}
-        >
-          <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>
-            All ({allLikes.length})
-          </Text>
-          {likes.length > 0 && (
-            <View style={styles.tabBadge}>
-              <Text style={styles.tabBadgeText}>🔴</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'super' && styles.activeTab]}
-          onPress={() => setActiveTab('super')}
-        >
-          <Text style={[styles.tabText, activeTab === 'super' && styles.activeTabText]}>
-            Special ({specialLikes.length})
-          </Text>
-          {specialLikes.length > 0 && (
-            <View style={styles.tabBadge}>
-              <Text style={styles.tabBadgeText}>⭐</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {/* Likes List */}
-      {displayLikes.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>💔</Text>
-          <Text style={styles.emptyText}>
-            {activeTab === 'all' 
-              ? 'No likes yet. Keep swiping!' 
-              : 'No special likes yet'}
-          </Text>
-          <TouchableOpacity
-            style={styles.goToFeedButton}
-            onPress={() => router.push('/pet-feed')}
-          >
-            <Text style={styles.goToFeedButtonText}>Go to Pet Feed</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={displayLikes}
-          renderItem={renderLikeItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={COLORS.crimson}
-            />
-          }
-        />
-      )}
-    </View>
+      {/* List */}
+      <FlatList
+        data={allLikes}
+        renderItem={renderLikeItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={[
+          styles.listContent,
+          allLikes.length === 0 && styles.emptyListContent
+        ]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FFD700"
+          />
+        }
+        ListEmptyComponent={renderEmptyState}
+      />
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.black,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.black,
-  },
-  loadingText: {
-    color: COLORS.white,
-    marginTop: SPACING.md,
-    fontSize: FONT_SIZES.md,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.xxl,
-    paddingBottom: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.darkGray,
+    paddingTop: SPACING.xxl + 10,
+    paddingBottom: SPACING.lg,
   },
   backButton: {
-    padding: SPACING.sm,
+    paddingVertical: SPACING.xs,
   },
   backButtonText: {
-    color: COLORS.crimson,
-    fontSize: FONT_SIZES.md,
+    color: '#FFD700',
+    fontSize: 16,
     fontWeight: '600',
   },
   headerTitle: {
-    fontSize: FONT_SIZES.xl,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: '#FFF',
   },
   headerSpacer: {
     width: 60,
   },
-  tabContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    gap: SPACING.md,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.md,
-    borderRadius: 8,
-    backgroundColor: COLORS.charcoal,
-  },
-  activeTab: {
-    backgroundColor: COLORS.crimson,
-  },
-  tabText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-  },
-  activeTabText: {
-    color: COLORS.white,
-  },
-  tabBadge: {
-    marginLeft: SPACING.xs,
-  },
-  tabBadgeText: {
-    fontSize: 12,
-  },
   listContent: {
-    padding: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xl,
+  },
+  emptyListContent: {
+    flexGrow: 1,
   },
   likeCard: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.charcoal,
-    borderRadius: 12,
-    padding: SPACING.md,
+    backgroundColor: 'rgba(26, 26, 26, 0.8)',
+    borderRadius: 16,
     marginBottom: SPACING.md,
-    alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.darkGray,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    overflow: 'hidden',
   },
   specialLikeCard: {
-    borderColor: COLORS.gold,
     borderWidth: 2,
-    backgroundColor: '#1a1200',
+    borderColor: 'rgba(255, 215, 0, 0.5)',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  petPhotoContainer: {
-    marginRight: SPACING.md,
+  likeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+  },
+  photoContainer: {
+    position: 'relative',
+  },
+  specialPhotoContainer: {
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   petPhoto: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 2,
-    borderColor: COLORS.crimson,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#333',
   },
-  petPhotoPlaceholder: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: COLORS.darkGray,
+  placeholderPhoto: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  petPhotoPlaceholderText: {
-    fontSize: 30,
+  placeholderText: {
+    fontSize: 32,
+  },
+  specialBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFD700',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+  specialBadgeText: {
+    fontSize: 12,
   },
   likeInfo: {
     flex: 1,
+    marginLeft: SPACING.md,
   },
-  likeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.xs,
-  },
-  petName: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    marginRight: SPACING.xs,
-  },
-  specialText: {
-    color: COLORS.gold,
-  },
-  likeIcon: {
+  actionText: {
     fontSize: 16,
+    fontWeight: '600',
+    color: '#FFF',
+    marginBottom: 4,
   },
-  specialBadge: {
-    backgroundColor: COLORS.gold,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginBottom: SPACING.xs,
+  specialActionText: {
+    color: '#FFD700',
   },
-  specialBadgeText: {
-    color: COLORS.black,
-    fontSize: FONT_SIZES.xs,
-    fontWeight: 'bold',
+  breedText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 2,
   },
-  petBreed: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray,
-    marginBottom: SPACING.xs,
+  timeText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.5)',
   },
-  likeSubtext: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.white,
-    opacity: 0.7,
-  },
-  verifiedBadge: {
-    backgroundColor: COLORS.crimson,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginTop: SPACING.xs,
-  },
-  verifiedText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.xs,
-    fontWeight: 'bold',
-  },
-  likeBackButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: COLORS.crimson,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  specialLikeBackButton: {
-    backgroundColor: COLORS.gold,
-  },
-  likeBackText: {
-    fontSize: 24,
-  },
-  specialLikeBackText: {
-    fontSize: 24,
+  arrowText: {
+    fontSize: 28,
+    color: 'rgba(255, 255, 255, 0.3)',
+    fontWeight: '300',
   },
   emptyContainer: {
     flex: 1,
@@ -436,25 +380,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.xl,
   },
-  emptyIcon: {
+  emptyEmoji: {
     fontSize: 80,
     marginBottom: SPACING.lg,
   },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: SPACING.sm,
+  },
   emptyText: {
-    fontSize: FONT_SIZES.lg,
-    color: COLORS.white,
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
+    lineHeight: 24,
     marginBottom: SPACING.xl,
   },
-  goToFeedButton: {
-    backgroundColor: COLORS.crimson,
+  goBackButton: {
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    borderWidth: 2,
+    borderColor: '#FFD700',
     paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.md,
     borderRadius: 12,
   },
-  goToFeedButtonText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.md,
+  goBackButtonText: {
+    color: '#FFD700',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
