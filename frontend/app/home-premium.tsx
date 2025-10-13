@@ -28,6 +28,7 @@ interface DashboardCard {
   gradient: string[];
   route: string;
   image?: string;
+  special?: string;
 }
 
 const SECTIONS = [
