@@ -18,6 +18,7 @@ export default function RootLayout() {
         <Stack.Screen name="home" />
         <Stack.Screen name="add-pet" />
         <Stack.Screen name="verify" />
+        <Stack.Screen name="verification-success" />
       </Stack>
     </>
   );
