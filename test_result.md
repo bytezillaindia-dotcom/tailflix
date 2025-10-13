@@ -431,6 +431,17 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✅ TUG YARD MATCH FLOW TESTING COMPLETE: All core functionality working perfectly. Route accessibility: /tug-match accessible with URL parameters ✅. Animation sequence: Background gradient, glowing ropes intertwining into golden leash with hearts, sparkle effects ✅. Visual elements: Match text with gold-crimson gradient, owner names display correctly ✅. Action buttons: 'Start Chat' and 'Keep Tugging' render with proper styling ✅. Navigation: Start Chat → /chat with matchId, Keep Tugging → /tug-yard ✅. Parameter passing: Accepts myOwnerName, theirOwnerName, matchId, photo URLs ✅. Mobile responsive: Proper layout on mobile (375x667) and tablet (768x1024) ✅. Visual polish: Premium dark theme with TailFlix colors, smooth animations ✅. No critical issues found. Ready for production."
+  - task: "Tug Yard Premium UI Redesign"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/tug-yard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Redesigned Tug Yard profile cards with premium UI. Changes: 1) Pet photo size updated to exactly 96px as specified 2) Card background: Dark gradient (black → crimson) with soft gold glow shadow 3) Interest tags: Crimson background (#DC143C) with gold text and gold border 4) Bio: Limited to max 3 lines with numberOfLines prop 5) Owner name: Enhanced with gold gradient color and drop shadow effect 6) Card styling: Gold glow shadow effect added for premium look. All animations (rope pull, rope glow pull, rope drop, sparkle leash) maintained. Frontend restarted. Ready for testing to verify: Card shows owner + pet photos correctly, crimson interest tags with gold text, bio truncated to 3 lines, premium gold glow effect visible, all 4 actions working (Tug, Strong Tug, Drop, Golden Leash)."
 
 metadata:
   created_by: "main_agent"
