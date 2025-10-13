@@ -130,7 +130,7 @@ export default function TailPro() {
   };
 
   return (
-    <LinearGradient colors={[COLORS.cream, COLORS.peach]} style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
