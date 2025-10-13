@@ -390,7 +390,7 @@ export default function FetchYardScreen() {
           onPress={() => handleAction('skip')}
           style={styles.actionButtonWrapper}
         >
-          <View style={[styles.actionButton, styles.skipButton]}>
+          <View style={styles.actionButtonContainer}>
             <ActionIcon
               type="frisbee"
               size={56}
@@ -407,7 +407,7 @@ export default function FetchYardScreen() {
           onPress={() => handleAction('like')}
           style={styles.actionButtonWrapper}
         >
-          <View style={[styles.actionButton, styles.likeButton]}>
+          <View style={styles.actionButtonContainer}>
             <ActionIcon
               type="tennis-ball"
               size={56}
@@ -424,7 +424,7 @@ export default function FetchYardScreen() {
           onPress={() => handleAction('super_like')}
           style={styles.actionButtonWrapper}
         >
-          <View style={[styles.actionButton, styles.superLikeButton]}>
+          <View style={styles.actionButtonContainer}>
             <ActionIcon
               type="bone"
               size={56}
@@ -441,14 +441,14 @@ export default function FetchYardScreen() {
           onPress={() => handleAction('golden_bone')}
           style={styles.actionButtonWrapper}
         >
-          <View style={[styles.actionButton, styles.boostButton]}>
+          <View style={styles.actionButtonContainer}>
             <ActionIcon
               type="golden-bone"
               size={56}
               glowTrigger={boostGlow}
               accessibilityLabel="Boost (Golden Bone)"
             />
-            <Text style={[styles.actionLabel, styles.boostLabel]}>Boost</Text>
+            <Text style={styles.actionLabel}>Boost</Text>
           </View>
         </TouchableOpacity>
       </View>
