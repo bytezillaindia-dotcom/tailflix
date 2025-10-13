@@ -344,6 +344,8 @@ export default function AdminScreen() {
         return renderUsersTab();
       case 'tailpro':
         return renderTailProTab();
+      case 'earnings':
+        return renderEarningsTab();
       default:
         return null;
     }
