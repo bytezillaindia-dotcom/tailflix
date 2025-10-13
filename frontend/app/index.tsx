@@ -101,8 +101,8 @@ export default function SplashScreen() {
         easing: Easing.in(Easing.ease),
         useNativeDriver: true,
       }).start(() => {
-        // Always navigate to login screen after splash
-        router.replace('/login');
+        // Always navigate to premium login screen after splash
+        router.replace('/login-premium');
       });
     }, 2500); // 2.5 seconds total duration
   };
