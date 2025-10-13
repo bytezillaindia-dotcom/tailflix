@@ -201,7 +201,7 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: "NA"
           agent: "main"
@@ -209,6 +209,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ TESTED: Pet Feed API working correctly. GET /api/pets/feed returns pets with enriched fields (age, distance_km, owner_verified). Age calculation accurate (current_year - birth_year). Distance in expected range (0.5-50km). Pagination working with different limit values (1,2,5,10). Filtering logic working - liked pets excluded from subsequent feed calls. No duplicate pets in feed."
+        - working: "NA"
+          agent: "main"
+          comment: "Added comprehensive debug logging to /api/pets/feed endpoint. Logs now capture: 1) Total pets in database 2) Number of pets excluded (user's own) 3) Number of pets excluded (already liked/skipped) 4) Number of verified vs unverified users 5) Number of pets excluded (unverified owners). Added debug mode (?debug=true) to return first 5 pets regardless of filters for testing. This will help diagnose any filtering issues. Ready for testing to verify filtering logic and debug output."
 
   - task: "Premium Feature Enforcement"
     implemented: false
