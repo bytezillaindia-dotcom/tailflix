@@ -7,18 +7,20 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   Alert,
   ActivityIndicator,
   Animated,
   Easing,
   Image,
+  Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 import { useAuth } from '../components/AuthContext';
+
+const { width, height } = Dimensions.get('window');
 
 type LoginMethod = 'phone' | 'email' | null;
 
@@ -27,115 +29,62 @@ export default function PremiumLoginScreen() {
   const { login } = useAuth();
   const [loginMethod, setLoginMethod] = useState<LoginMethod>(null);
   const [inputValue, setInputValue] = useState('');
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
   // Animation refs
-  const logoOpacity = useRef(new Animated.Value(0)).current;
-  const titleY = useRef(new Animated.Value(30)).current;
-  const inputY = useRef(new Animated.Value(50)).current;
-  const buttonScale = useRef(new Animated.Value(1)).current;
-  const pawBounce = useRef(new Animated.Value(0)).current;
-  const glowPulse = useRef(new Animated.Value(0)).current;
-  const otpBoxes = useRef([...Array(6)].map(() => new Animated.Value(0))).current;
-  const successScale = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const otpRefs = useRef([...Array(6)].map(() => React.createRef<TextInput>())).current;
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
-    startInitialAnimations();
-    startGlowPulse();
+    startAnimations();
   }, []);
 
-  const startInitialAnimations = () => {
-    Animated.stagger(150, [
-      Animated.timing(logoOpacity, {
+  const startAnimations = () => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
         toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
         duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.spring(titleY, {
-        toValue: 0,
-        tension: 40,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-      Animated.spring(inputY, {
-        toValue: 0,
-        tension: 35,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const startGlowPulse = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowPulse, {
-          toValue: 1,
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(glowPulse, {
-          toValue: 0,
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  };
-
-  const animateOtpBoxes = () => {
-    Animated.stagger(
-      80,
-      otpBoxes.map(box =>
-        Animated.spring(box, {
-          toValue: 1,
-          tension: 40,
-          friction: 6,
-          useNativeDriver: true,
-        })
-      )
-    ).start();
-  };
-
-  const handleButtonPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
-    // Button scale animation
-    Animated.sequence([
-      Animated.timing(buttonScale, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.spring(buttonScale, {
-        toValue: 1,
-        tension: 100,
-        friction: 3,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // Paw bounce animation
-    Animated.sequence([
-      Animated.timing(pawBounce, {
-        toValue: -20,
-        duration: 200,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.spring(pawBounce, {
-        toValue: 0,
-        tension: 100,
-        friction: 4,
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 20,
+        friction: 7,
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Glow pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 2000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0,
+          duration: 2000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
   };
 
   const handleSendOtp = async () => {
@@ -144,7 +93,7 @@ export default function PremiumLoginScreen() {
       return;
     }
 
-    handleButtonPress();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setLoading(true);
 
     try {
@@ -161,27 +110,41 @@ export default function PremiumLoginScreen() {
 
       if (response.ok) {
         setOtpSent(true);
-        animateOtpBoxes();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setTimeout(() => otpRefs[0].current?.focus(), 100);
       } else {
         Alert.alert('Error', data.detail || 'Failed to send OTP');
       }
     } catch (error) {
       Alert.alert('Error', 'Network error. Please try again.');
-      console.error('Send OTP error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otp.trim() || otp.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit OTP');
-      return;
+  const handleOtpChange = (value: string, index: number) => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < 5) {
+      otpRefs[index + 1].current?.focus();
     }
 
-    handleButtonPress();
+    if (newOtp.every(digit => digit)) {
+      handleVerifyOtp(newOtp.join(''));
+    }
+  };
+
+  const handleOtpKeyPress = (e: any, index: number) => {
+    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+      otpRefs[index - 1].current?.focus();
+    }
+  };
+
+  const handleVerifyOtp = async (otpCode: string) => {
     setLoading(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/verify-otp`, {
@@ -190,124 +153,136 @@ export default function PremiumLoginScreen() {
         body: JSON.stringify({
           method: loginMethod,
           value: inputValue,
-          otp: otp,
+          otp: otpCode,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Success animation
-        Animated.spring(successScale, {
-          toValue: 1,
-          tension: 40,
-          friction: 5,
-          useNativeDriver: true,
-        }).start();
-
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-        // Save user_id and token to AuthContext
         await login(data.user_id, data.token);
 
-        // Small delay for animation
         setTimeout(async () => {
-          // Check if user has pets
           const hasPetsResponse = await fetch(
             `${BACKEND_URL}/api/users/${data.user_id}/has-pets`
           );
           const hasPetsData = await hasPetsResponse.json();
 
-          // Redirect based on whether user has pets
           if (hasPetsData.has_pets) {
             router.replace('/home-premium');
           } else {
             router.replace('/add-pet');
           }
-        }, 600);
+        }, 300);
       } else {
         Alert.alert('Error', data.message || 'Invalid OTP');
+        setOtp(['', '', '', '', '', '']);
+        otpRefs[0].current?.focus();
       }
     } catch (error) {
       Alert.alert('Error', 'Network error. Please try again.');
-      console.error('Verify OTP error:', error);
+      setOtp(['', '', '', '', '', '']);
     } finally {
       setLoading(false);
     }
   };
 
-  const glowOpacity = glowPulse.interpolate({
+  const glowInterpolate = glowAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.3, 0.7],
+    outputRange: ['rgba(255, 215, 0, 0.1)', 'rgba(255, 215, 0, 0.3)'],
   });
 
   if (!loginMethod) {
     return (
-      <View style={styles.container}>
-        {/* Background Glow */}
-        <Animated.View style={[styles.backgroundGlow, { opacity: glowOpacity }]} />
+      <LinearGradient
+        colors={['#000000', '#1a0a00', '#000000']}
+        style={styles.container}
+      >
+        <Animated.View
+          style={[
+            styles.glowCircle,
+            { backgroundColor: glowInterpolate },
+          ]}
+        />
 
-        {/* Logo */}
-        <Animated.View style={[styles.logoContainer, { opacity: logoOpacity }]}>
-          <Image
-            source={require('../assets/tailflix_logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </Animated.View>
+        <Animated.View
+          style={[
+            styles.content,
+            {
+              opacity: fadeAnim,
+              transform: [
+                { translateY: slideAnim },
+                { scale: scaleAnim },
+              ],
+            },
+          ]}
+        >
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../assets/tailflix_logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
 
-        {/* Title */}
-        <Animated.View style={{ transform: [{ translateY: titleY }] }}>
-          <LinearGradient
-            colors={[COLORS.gold, '#FFA500']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.titleGradient}
-          >
-            <Text style={styles.title}>Welcome to TailFlix</Text>
-          </LinearGradient>
-          <Text style={styles.subtitle}>Where Tails and Hearts Connect 🐾</Text>
-        </Animated.View>
-
-        {/* Method Selection Buttons */}
-        <Animated.View style={[styles.methodsContainer, { transform: [{ translateY: inputY }] }]}>
-          <TouchableOpacity
-            style={styles.methodButton}
-            onPress={() => {
-              setLoginMethod('phone');
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }}
-          >
+          {/* Welcome Text */}
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.welcomeTitle}>Welcome to</Text>
             <LinearGradient
-              colors={[COLORS.crimson, '#8B0000']}
+              colors={['#FFD700', '#FFA500', '#FFD700']}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.methodGradient}
+              end={{ x: 1, y: 0 }}
+              style={styles.brandGradient}
             >
-              <Text style={styles.methodIcon}>📱</Text>
-              <Text style={styles.methodText}>Login with Phone</Text>
+              <Text style={styles.brandText}>TailFlix</Text>
             </LinearGradient>
-          </TouchableOpacity>
+            <Text style={styles.tagline}>🐾 Where Tails and Hearts Connect 💕</Text>
+          </View>
 
-          <TouchableOpacity
-            style={styles.methodButton}
-            onPress={() => {
-              setLoginMethod('email');
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }}
-          >
-            <LinearGradient
-              colors={[COLORS.gold, '#FFA500']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.methodGradient}
+          {/* Login Methods */}
+          <View style={styles.methodsContainer}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                setLoginMethod('phone');
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
             >
-              <Text style={styles.methodIcon}>✉️</Text>
-              <Text style={styles.methodText}>Login with Email</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+              <LinearGradient
+                colors={['#DC143C', '#8B0000']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.methodCard}
+              >
+                <Text style={styles.methodIcon}>📱</Text>
+                <Text style={styles.methodTitle}>Phone Number</Text>
+                <Text style={styles.methodSubtitle}>Login with OTP</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                setLoginMethod('email');
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+            >
+              <LinearGradient
+                colors={['#FFD700', '#FFA500']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.methodCard}
+              >
+                <Text style={styles.methodIcon}>✉️</Text>
+                <Text style={styles.methodTitle}>Email Address</Text>
+                <Text style={styles.methodSubtitle}>Login with OTP</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -316,203 +291,127 @@ export default function PremiumLoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      {/* Background Glow */}
-      <Animated.View style={[styles.backgroundGlow, { opacity: glowOpacity }]} />
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <LinearGradient
+        colors={['#000000', '#1a0a00', '#000000']}
+        style={styles.container}
       >
-        {/* Logo */}
-        <Animated.View style={[styles.logoContainer, { opacity: logoOpacity }]}>
-          <Image
-            source={require('../assets/tailflix_logo.png')}
-            style={styles.logoSmall}
-            resizeMode="contain"
-          />
-        </Animated.View>
+        <Animated.View
+          style={[
+            styles.glowCircle,
+            { backgroundColor: glowInterpolate },
+          ]}
+        />
 
-        {!otpSent ? (
-          /* Phone/Email Input Screen */
-          <Animated.View style={{ transform: [{ translateY: inputY }] }}>
-            <Text style={styles.screenTitle}>
-              {loginMethod === 'phone' ? '📱 Phone Login' : '✉️ Email Login'}
-            </Text>
-
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder={
-                  loginMethod === 'phone'
-                    ? 'Enter your phone number'
-                    : 'Enter your email'
-                }
-                placeholderTextColor={COLORS.gray}
-                value={inputValue}
-                onChangeText={setInputValue}
-                keyboardType={loginMethod === 'phone' ? 'phone-pad' : 'email-address'}
-                autoCapitalize="none"
-                editable={!loading}
-              />
-            </View>
-
-            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-              <TouchableOpacity
-                style={styles.gradientButtonContainer}
-                onPress={handleSendOtp}
-                disabled={loading}
-                activeOpacity={0.9}
-              >
-                <LinearGradient
-                  colors={[COLORS.crimson, COLORS.gold]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.gradientButton}
-                >
-                  {loading ? (
-                    <ActivityIndicator color={COLORS.white} />
-                  ) : (
-                    <>
-                      <Text style={styles.buttonText}>Send OTP</Text>
-                      <Animated.Text
-                        style={[
-                          styles.pawIcon,
-                          { transform: [{ translateY: pawBounce }] },
-                        ]}
-                      >
-                        🐾
-                      </Animated.Text>
-                    </>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-            </Animated.View>
-
+        <View style={styles.innerContainer}>
+          {/* Header */}
+          <View style={styles.header}>
             <TouchableOpacity
-              style={styles.backLink}
               onPress={() => {
                 setLoginMethod(null);
                 setInputValue('');
+                setOtp(['', '', '', '', '', '']);
+                setOtpSent(false);
               }}
+              style={styles.backButton}
             >
-              <Text style={styles.backLinkText}>← Choose another method</Text>
+              <Text style={styles.backText}>← Back</Text>
             </TouchableOpacity>
-          </Animated.View>
-        ) : (
-          /* OTP Verification Screen */
-          <View>
-            <LinearGradient
-              colors={[COLORS.gold, '#FFA500']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.otpTitleGradient}
-            >
-              <Text style={styles.otpTitle}>Enter OTP</Text>
-            </LinearGradient>
-            <Text style={styles.otpSubtext}>
-              Code sent to {inputValue}
-            </Text>
 
-            {/* OTP Input Boxes */}
-            <View style={styles.otpContainer}>
-              {[0, 1, 2, 3, 4, 5].map((index) => (
-                <Animated.View
-                  key={index}
-                  style={[
-                    styles.otpBoxContainer,
-                    {
-                      opacity: otpBoxes[index],
-                      transform: [
-                        {
-                          translateY: otpBoxes[index].interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [50, 0],
-                          }),
-                        },
-                      ],
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.otpBox,
-                      otp[index] && styles.otpBoxActive,
-                    ]}
-                  >
-                    <Text style={styles.otpDigit}>{otp[index] || ''}</Text>
-                  </View>
-                </Animated.View>
-              ))}
-            </View>
-
-            {/* Hidden TextInput for OTP */}
-            <TextInput
-              style={styles.hiddenInput}
-              value={otp}
-              onChangeText={setOtp}
-              keyboardType="number-pad"
-              maxLength={6}
-              autoFocus
+            <Image
+              source={require('../assets/tailflix_logo.png')}
+              style={styles.headerLogo}
+              resizeMode="contain"
             />
+          </View>
 
-            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+          {!otpSent ? (
+            /* Input Screen */
+            <View style={styles.formContainer}>
+              <Text style={styles.formTitle}>
+                {loginMethod === 'phone' ? 'Enter Phone Number' : 'Enter Email'}
+              </Text>
+              <Text style={styles.formSubtitle}>
+                We'll send you a verification code
+              </Text>
+
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  placeholder={loginMethod === 'phone' ? '+1 (555) 000-0000' : 'you@example.com'}
+                  placeholderTextColor="rgba(255, 255, 255, 0.3)"
+                  value={inputValue}
+                  onChangeText={setInputValue}
+                  keyboardType={loginMethod === 'phone' ? 'phone-pad' : 'email-address'}
+                  autoCapitalize="none"
+                  autoFocus
+                />
+              </View>
+
               <TouchableOpacity
-                style={styles.gradientButtonContainer}
-                onPress={handleVerifyOtp}
-                disabled={loading || otp.length !== 6}
                 activeOpacity={0.9}
+                onPress={handleSendOtp}
+                disabled={loading}
               >
                 <LinearGradient
-                  colors={[COLORS.crimson, COLORS.gold]}
+                  colors={['#DC143C', '#FFD700']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  style={[
-                    styles.gradientButton,
-                    (loading || otp.length !== 6) && styles.buttonDisabled,
-                  ]}
+                  style={styles.primaryButton}
                 >
                   {loading ? (
-                    <ActivityIndicator color={COLORS.white} />
+                    <ActivityIndicator color="#FFF" />
                   ) : (
-                    <>
-                      <Text style={styles.buttonText}>Verify</Text>
-                      <Animated.Text
-                        style={[
-                          styles.pawIcon,
-                          { transform: [{ translateY: pawBounce }] },
-                        ]}
-                      >
-                        🐾
-                      </Animated.Text>
-                    </>
+                    <Text style={styles.buttonText}>Send Code</Text>
                   )}
                 </LinearGradient>
               </TouchableOpacity>
-            </Animated.View>
+            </View>
+          ) : (
+            /* OTP Screen */
+            <View style={styles.formContainer}>
+              <Text style={styles.formTitle}>Enter Verification Code</Text>
+              <Text style={styles.formSubtitle}>
+                Sent to {inputValue}
+              </Text>
 
-            <TouchableOpacity style={styles.resendButton} onPress={handleSendOtp}>
-              <Text style={styles.resendText}>Resend OTP</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+              <View style={styles.otpContainer}>
+                {[0, 1, 2, 3, 4, 5].map((index) => (
+                  <TextInput
+                    key={index}
+                    ref={otpRefs[index]}
+                    style={[
+                      styles.otpInput,
+                      otp[index] && styles.otpInputFilled,
+                      focusedIndex === index && styles.otpInputFocused,
+                    ]}
+                    value={otp[index]}
+                    onChangeText={(value) => handleOtpChange(value, index)}
+                    onKeyPress={(e) => handleOtpKeyPress(e, index)}
+                    onFocus={() => setFocusedIndex(index)}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    selectTextOnFocus
+                  />
+                ))}
+              </View>
 
-        {/* Success Animation */}
-        {successScale._value > 0 && (
-          <Animated.View
-            style={[
-              styles.successOverlay,
-              {
-                opacity: successScale,
-                transform: [{ scale: successScale }],
-              },
-            ]}
-          >
-            <Text style={styles.successIcon}>🐾✨</Text>
-            <Text style={styles.successText}>Success!</Text>
-          </Animated.View>
-        )}
-      </ScrollView>
+              <TouchableOpacity
+                style={styles.resendLink}
+                onPress={handleSendOtp}
+              >
+                <Text style={styles.resendText}>Resend Code</Text>
+              </TouchableOpacity>
+
+              {loading && (
+                <View style={styles.loadingOverlay}>
+                  <ActivityIndicator size="large" color="#FFD700" />
+                  <Text style={styles.loadingText}>Verifying...</Text>
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
@@ -520,225 +419,199 @@ export default function PremiumLoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.black,
   },
-  backgroundGlow: {
+  glowCircle: {
     position: 'absolute',
-    top: '20%',
-    left: '50%',
-    marginLeft: -150,
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: COLORS.gold,
-    opacity: 0.3,
-    shadowColor: COLORS.gold,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 100,
+    top: height * 0.15,
+    left: width / 2 - 200,
+    width: 400,
+    height: 400,
+    borderRadius: 200,
   },
-  scrollContent: {
-    flexGrow: 1,
-    padding: SPACING.xl,
+  content: {
+    flex: 1,
     justifyContent: 'center',
+    paddingHorizontal: SPACING.xl,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.xxl,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
   },
-  logoSmall: {
-    width: 80,
-    height: 80,
+  welcomeContainer: {
+    alignItems: 'center',
+    marginBottom: SPACING.xxl * 2,
   },
-  titleGradient: {
-    alignSelf: 'center',
+  welcomeTitle: {
+    fontSize: FONT_SIZES.lg,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: SPACING.xs,
+    letterSpacing: 2,
+  },
+  brandGradient: {
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.xs,
     borderRadius: 8,
   },
-  title: {
-    fontSize: FONT_SIZES.xxxl,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    textAlign: 'center',
-    textShadowColor: COLORS.gold,
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 10,
+  brandText: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: '#FFF',
+    letterSpacing: 2,
   },
-  subtitle: {
+  tagline: {
     fontSize: FONT_SIZES.md,
-    color: '#D4AF37',
-    textAlign: 'center',
-    marginTop: SPACING.sm,
-    opacity: 0.9,
+    color: 'rgba(255, 215, 0, 0.8)',
+    marginTop: SPACING.md,
+    letterSpacing: 1,
   },
   methodsContainer: {
-    marginTop: SPACING.xxl,
-    gap: SPACING.md,
+    gap: SPACING.lg,
   },
-  methodButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: COLORS.crimson,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  methodGradient: {
-    flexDirection: 'row',
+  methodCard: {
+    padding: SPACING.xl,
+    borderRadius: 20,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.lg,
-    gap: SPACING.md,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
   methodIcon: {
-    fontSize: 28,
+    fontSize: 48,
+    marginBottom: SPACING.md,
   },
-  methodText: {
+  methodTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: '#FFF',
+    marginBottom: SPACING.xs,
   },
-  screenTitle: {
-    fontSize: FONT_SIZES.xxl,
+  methodSubtitle: {
+    fontSize: FONT_SIZES.sm,
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  innerContainer: {
+    flex: 1,
+    paddingTop: SPACING.xxl + 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.xl,
+    marginBottom: SPACING.xxl,
+  },
+  backButton: {
+    padding: SPACING.sm,
+  },
+  backText: {
+    color: '#FFD700',
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+  },
+  headerLogo: {
+    width: 50,
+    height: 50,
+  },
+  formContainer: {
+    flex: 1,
+    paddingHorizontal: SPACING.xl,
+    justifyContent: 'center',
+  },
+  formTitle: {
+    fontSize: FONT_SIZES.xxxl,
     fontWeight: 'bold',
-    color: COLORS.gold,
-    textAlign: 'center',
-    marginBottom: SPACING.xl,
+    color: '#FFF',
+    marginBottom: SPACING.sm,
   },
-  inputContainer: {
+  formSubtitle: {
+    fontSize: FONT_SIZES.md,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: SPACING.xxl,
+  },
+  inputWrapper: {
     marginBottom: SPACING.xl,
   },
   input: {
-    backgroundColor: COLORS.charcoal,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 2,
-    borderColor: COLORS.darkGray,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
     borderRadius: 16,
     padding: SPACING.lg,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.white,
-    shadowColor: COLORS.gold,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    fontSize: FONT_SIZES.lg,
+    color: '#FFF',
+    fontWeight: '600',
   },
-  gradientButtonContainer: {
+  primaryButton: {
+    padding: SPACING.lg,
     borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: COLORS.crimson,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  gradientButton: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.lg,
-    gap: SPACING.sm,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
+    shadowColor: '#DC143C',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 12,
   },
   buttonText: {
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  pawIcon: {
-    fontSize: 24,
-  },
-  backLink: {
-    marginTop: SPACING.lg,
-    alignItems: 'center',
-  },
-  backLinkText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray,
-  },
-  otpTitleGradient: {
-    alignSelf: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.xs,
-    borderRadius: 8,
-    marginBottom: SPACING.sm,
-  },
-  otpTitle: {
-    fontSize: FONT_SIZES.xxl,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  otpSubtext: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray,
-    textAlign: 'center',
-    marginBottom: SPACING.xl,
+    color: '#FFF',
+    letterSpacing: 1,
   },
   otpContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: SPACING.sm,
+    justifyContent: 'space-between',
     marginBottom: SPACING.xl,
   },
-  otpBoxContainer: {
-    width: 48,
-    height: 60,
-  },
-  otpBox: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: COLORS.charcoal,
+  otpInput: {
+    width: 52,
+    height: 64,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 2,
-    borderColor: COLORS.darkGray,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
     borderRadius: 12,
+    fontSize: FONT_SIZES.xxxl,
+    fontWeight: 'bold',
+    color: '#FFF',
+    textAlign: 'center',
+  },
+  otpInputFilled: {
+    borderColor: '#FFD700',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+  },
+  otpInputFocused: {
+    borderColor: '#DC143C',
+    backgroundColor: 'rgba(220, 20, 60, 0.1)',
+  },
+  resendLink: {
+    alignItems: 'center',
+    marginTop: SPACING.lg,
+  },
+  resendText: {
+    fontSize: FONT_SIZES.md,
+    color: '#FFD700',
+    fontWeight: '600',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  otpBoxActive: {
-    borderColor: COLORS.gold,
-    shadowColor: COLORS.gold,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-  },
-  otpDigit: {
-    fontSize: FONT_SIZES.xxl,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  hiddenInput: {
-    position: 'absolute',
-    opacity: 0,
-    height: 1,
-  },
-  resendButton: {
+  loadingText: {
     marginTop: SPACING.md,
-    alignItems: 'center',
-  },
-  resendText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gold,
-    textDecorationLine: 'underline',
-  },
-  successOverlay: {
-    position: 'absolute',
-    top: '40%',
-    alignSelf: 'center',
-    alignItems: 'center',
-  },
-  successIcon: {
-    fontSize: 80,
-    marginBottom: SPACING.sm,
-  },
-  successText: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: 'bold',
-    color: COLORS.gold,
+    fontSize: FONT_SIZES.lg,
+    color: '#FFD700',
+    fontWeight: '600',
   },
 });
+
