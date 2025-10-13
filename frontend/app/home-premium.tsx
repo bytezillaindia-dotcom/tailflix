@@ -538,4 +538,42 @@ const styles = StyleSheet.create({
     fontSize: 18,
     opacity: 0.5,
   },
+  neonGlowBorder: {
+    position: 'absolute',
+    width: CARD_WIDTH + 8,
+    height: 144,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: '#FF6B9D',
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 25,
+    elevation: 15,
+    top: -4,
+    left: -4,
+  },
+  neonCard: {
+    borderWidth: 2,
+    borderColor: '#FF6B9D',
+  },
+  neonIconContainer: {
+    backgroundColor: 'rgba(255, 107, 157, 0.15)',
+    borderWidth: 2,
+    borderColor: '#FF6B9D',
+  },
+  neonIcon: {
+    textShadowColor: '#FF6B9D',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
+  neonTitle: {
+    color: '#FF6B9D',
+    textShadowColor: '#FF6B9D',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  neonDescription: {
+    color: '#FFF',
+    opacity: 1,
+  },
 });
