@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
   },
   distanceBadgeText: {
     fontSize: 12,
-    color: theme.colors.white,
+    color: COLORS.white,
     fontWeight: '600',
   },
   nameContainer: {
@@ -487,21 +487,21 @@ const styles = StyleSheet.create({
   petName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: theme.colors.white,
+    color: COLORS.white,
   },
   petAge: {
     fontSize: 28,
-    color: theme.colors.white,
+    color: COLORS.white,
     opacity: 0.9,
   },
   verifiedBadge: {
     fontSize: 24,
-    color: theme.colors.gold,
+    color: COLORS.gold,
     marginLeft: 8,
   },
   breed: {
     fontSize: 18,
-    color: theme.colors.white,
+    color: COLORS.white,
     opacity: 0.8,
     marginBottom: 12,
   },
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   temperamentTag: {
     backgroundColor: 'rgba(217, 4, 41, 0.3)',
     borderWidth: 1,
-    borderColor: theme.colors.crimson,
+    borderColor: COLORS.crimson,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 16,
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
   },
   temperamentText: {
     fontSize: 12,
-    color: theme.colors.white,
+    color: COLORS.white,
     fontWeight: '600',
   },
   photoIndicators: {
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   photoIndicatorActive: {
-    backgroundColor: theme.colors.white,
+    backgroundColor: COLORS.white,
     width: 20,
   },
   actionsContainer: {
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     paddingHorizontal: 16,
-    backgroundColor: theme.colors.black,
+    backgroundColor: COLORS.black,
   },
   actionButton: {
     width: 64,
@@ -562,32 +562,32 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   skipButton: {
-    backgroundColor: theme.colors.charcoal,
+    backgroundColor: COLORS.charcoal,
   },
   likeButton: {
-    backgroundColor: theme.colors.crimson,
+    backgroundColor: COLORS.crimson,
     width: 72,
     height: 72,
     borderRadius: 36,
   },
   superlikeButton: {
-    backgroundColor: theme.colors.gold,
+    backgroundColor: COLORS.gold,
   },
   boostButton: {
-    backgroundColor: theme.colors.gold,
+    backgroundColor: COLORS.gold,
   },
   actionIcon: {
     fontSize: 28,
   },
   actionLabel: {
     fontSize: 10,
-    color: theme.colors.white,
+    color: COLORS.white,
     marginTop: 4,
     fontWeight: '600',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: theme.colors.black,
+    backgroundColor: COLORS.black,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -597,18 +597,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.charcoal,
+    borderBottomColor: COLORS.charcoal,
   },
   closeButton: {
     fontSize: 28,
-    color: theme.colors.white,
+    color: COLORS.white,
     width: 40,
     textAlign: 'center',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: theme.colors.white,
+    color: COLORS.white,
   },
   modalContent: {
     flex: 1,
@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
   fullProfileImage: {
     width: width,
     height: 400,
-    backgroundColor: theme.colors.charcoal,
+    backgroundColor: COLORS.charcoal,
   },
   modalPhotoIndicators: {
     flexDirection: 'row',
@@ -631,7 +631,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   modalPhotoIndicatorActive: {
-    backgroundColor: theme.colors.crimson,
+    backgroundColor: COLORS.crimson,
     width: 24,
   },
   detailsContainer: {
@@ -643,22 +643,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.charcoal,
+    borderBottomColor: COLORS.charcoal,
   },
   detailColumn: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.charcoal,
+    borderBottomColor: COLORS.charcoal,
   },
   detailLabel: {
     fontSize: 16,
-    color: theme.colors.white,
+    color: COLORS.white,
     opacity: 0.6,
     fontWeight: '600',
   },
   detailValue: {
     fontSize: 16,
-    color: theme.colors.white,
+    color: COLORS.white,
     fontWeight: '500',
   },
   actionLoadingOverlay: {
