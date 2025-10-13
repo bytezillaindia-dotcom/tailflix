@@ -85,6 +85,8 @@ export default function TailMarket() {
   const { userId } = useAuth();
   const [puppies, setPuppies] = useState<Puppy[]>(MOCK_PUPPIES);
   const [userCoins, setUserCoins] = useState(100); // Mock TailCoins
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [selectedPuppy, setSelectedPuppy] = useState<Puppy | null>(null);
 
   const handleBoost = (puppyId: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
