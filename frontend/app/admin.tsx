@@ -1497,4 +1497,71 @@ const styles = StyleSheet.create({
     color: '#10B981',
     textAlign: 'right',
   },
+  // TailPro Sub-tabs
+  subTabsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#2A2A2A',
+    borderRadius: BORDER_RADIUS.md,
+    padding: 4,
+    marginBottom: SPACING.lg,
+  },
+  subTab: {
+    flex: 1,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.xs,
+    borderRadius: BORDER_RADIUS.sm,
+    alignItems: 'center',
+  },
+  subTabActive: {
+    backgroundColor: COLORS.pawPink,
+  },
+  subTabText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: '#999',
+  },
+  subTabTextActive: {
+    color: '#FFF',
+  },
+  // Booking Card Styles
+  bookingCard: {
+    backgroundColor: '#2A2A2A',
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#3A3A3A',
+  },
+  bookingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  bookingOrderId: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  bookingStatusBadge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.md,
+  },
+  bookingStatusText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  bookingDetails: {
+    gap: SPACING.xs,
+  },
+  bookingDetailRow: {
+    fontSize: FONT_SIZES.sm,
+    color: '#CCC',
+  },
+  bookingDetailLabel: {
+    fontWeight: '600',
+    color: '#FFF',
+  },
 });
