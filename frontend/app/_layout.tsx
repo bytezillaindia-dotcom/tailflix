@@ -28,6 +28,7 @@ export default function RootLayout() {
         <Stack.Screen name="admin" />
         <Stack.Screen name="pet-feed" />
         <Stack.Screen name="fetch-yard" />
+        <Stack.Screen name="tug-yard" />
         <Stack.Screen name="paywall" />
         <Stack.Screen name="match" />
         <Stack.Screen name="double-fetch" />
