@@ -688,4 +688,62 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#FFF',
   },
+  // Empty State
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    paddingHorizontal: SPACING.xl,
+  },
+  emptyIcon: {
+    fontSize: 80,
+    marginBottom: SPACING.lg,
+  },
+  emptyTitle: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: SPACING.sm,
+  },
+  emptySubtitle: {
+    fontSize: FONT_SIZES.md,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: SPACING.xl,
+  },
+  emptyButton: {
+    borderRadius: BORDER_RADIUS.xl,
+    overflow: 'hidden',
+  },
+  emptyButtonGradient: {
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+  },
+  emptyButtonText: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  // Video Error State
+  videoErrorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1A1A1A',
+  },
+  videoErrorIcon: {
+    fontSize: 60,
+    marginBottom: SPACING.md,
+  },
+  videoErrorText: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: SPACING.xs,
+  },
+  videoErrorSubtext: {
+    fontSize: FONT_SIZES.sm,
+    color: '#999',
+  },
 });
