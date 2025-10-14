@@ -292,20 +292,38 @@ interface ReelCardProps {
 
 function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps) {
   const likeScale = new Animated.Value(1);
+  const [videoError, setVideoError] = useState(false);
   
-  // Initialize video player with expo-video
-  const player = useVideoPlayer(reel.video_url, (player) => {
-    player.loop = true;
-    player.muted = false;
-  });
+  // Initialize video player with expo-video with error handling
+  let player;
+  try {
+    player = useVideoPlayer(reel.video_url, (player) => {
+      player.loop = true;
+      player.muted = false;
+    });
+  } catch (error) {
+    console.error('Error initializing video player:', error);
+    setVideoError(true);
+  }
 
   useEffect(() => {
-    if (isActive) {
-      player.play();
-    } else {
-      player.pause();
+    if (player && !videoError) {
+      if (isActive) {
+        try {
+          player.play();
+        } catch (error) {
+          console.error('Error playing video:', error);
+          setVideoError(true);
+        }
+      } else {
+        try {
+          player.pause();
+        } catch (error) {
+          console.error('Error pausing video:', error);
+        }
+      }
     }
-  }, [isActive]);
+  }, [isActive, player, videoError]);
 
   const handleLikePress = () => {
     Animated.sequence([
@@ -323,15 +341,23 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
 
   return (
     <View style={styles.reelContainer}>
-      {/* Video */}
-      <VideoView
-        player={player}
-        style={styles.video}
-        contentFit="cover"
-        nativeControls={false}
-        allowsFullscreen={false}
-        allowsPictureInPicture={false}
-      />
+      {/* Video or Error Fallback */}
+      {videoError || !player ? (
+        <View style={styles.videoErrorContainer}>
+          <Text style={styles.videoErrorIcon}>🎬</Text>
+          <Text style={styles.videoErrorText}>Video unavailable</Text>
+          <Text style={styles.videoErrorSubtext}>Swipe to next reel</Text>
+        </View>
+      ) : (
+        <VideoView
+          player={player}
+          style={styles.video}
+          contentFit="cover"
+          nativeControls={false}
+          allowsFullscreen={false}
+          allowsPictureInPicture={false}
+        />
+      )}
 
       {/* Gradient Overlays */}
       <LinearGradient
