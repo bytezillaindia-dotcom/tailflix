@@ -180,27 +180,50 @@ export default function TailReelsFeed() {
         </TouchableOpacity>
       </View>
 
-      {/* Video Feed */}
-      <FlashList
-        ref={flashListRef}
-        data={reels}
-        renderItem={({ item: reel, index }) => (
-          <ReelCard
-            key={reel.id}
-            reel={reel}
-            isActive={index === currentIndex}
-            onLike={() => handleLike(reel.id)}
-            onComment={() => handleComment(reel)}
-            onShare={() => handleShare(reel.id)}
-          />
-        )}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        estimatedItemSize={SCREEN_HEIGHT}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      {/* Video Feed or Empty State */}
+      {reels.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>🎬</Text>
+          <Text style={styles.emptyTitle}>No Reels Yet</Text>
+          <Text style={styles.emptySubtitle}>
+            Be the first to share your pet's moment!
+          </Text>
+          <TouchableOpacity
+            style={styles.emptyButton}
+            onPress={() => router.push('/tailreels_upload')}
+          >
+            <LinearGradient
+              colors={[COLORS.pawPink, COLORS.gold]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.emptyButtonGradient}
+            >
+              <Text style={styles.emptyButtonText}>Upload First Reel 🎥</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlashList
+          ref={flashListRef}
+          data={reels}
+          renderItem={({ item: reel, index }) => (
+            <ReelCard
+              key={reel.id}
+              reel={reel}
+              isActive={index === currentIndex}
+              onLike={() => handleLike(reel.id)}
+              onComment={() => handleComment(reel)}
+              onShare={() => handleShare(reel.id)}
+            />
+          )}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          estimatedItemSize={SCREEN_HEIGHT}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
 
       {/* Floating Upload Button */}
       <TouchableOpacity
