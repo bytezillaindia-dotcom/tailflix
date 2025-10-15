@@ -173,7 +173,7 @@ export default function TailTalesFeed() {
         <TouchableOpacity
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            router.push('/tailtales_post');
+            router.push('/tailtales_post' as any);
           }}
           style={styles.addButton}
         >
