@@ -519,20 +519,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "TailCoins Economy Backend"
-    - "TailCoins Store Screen"
-    - "TailCoins History Screen"
-    - "TailCoins Dashboard Card"
-    - "TailCoins Context Provider"
-    - "TailPro Contact Provider"
-    - "TailPro Partner Signup"
-    - "TailPro Dashboard Integration"
-    - "TailPro Admin Tab"
+    - "User and Pet Registration APIs"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+    - agent: "main"
+      message: "🆕 USER & PET REGISTRATION SYSTEM IMPLEMENTED: Complete registration flow with admin approval requirement. BACKEND: 1) Extended User model with profile fields (name, gender, age, email, photo, location, status) 2) Created PUT /api/users/{user_id}/profile to save user registration data with status='unverified' 3) Created GET /api/users/{user_id}/profile to retrieve user profile 4) Extended Pet model with status field and flexible age/temperament handling 5) Updated POST /api/pets to accept various pet data formats and set status='unverified' 6) Created admin endpoints: GET /api/admin/pending-registrations, POST /api/admin/users/{user_id}/approve, POST /api/admin/pets/{pet_id}/approve, POST /api/admin/users/{user_id}/reject, POST /api/admin/pets/{pet_id}/reject. FRONTEND: Updated register_pet.tsx to set status='unverified' and show 'submitted for admin approval' message. Routes already registered in _layout.tsx. TESTING NEEDED: Test complete registration flow: 1) User fills /register_user form → saves to backend with status='unverified' 2) User fills /register_pet form → saves to backend with status='unverified' → redirects to home 3) Admin calls GET /api/admin/pending-registrations → sees both pending 4) Admin approves user with POST /api/admin/users/{id}/approve → user status='verified', is_verified_human=true 5) Admin approves pet with POST /api/admin/pets/{id}/approve → pet status='verified' 6) Verify user can now access app features. All APIs use /api prefix. Ready for comprehensive backend testing."
     - agent: "main"
       message: "🆕 TAILPRO SERVICES MARKETPLACE IMPLEMENTED: Complete 7-screen booking system added. FEATURES: 1) City-based marketplace (6 cities with persistent selection via AsyncStorage) 2) 5 service categories with dynamic pricing per city 3) Mock services for all categories (Grooming, Walking, Vet, Boarding, Training) 4) Complete 6-step booking wizard (Package → DateTime → Add-ons → Details → Payment → Success) 5) Order management with status badges, cancel/reschedule 6) Provider contact (chat/call with booking guard) 7) Partner signup form with full validation 8) Dashboard integration + Admin TailPro tab. NEW SCREENS: tailpro_home, tailpro_list, tailpro_booking, tailpro_orders, tailpro_contact, tailpro_partner_signup. TESTING NEEDED: Test complete user journey - Dashboard → TailPro → Select City → Browse Category → Select Service → Complete 6-step Booking → View Orders → Cancel Order. Also test Partner Signup flow. All screens use mock data with AsyncStorage for persistence. Payment via existing UnlockPaywall (15 TailCoins). Ready for comprehensive frontend testing."
 
