@@ -38,17 +38,18 @@ interface Pet {
 export default function FetchYardScreen() {
   const router = useRouter();
   const { userId } = useAuth();
+  const { balance, spendCoins } = useTailCoins();
   const [pets, setPets] = useState<Pet[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   
   // TailCoins & Stats
-  const [tailCoins, setTailCoins] = useState(0);
   const [dailyLikesCount, setDailyLikesCount] = useState(0);
   const [dailyLikesLimit, setDailyLikesLimit] = useState<number | null>(10);
   const [isPremium, setIsPremium] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
-  const [paywallError, setPaywallError] = useState<'insufficient_coins' | 'daily_limit_reached'>('daily_limit_reached');
+  const [showCoinsPaywall, setShowCoinsPaywall] = useState(false);
+  const [paywallMessage, setPaywallMessage] = useState('');
+  const [requiredCoins, setRequiredCoins] = useState(0);
 
   // Animation values
   const position = useRef(new Animated.ValueXY()).current;
