@@ -664,6 +664,21 @@ async def create_like(like_data: LikeCreate, user_id: Optional[str] = None):
                 {"id": user_id},
                 {"$inc": {"tail_coins": -coins_to_deduct}}
             )
+            
+            # Create transaction record
+            action_names = {
+                'like': 'Extra Like',
+                'super_like': 'Super Like',
+                'golden_bone': 'Golden Bone Boost'
+            }
+            transaction = TailCoinsTransaction(
+                user_id=user_id,
+                type="spend",
+                amount=coins_to_deduct,
+                source=action_names.get(like_data.action_type, 'Action')
+            )
+            await db.tailcoins_transactions.insert_one(transaction.dict())
+            
             logger.info(f"Deducted {coins_to_deduct} TailCoins from user {user_id}. New balance: {tail_coins - coins_to_deduct}")
         
         # Increment daily likes counter for 'like' actions (not for paid actions)
