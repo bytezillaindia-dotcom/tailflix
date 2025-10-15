@@ -323,6 +323,19 @@ backend:
           agent: "testing"
           comment: "✅ FIXED: Critical backend bug causing 500 errors on all like actions. Changed 'owner_id' references to 'user_id' in POST /api/likes endpoint (lines 458 and 484) to match Pet model schema. All like actions now working correctly without server errors."
 
+
+  - task: "TailCoins Economy Backend"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented complete TailCoins backend system. Added TailCoinsTransaction model (id, user_id, type, amount, source, created_at). Created GET /api/users/{user_id}/tailcoins/transactions endpoint to retrieve transaction history sorted by date with limit parameter. Updated POST /api/users/{user_id}/buy-coins to create transaction records when coins are purchased. Updated POST /api/likes to create transaction records when coins are deducted for actions (Super Like: 20 coins, Golden Bone: 50 coins, Extra Likes: 1 coin). Transaction records include type (earn/spend), amount, source description, and timestamp. All transactions stored in tailcoins_transactions collection."
+
 frontend:
   - task: "Splash Screen"
     implemented: true
