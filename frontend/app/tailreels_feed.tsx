@@ -320,7 +320,7 @@ interface ReelCardProps {
   onPlayPress: () => void;
 }
 
-function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps) {
+function ReelCard({ reel, isActive, onLike, onComment, onShare, onPlayPress }: ReelCardProps) {
   const likeScale = useRef(new Animated.Value(1)).current;
 
   const handleLikePress = () => {
@@ -333,8 +333,12 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
 
   return (
     <View style={styles.reelContainer}>
-      {/* Thumbnail placeholder - stable, no crashes */}
-      <View style={styles.thumbnailContainer}>
+      {/* Thumbnail placeholder */}
+      <TouchableOpacity 
+        style={styles.thumbnailContainer}
+        activeOpacity={0.9}
+        onPress={onPlayPress}
+      >
         <Image 
           source={{ uri: `https://placekitten.com/${600 + reel.id}/${900 + reel.id}` }}
           style={styles.thumbnail}
@@ -342,7 +346,7 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
         <View style={styles.playButtonOverlay}>
           <Text style={styles.playButton}>▶️</Text>
         </View>
-      </View>
+      </TouchableOpacity>
 
       {/* Gradient Overlays */}
       <LinearGradient
