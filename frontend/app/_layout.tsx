@@ -70,6 +70,8 @@ export default function RootLayout() {
         <Stack.Screen name="tailcoins_store" options={{ title: 'Buy TailCoins' }} />
         <Stack.Screen name="tailcoins_history" options={{ title: 'Transaction History' }} />
         <Stack.Screen name="premium_upgrade" options={{ headerShown: false }} />
+        <Stack.Screen name="register_user" options={{ headerShown: false }} />
+        <Stack.Screen name="register_pet" options={{ headerShown: false }} />
       </Stack>
       </TailCoinsProvider>
     </AuthProvider>
