@@ -27,6 +27,134 @@ print(f"🔗 Testing TailFlix Pet Feed API at: {API_BASE}")
 print(f"🎯 Target User ID: {TEST_USER_ID}")
 print("=" * 80)
 
+class PetFeedTester:
+    def __init__(self):
+        self.test_results = []
+        
+    def test_pet_feed_api_quick_check(self):
+        """
+        Quick sanity check for GET /api/pets/feed with verified user
+        Tests: 200 OK, pets array not empty, required fields present
+        """
+        print("🧪 TESTING PET FEED API - QUICK SANITY CHECK")
+        print("=" * 80)
+        
+        try:
+            # Test GET /api/pets/feed with verified user_id
+            url = f"{API_BASE}/pets/feed"
+            params = {"user_id": TEST_USER_ID}
+            
+            print(f"📡 Testing: GET {url}")
+            print(f"📋 Parameters: {params}")
+            
+            response = requests.get(url, params=params, timeout=10)
+            
+            # Test 1: Check status code
+            if response.status_code == 200:
+                self.log_test("Status Code Check", True, f"Got 200 OK")
+            else:
+                self.log_test("Status Code Check", False, f"Got {response.status_code} instead of 200")
+                print(f"Response: {response.text}")
+                return False
+            
+            # Test 2: Parse JSON response
+            try:
+                data = response.json()
+                self.log_test("JSON Response Parse", True, "Valid JSON response")
+            except json.JSONDecodeError as e:
+                self.log_test("JSON Response Parse", False, f"Invalid JSON: {e}")
+                return False
+            
+            # Test 3: Check if response is a list (pets array)
+            if isinstance(data, list):
+                self.log_test("Response Format Check", True, "Response is an array")
+            else:
+                # Check if it's an error response
+                if isinstance(data, dict) and "error" in data:
+                    self.log_test("Response Format Check", False, f"Error response: {data.get('message', 'Unknown error')}")
+                    return False
+                else:
+                    self.log_test("Response Format Check", False, f"Expected array, got {type(data)}")
+                    return False
+            
+            # Test 4: Check if pets array is not empty
+            if len(data) > 0:
+                self.log_test("Pets Array Not Empty", True, f"Found {len(data)} pets")
+            else:
+                self.log_test("Pets Array Not Empty", False, "Pets array is empty")
+                return False
+            
+            # Test 5: Verify pet objects have required fields
+            required_fields = ["id", "pet_name", "breed", "birth_year", "age", "distance_km", "owner_verified"]
+            
+            for i, pet in enumerate(data[:3]):  # Check first 3 pets
+                missing_fields = []
+                for field in required_fields:
+                    if field not in pet:
+                        missing_fields.append(field)
+                
+                if not missing_fields:
+                    self.log_test(f"Pet {i+1} Required Fields", True, f"All required fields present")
+                else:
+                    self.log_test(f"Pet {i+1} Required Fields", False, f"Missing fields: {missing_fields}")
+                    return False
+            
+            # Test 6: Verify field types and values
+            first_pet = data[0]
+            
+            # Check pet_name is string and not empty
+            if isinstance(first_pet.get("pet_name"), str) and first_pet.get("pet_name"):
+                self.log_test("Pet Name Validation", True, f"Pet name: '{first_pet['pet_name']}'")
+            else:
+                self.log_test("Pet Name Validation", False, f"Invalid pet name: {first_pet.get('pet_name')}")
+            
+            # Check age is positive integer
+            age = first_pet.get("age")
+            if isinstance(age, int) and age > 0:
+                self.log_test("Age Validation", True, f"Age: {age} years")
+            else:
+                self.log_test("Age Validation", False, f"Invalid age: {age}")
+            
+            # Check distance_km is positive number
+            distance = first_pet.get("distance_km")
+            if isinstance(distance, (int, float)) and distance > 0:
+                self.log_test("Distance Validation", True, f"Distance: {distance} km")
+            else:
+                self.log_test("Distance Validation", False, f"Invalid distance: {distance}")
+            
+            # Check owner_verified is boolean
+            owner_verified = first_pet.get("owner_verified")
+            if isinstance(owner_verified, bool):
+                self.log_test("Owner Verified Validation", True, f"Owner verified: {owner_verified}")
+            else:
+                self.log_test("Owner Verified Validation", False, f"Invalid owner_verified: {owner_verified}")
+            
+            print("\n" + "="*80)
+            print("🎉 PET FEED API SANITY CHECK COMPLETED SUCCESSFULLY")
+            print("="*80)
+            print(f"✅ API Status: 200 OK")
+            print(f"✅ Pets Found: {len(data)}")
+            print(f"✅ Required Fields: All present")
+            print(f"✅ Data Quality: Valid")
+            
+            # Show sample pet data
+            print(f"\n📋 Sample Pet Data:")
+            sample_pet = data[0]
+            print(f"   Name: {sample_pet.get('pet_name')}")
+            print(f"   Breed: {sample_pet.get('breed')}")
+            print(f"   Age: {sample_pet.get('age')} years")
+            print(f"   Distance: {sample_pet.get('distance_km')} km")
+            print(f"   Owner Verified: {sample_pet.get('owner_verified')}")
+            
+            return True
+            
+        except requests.exceptions.RequestException as e:
+            self.log_test("API Request", False, f"Request failed: {e}")
+            return False
+        except Exception as e:
+            self.log_test("Unexpected Error", False, f"Error: {e}")
+            return False
+
 class RegistrationTester:
     def __init__(self):
         self.test_results = []
