@@ -702,4 +702,28 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     color: '#999',
   },
+  thumbnailContainer: {
+    flex: 1,
+    backgroundColor: '#1A1A1A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  playButtonOverlay: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 107, 157, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playButton: {
+    fontSize: 40,
+    marginLeft: 6,
+  },
 });
