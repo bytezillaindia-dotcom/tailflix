@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
@@ -7,6 +7,11 @@ export default function PaywallScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const customMessage = params.message as string;
+
+  // Redirect to new premium_upgrade screen
+  useEffect(() => {
+    router.replace('/premium_upgrade');
+  }, []);
 
   return (
     <View style={styles.container}>
