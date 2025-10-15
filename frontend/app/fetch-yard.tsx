@@ -62,7 +62,7 @@ export default function FetchYardScreen() {
   const boostGlow = useRef(new Animated.Value(0)).current;
   const coinBadgeScale = useRef(new Animated.Value(1)).current;
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   useEffect(() => {
     fetchPets();
