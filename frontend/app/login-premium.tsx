@@ -226,8 +226,10 @@ export default function PremiumLoginScreen() {
       });
 
       const data = await response.json();
+      
+      console.log('📥 Verify OTP response:', data);
 
-      if (response.ok && data.token) {
+      if (response.ok && data.success && data.token) {
         await AsyncStorage.setItem('sessionToken', data.token);
         await login(data.user_id);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
