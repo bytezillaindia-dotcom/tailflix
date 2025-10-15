@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-TailFlix Backend Testing Suite - User & Pet Registration System
-Tests the complete user and pet registration system with admin approval workflow
+TailFlix Backend Testing Suite - Pet Feed API Quick Test
+Quick sanity check for pet feed API with verified user
 """
 
 import requests
@@ -10,6 +10,7 @@ import time
 import base64
 from datetime import datetime, timedelta
 import os
+import sys
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -19,7 +20,11 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'http://localhost:8001')
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"🔗 Testing TailFlix Registration System at: {API_BASE}")
+# Test configuration
+TEST_USER_ID = "31644fd1-0da9-439f-b3d9-250114735dce"
+
+print(f"🔗 Testing TailFlix Pet Feed API at: {API_BASE}")
+print(f"🎯 Target User ID: {TEST_USER_ID}")
 print("=" * 80)
 
 class RegistrationTester:
