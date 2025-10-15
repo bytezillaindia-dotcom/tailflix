@@ -104,7 +104,6 @@ export default function FetchYardScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        setTailCoins(data.tail_coins || 0);
         setDailyLikesCount(data.daily_likes_count || 0);
         setDailyLikesLimit(data.daily_likes_limit);
         setIsPremium(data.is_premium || false);
