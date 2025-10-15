@@ -7,7 +7,6 @@ import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 
 export default function SplashScreen() {
   const router = useRouter();
-  const [isReady, setIsReady] = useState(false);
 
   // Netflix-style animation values
   const logoOpacity = useRef(new Animated.Value(0)).current;
@@ -55,41 +54,12 @@ export default function SplashScreen() {
       
       setTimeout(() => {
         if (sessionToken) {
-          router.replace('/home');
+          router.replace('/(tabs)/home');
         } else {
-          router.replace('/login');
+          router.replace('/login-premium');
         }
       }, 500);
     }, 2000);
-    setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(taglineOpacity, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(taglineY, {
-          toValue: 0,
-          duration: 600,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, 1000);
-
-    // Fade out entire screen and navigate directly to OTP login
-    setTimeout(() => {
-      Animated.timing(screenOpacity, {
-        toValue: 0,
-        duration: 400,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }).start(() => {
-        // Navigate directly to OTP login - no onboarding choice
-        console.log('🚀 Navigating to OTP login...');
-        router.replace('/login-premium');
-      });
-    }, 2500); // 2.5 seconds total duration
   };
 
   return (
