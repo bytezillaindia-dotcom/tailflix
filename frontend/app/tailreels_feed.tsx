@@ -77,6 +77,8 @@ export default function TailReelsFeed() {
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
   const [selectedReel, setSelectedReel] = useState<Reel | null>(null);
   const [newComment, setNewComment] = useState('');
+  const [videoModalVisible, setVideoModalVisible] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<Reel | null>(null);
   const flashListRef = useRef<FlashList<Reel>>(null);
 
   useEffect(() => {
