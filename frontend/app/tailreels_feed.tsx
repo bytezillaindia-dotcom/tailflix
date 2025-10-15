@@ -318,26 +318,24 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
 
   const handleLikePress = () => {
     Animated.sequence([
-      Animated.spring(likeScale, {
-        toValue: 1.3,
-        useNativeDriver: true,
-      }),
-      Animated.spring(likeScale, {
-        toValue: 1,
-        useNativeDriver: true,
-      }),
+      Animated.spring(likeScale, { toValue: 1.3, useNativeDriver: true }),
+      Animated.spring(likeScale, { toValue: 1, useNativeDriver: true }),
     ]).start();
     onLike();
   };
 
   return (
     <View style={styles.reelContainer}>
-      {/* Safe Video */}
-      <SafeVideo
-        videoUrl={reel.video_url}
-        thumbUrl="https://placekitten.com/600/900"
-        isVisible={isActive}
-      />
+      {/* Thumbnail placeholder - stable, no crashes */}
+      <View style={styles.thumbnailContainer}>
+        <Image 
+          source={{ uri: 'https://placekitten.com/600/900' }}
+          style={styles.thumbnail}
+        />
+        <View style={styles.videoBadge}>
+          <Text style={styles.videoBadgeText}>🎬 Video Preview</Text>
+        </View>
+      </View>
 
       {/* Gradient Overlays */}
       <LinearGradient
