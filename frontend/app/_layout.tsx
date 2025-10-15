@@ -35,41 +35,41 @@ export default function RootLayout() {
         <Stack.Screen name="pet-feed" options={{ title: 'Pet Feed' }} />
         <Stack.Screen name="fetch-yard" options={{ title: 'Fetch Yard' }} />
         <Stack.Screen name="tug-yard" options={{ title: 'Tug Yard' }}
-        <Stack.Screen name="paywall" />
-        <Stack.Screen name="match" />
-        <Stack.Screen name="double-fetch" />
-        <Stack.Screen name="tug-match" />
-        <Stack.Screen name="matches" />
-        <Stack.Screen name="likes" />
-        <Stack.Screen name="chat" />
-        <Stack.Screen name="tailboard" />
-        <Stack.Screen name="post-ad" />
-        <Stack.Screen name="tailmarket" />
-        <Stack.Screen name="post-puppy" />
-        <Stack.Screen name="tailpro" />
-        <Stack.Screen name="post-service" />
-        <Stack.Screen name="booking-flow" />
-        <Stack.Screen name="tailpro_home" />
-        <Stack.Screen name="tailpro_list" />
-        <Stack.Screen name="tailpro_booking" />
-        <Stack.Screen name="tailpro_orders" />
-        <Stack.Screen name="tailpro_contact" />
-        <Stack.Screen name="tailpro_partner_signup" />
-        <Stack.Screen name="tailpro_post_service" />
-        <Stack.Screen name="vendor_dashboard" />
-        <Stack.Screen name="tailmarket_post_puppy" />
-        <Stack.Screen name="tailboard_post_ad" />
-        <Stack.Screen name="tailtales_feed" />
-        <Stack.Screen name="tailtales_post" />
-        <Stack.Screen name="tailreels_feed" />
-        <Stack.Screen name="tailreels_upload" />
-        <Stack.Screen name="tailreels_comments" />
-        <Stack.Screen name="tailcause_home" />
-        <Stack.Screen name="tailcause_pet_profile" />
-        <Stack.Screen name="admin_content" />
-        <Stack.Screen name="tailcoins_store" />
-        <Stack.Screen name="tailcoins_history" />
-        <Stack.Screen name="premium_upgrade" />
+        <Stack.Screen name="paywall" options={{ headerShown: false }} />
+        <Stack.Screen name="match" options={{ title: 'Match' }} />
+        <Stack.Screen name="double-fetch" options={{ title: 'Double Fetch' }} />
+        <Stack.Screen name="tug-match" options={{ title: 'Tug Match' }} />
+        <Stack.Screen name="matches" options={{ title: 'Matches' }} />
+        <Stack.Screen name="likes" options={{ title: 'Likes' }} />
+        <Stack.Screen name="chat" options={{ title: 'Chat' }} />
+        <Stack.Screen name="tailboard" options={{ title: 'TailBoard' }} />
+        <Stack.Screen name="post-ad" options={{ title: 'Post Ad' }} />
+        <Stack.Screen name="tailmarket" options={{ title: 'TailMarket' }} />
+        <Stack.Screen name="post-puppy" options={{ title: 'Post Puppy' }} />
+        <Stack.Screen name="tailpro" options={{ title: 'TailPro' }} />
+        <Stack.Screen name="post-service" options={{ title: 'Post Service' }} />
+        <Stack.Screen name="booking-flow" options={{ title: 'Book Service' }} />
+        <Stack.Screen name="tailpro_home" options={{ title: 'TailPro Services' }} />
+        <Stack.Screen name="tailpro_list" options={{ title: 'Service Providers' }} />
+        <Stack.Screen name="tailpro_booking" options={{ title: 'Book Service' }} />
+        <Stack.Screen name="tailpro_orders" options={{ title: 'My Appointments' }} />
+        <Stack.Screen name="tailpro_contact" options={{ title: 'Contact Provider' }} />
+        <Stack.Screen name="tailpro_partner_signup" options={{ title: 'Become Partner' }} />
+        <Stack.Screen name="tailpro_post_service" options={{ title: 'Post Service' }} />
+        <Stack.Screen name="vendor_dashboard" options={{ title: 'Vendor Dashboard' }} />
+        <Stack.Screen name="tailmarket_post_puppy" options={{ title: 'Post Puppy' }} />
+        <Stack.Screen name="tailboard_post_ad" options={{ title: 'Post Ad' }} />
+        <Stack.Screen name="tailtales_feed" options={{ title: 'TailTales' }} />
+        <Stack.Screen name="tailtales_post" options={{ title: 'Create Tale' }} />
+        <Stack.Screen name="tailreels_feed" options={{ title: 'TailReels' }} />
+        <Stack.Screen name="tailreels_upload" options={{ title: 'Upload Reel' }} />
+        <Stack.Screen name="tailreels_comments" options={{ title: 'Comments' }} />
+        <Stack.Screen name="tailcause_home" options={{ title: 'TailCause' }} />
+        <Stack.Screen name="tailcause_pet_profile" options={{ title: 'Pet Profile' }} />
+        <Stack.Screen name="admin_content" options={{ title: 'Content Moderation' }} />
+        <Stack.Screen name="tailcoins_store" options={{ title: 'Buy TailCoins' }} />
+        <Stack.Screen name="tailcoins_history" options={{ title: 'Transaction History' }} />
+        <Stack.Screen name="premium_upgrade" options={{ headerShown: false }} />
       </Stack>
       </TailCoinsProvider>
     </AuthProvider>
