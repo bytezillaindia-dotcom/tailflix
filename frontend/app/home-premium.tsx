@@ -126,6 +126,14 @@ const SECTIONS = [
         gradient: [COLORS.softPeach, COLORS.peach],
         route: '/tailpro_orders',
       },
+      {
+        id: '12',
+        title: 'My TailCoins',
+        icon: '💎',
+        description: 'Buy coins & view history',
+        gradient: [COLORS.gold, '#FFD700'],
+        route: '/tailcoins_store',
+      },
     ],
   },
   {
