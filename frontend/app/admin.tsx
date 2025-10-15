@@ -46,6 +46,12 @@ export default function AdminScreen() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // TailPro states
+  const [tailProPartners, setTailProPartners] = useState<any[]>([]);
+  const [tailProBookings, setTailProBookings] = useState<any[]>([]);
+  const [tailProLoading, setTailProLoading] = useState(true);
+  const [tailProSubTab, setTailProSubTab] = useState<'verification' | 'bookings'>('verification');
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
