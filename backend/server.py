@@ -86,18 +86,27 @@ class Pet(BaseModel):
     breed: str
     sex: Optional[str] = None  # 'Male' or 'Female'
     birth_year: int
+    age: Optional[int] = None  # Calculated field
     temperaments: Optional[List[str]] = []
-    photos: List[str]  # Base64 encoded images
+    temperament: Optional[str] = None  # Comma-separated string
+    photos: List[str] = []  # Base64 encoded images
+    photo: Optional[str] = None  # Single photo (base64)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     verified: bool = False
+    status: str = "unverified"  # 'unverified', 'verified' (requires admin approval)
 
 class PetCreate(BaseModel):
     pet_name: str
     breed: str
-    sex: str
-    birth_year: int
-    temperaments: List[str]
-    photos: List[str]
+    sex: Optional[str] = None
+    birth_year: Optional[int] = None
+    age: Optional[int] = None  # Age in years
+    temperaments: Optional[List[str]] = []
+    temperament: Optional[str] = None  # Comma-separated string
+    photos: Optional[List[str]] = []
+    photo: Optional[str] = None  # Single photo
+    owner_id: Optional[str] = None  # Alternative to user_id
+    status: Optional[str] = "unverified"
 
 class Verification(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
