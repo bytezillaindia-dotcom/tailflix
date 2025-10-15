@@ -182,7 +182,7 @@ export default function PremiumLoginScreen() {
 
         if (response.ok && data.token) {
           await AsyncStorage.setItem('sessionToken', data.token);
-          await login(data.user_id);
+          await login(data.user_id, data.token);
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           Alert.alert('Dev Bypass', 'Logged in successfully!');
           
