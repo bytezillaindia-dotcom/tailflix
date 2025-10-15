@@ -100,6 +100,13 @@ export default function TailCoinsStore() {
           <Text style={styles.infoText}>• Contact Reveal: 30 coins</Text>
           <Text style={styles.infoText}>• Service Booking: 10 coins</Text>
         </View>
+
+        <TouchableOpacity
+          style={styles.historyButton}
+          onPress={() => router.push('/tailcoins_history')}
+        >
+          <Text style={styles.historyButtonText}>View Transaction History 📜</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
