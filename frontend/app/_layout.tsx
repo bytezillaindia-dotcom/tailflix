@@ -64,6 +64,7 @@ export default function RootLayout() {
         <Stack.Screen name="tailcause_pet_profile" />
         <Stack.Screen name="admin_content" />
         <Stack.Screen name="tailcoins_store" />
+        <Stack.Screen name="tailcoins_history" />
       </Stack>
       </TailCoinsProvider>
     </AuthProvider>
