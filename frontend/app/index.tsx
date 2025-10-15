@@ -1,83 +1,66 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, Image } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
+import { COLORS } from '../constants/theme';
 
 export default function SplashScreen() {
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
 
-  // Animation values
+  // Netflix-style animation values
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.8)).current;
-  const ringRotation = useRef(new Animated.Value(0)).current;
+  const logoScale = useRef(new Animated.Value(0.6)).current;
   const glowOpacity = useRef(new Animated.Value(0)).current;
-  const taglineOpacity = useRef(new Animated.Value(0)).current;
-  const taglineY = useRef(new Animated.Value(30)).current;
   const screenOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    startAnimations();
+    startNetflixAnimation();
   }, []);
 
-  const startAnimations = () => {
-    // Sequence of animations
-    Animated.sequence([
-      // Logo fade in and scale
-      Animated.parallel([
-        Animated.timing(logoOpacity, {
-          toValue: 1,
-          duration: 800,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.spring(logoScale, {
-          toValue: 1,
-          tension: 20,
-          friction: 7,
-          useNativeDriver: true,
-        }),
-      ]),
-      // Glow effect (loops in background)
+  const startNetflixAnimation = async () => {
+    // Netflix-style: Fade in + Scale + Glow
+    Animated.parallel([
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.spring(logoScale, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
       Animated.timing(glowOpacity, {
-        toValue: 0.6,
-        duration: 600,
+        toValue: 1,
+        duration: 1200,
         easing: Easing.inOut(Easing.ease),
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Ring rotation (continuous)
-    Animated.loop(
-      Animated.timing(ringRotation, {
-        toValue: 1,
-        duration: 8000,
-        easing: Easing.linear,
+    // Wait 2 seconds then fade out and navigate
+    setTimeout(async () => {
+      Animated.timing(screenOpacity, {
+        toValue: 0,
+        duration: 500,
         useNativeDriver: true,
-      })
-    ).start();
+      }).start();
 
-    // Glow pulse effect (continuous after initial glow)
-    setTimeout(() => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(glowOpacity, {
-            toValue: 0.8,
-            duration: 1500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(glowOpacity, {
-            toValue: 0.4,
-            duration: 1500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }, 800);
-
-    // Tagline fade up after delay
+      // Check if user is logged in
+      const sessionToken = await AsyncStorage.getItem('sessionToken');
+      
+      setTimeout(() => {
+        if (sessionToken) {
+          router.replace('/home');
+        } else {
+          router.replace('/login');
+        }
+      }, 500);
+    }, 2000);
     setTimeout(() => {
       Animated.parallel([
         Animated.timing(taglineOpacity, {
