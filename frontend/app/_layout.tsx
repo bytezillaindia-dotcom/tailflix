@@ -61,9 +61,9 @@ export default function RootLayout() {
         <Stack.Screen name="tailboard_post_ad" options={{ title: 'Post Ad' }} />
         <Stack.Screen name="tailtales_feed" options={{ headerShown: false }} />
         <Stack.Screen name="tailtales_post" options={{ headerShown: false }} />
-        <Stack.Screen name="tailreels_feed" options={{ title: 'TailReels' }} />
-        <Stack.Screen name="tailreels_upload" options={{ title: 'Upload Reel' }} />
-        <Stack.Screen name="tailreels_comments" options={{ title: 'Comments' }} />
+        <Stack.Screen name="tailreels_feed" options={{ headerShown: false }} />
+        <Stack.Screen name="tailreels_upload" options={{ headerShown: false }} />
+        <Stack.Screen name="tailreels_comments" options={{ headerShown: false }} />
         <Stack.Screen name="tailcause_home" options={{ title: 'TailCause' }} />
         <Stack.Screen name="tailcause_pet_profile" options={{ title: 'Pet Profile' }} />
         <Stack.Screen name="admin_content" options={{ title: 'Content Moderation' }} />
