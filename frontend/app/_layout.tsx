@@ -3,11 +3,13 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { COLORS } from '../constants/theme';
 import { AuthProvider } from '../components/AuthContext';
+import { TailCoinsProvider } from '../components/TailCoinsContext';
 
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <StatusBar style="light" backgroundColor={COLORS.black} />
+      <TailCoinsProvider>
+        <StatusBar style="light" backgroundColor={COLORS.black} />
       <Stack
         screenOptions={{
           headerShown: false,
