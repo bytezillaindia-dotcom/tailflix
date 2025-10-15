@@ -121,32 +121,6 @@ const styles = StyleSheet.create({
     shadowRadius: 100,
     elevation: 25,
   },
-  sparkle: {
-    position: 'absolute',
-  },
-  sparkleText: {
-    fontSize: 32,
-  },
-  rotatingRing: {
-    position: 'absolute',
-    width: 320,
-    height: 320,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ring: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 160,
-    borderWidth: 4,
-    borderColor: '#FFB6C1',
-    borderStyle: 'solid',
-    opacity: 0.6,
-    shadowColor: '#FFB6C1',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
-  },
   logoContainer: {
     justifyContent: 'center',
     alignItems: 'center',
