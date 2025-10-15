@@ -72,6 +72,7 @@ export default function RootLayout() {
         <Stack.Screen name="premium_upgrade" options={{ headerShown: false }} />
         <Stack.Screen name="register_user" options={{ headerShown: false }} />
         <Stack.Screen name="register_pet" options={{ headerShown: false }} />
+        <Stack.Screen name="verify_pending" options={{ headerShown: false }} />
       </Stack>
       </TailCoinsProvider>
     </AuthProvider>
