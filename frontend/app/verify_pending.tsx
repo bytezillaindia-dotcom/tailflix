@@ -339,6 +339,27 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xl,
     maxWidth: 300,
   },
+  devButton: {
+    width: '100%',
+    maxWidth: 350,
+    borderRadius: BORDER_RADIUS.lg,
+    overflow: 'hidden',
+    marginBottom: SPACING.md,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  devGradient: {
+    paddingVertical: SPACING.lg,
+    alignItems: 'center',
+  },
+  devText: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '700',
+    color: '#000',
+  },
   logoutButton: {
     width: '100%',
     maxWidth: 300,
