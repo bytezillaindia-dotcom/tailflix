@@ -191,6 +191,18 @@ export default function ProfileScreen() {
             <Text style={styles.menuItemArrow}>→</Text>
           </TouchableOpacity>
 
+          {/* TEST REGISTRATION BUTTON */}
+          <TouchableOpacity 
+            style={[styles.menuItem, { backgroundColor: '#FFD700', borderColor: '#FFD700' }]} 
+            onPress={handleTestRegistration}
+          >
+            <View style={styles.menuItemLeft}>
+              <Text style={styles.menuItemIcon}>🧪</Text>
+              <Text style={[styles.menuItemText, { color: '#000' }]}>TEST: View Registration</Text>
+            </View>
+            <Text style={[styles.menuItemArrow, { color: '#000' }]}>→</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
             <View style={styles.menuItemLeft}>
               <Text style={styles.menuItemIcon}>🚪</Text>
