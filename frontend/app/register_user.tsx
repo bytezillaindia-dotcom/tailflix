@@ -117,12 +117,12 @@ export default function RegisterUserScreen() {
       if (response.ok) {
         console.log('✅ Profile saved successfully');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert('Profile Created!', 'Now let\'s add your pet details', [
-          { text: 'Continue', onPress: () => {
-            console.log('🚀 Navigating to register_pet');
-            router.push('/register_pet' as any);
-          }}
-        ]);
+        
+        // Direct navigation without Alert - Alert can be buggy on web
+        console.log('🚀 Navigating to register_pet');
+        setTimeout(() => {
+          router.push('/register_pet' as any);
+        }, 300);
       } else {
         const errorData = await response.json();
         console.log('❌ Error response:', errorData);
