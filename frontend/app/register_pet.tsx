@@ -112,7 +112,7 @@ export default function RegisterPetScreen() {
         Alert.alert(
           '🎉 Registration Complete!',
           'Your profile has been submitted for admin approval. We\'ll notify you once verified!',
-          [{ text: 'Got it!', onPress: () => router.replace('/(tabs)/home' as any) }]
+          [{ text: 'Got it!', onPress: () => router.replace('/verify_pending' as any) }]
         );
       } else {
         throw new Error('Failed to create pet profile');
