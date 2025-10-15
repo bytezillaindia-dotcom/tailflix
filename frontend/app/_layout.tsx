@@ -34,7 +34,7 @@ export default function RootLayout() {
         <Stack.Screen name="admin" options={{ title: 'Admin Panel' }} />
         <Stack.Screen name="pet-feed" options={{ title: 'Pet Feed' }} />
         <Stack.Screen name="fetch-yard" options={{ title: 'Fetch Yard' }} />
-        <Stack.Screen name="tug-yard" options={{ title: 'Tug Yard' }}
+        <Stack.Screen name="tug-yard" options={{ title: 'Tug Yard' }} />
         <Stack.Screen name="paywall" options={{ headerShown: false }} />
         <Stack.Screen name="match" options={{ title: 'Match' }} />
         <Stack.Screen name="double-fetch" options={{ title: 'Double Fetch' }} />
