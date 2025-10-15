@@ -220,8 +220,9 @@ export default function TailReelsFeed() {
                   Alert.alert('Video Not Available', 'This reel does not have a video.');
                   return;
                 }
-                setSelectedVideo(reel);
-                setVideoModalVisible(true);
+                Linking.openURL(reel.video_url).catch(() => {
+                  Alert.alert('Error', 'Could not open video');
+                });
               }}
             />
           )}
