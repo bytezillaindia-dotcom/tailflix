@@ -413,4 +413,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFF',
   },
+  successContainer: {
+    backgroundColor: '#4CAF50',
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.md,
+    alignItems: 'center',
+  },
+  successText: {
+    color: '#FFF',
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });
