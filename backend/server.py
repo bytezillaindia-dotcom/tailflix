@@ -257,6 +257,91 @@ async def verify_otp(request: VerifyOtpRequest):
         raise HTTPException(status_code=500, detail="Failed to verify OTP")
 
 
+# ============ User Profile Routes ============
+
+@api_router.put("/users/{user_id}/profile")
+async def update_user_profile(user_id: str, profile_data: UserProfileUpdate):
+    """
+    Update or create user profile with registration data
+    Sets user status to 'unverified' by default (requires admin approval)
+    """
+    try:
+        # Check if user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Update user profile
+        update_data = {
+            "name": profile_data.name,
+            "gender": profile_data.gender,
+            "age": profile_data.age,
+            "email": profile_data.email,
+            "photo": profile_data.photo,
+            "location": profile_data.location,
+            "status": profile_data.status
+        }
+        
+        result = await db.users.update_one(
+            {"id": user_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update profile")
+        
+        logger.info(f"User profile updated for user {user_id}: {profile_data.name}")
+        
+        # Get updated user
+        updated_user = await db.users.find_one({"id": user_id})
+        
+        return {
+            "success": True,
+            "message": "Profile created successfully! Waiting for admin approval.",
+            "user": {
+                "id": updated_user['id'],
+                "name": updated_user.get('name'),
+                "status": updated_user.get('status', 'unverified')
+            }
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating user profile: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update profile")
+
+
+@api_router.get("/users/{user_id}/profile")
+async def get_user_profile(user_id: str):
+    """
+    Get user profile data
+    """
+    try:
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return {
+            "id": user['id'],
+            "name": user.get('name'),
+            "gender": user.get('gender'),
+            "age": user.get('age'),
+            "email": user.get('email'),
+            "photo": user.get('photo'),
+            "location": user.get('location'),
+            "status": user.get('status', 'unverified'),
+            "is_verified_human": user.get('is_verified_human', False),
+            "created_at": user.get('created_at')
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting user profile: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get profile")
+
+
 # ============ Pet Routes ============
 
 @api_router.post("/pets", response_model=Pet)
