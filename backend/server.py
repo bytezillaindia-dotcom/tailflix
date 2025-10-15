@@ -1316,6 +1316,51 @@ async def admin_add_coins(user_id: str, data: dict):
         raise HTTPException(status_code=500, detail="Failed to add coins")
 
 
+@api_router.get("/users/{user_id}/tailcoins/transactions")
+async def get_tailcoins_transactions(user_id: str, limit: int = 50):
+    """
+    Get TailCoins transaction history for a user
+    Returns list of earn/spend transactions
+    """
+    try:
+        # Verify user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get transactions from database
+        transactions_cursor = db.tailcoins_transactions.find(
+            {"user_id": user_id}
+        ).sort("created_at", -1).limit(limit)
+        
+        transactions = await transactions_cursor.to_list(length=limit)
+        
+        # Convert ObjectId to string and format response
+        formatted_transactions = []
+        for txn in transactions:
+            formatted_transactions.append({
+                "id": txn.get("id"),
+                "type": txn.get("type"),
+                "amount": txn.get("amount"),
+                "source": txn.get("source"),
+                "timestamp": txn.get("created_at").isoformat() if txn.get("created_at") else None
+            })
+        
+        logger.info(f"Retrieved {len(formatted_transactions)} transactions for user {user_id}")
+        
+        return {
+            "user_id": user_id,
+            "transactions": formatted_transactions,
+            "current_balance": user.get('tail_coins', 0)
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting transactions: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get transactions")
+
+
 # ============ Chat Routes ============
 
 @api_router.get("/chats/{match_id}")
