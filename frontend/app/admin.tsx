@@ -875,7 +875,7 @@ export default function AdminScreen() {
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
-              {tailProBookings.map((booking) => (
+              {(tailProBookings || []).map((booking) => (
                 <View key={booking.order_id} style={styles.bookingCard}>
                   <View style={styles.bookingHeader}>
                     <Text style={styles.bookingOrderId}>#{booking.order_id}</Text>
