@@ -60,6 +60,56 @@ export default function VerifyPendingScreen() {
     router.replace('/login-premium');
   };
 
+  const handleDevApprove = async () => {
+    if (!userId) {
+      Alert.alert('Error', 'User ID not found');
+      return;
+    }
+
+    setApproving(true);
+
+    try {
+      const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+      
+      // Get user's pets
+      const petsResponse = await fetch(`${BACKEND_URL}/api/pets?user_id=${userId}`);
+      const pets = await petsResponse.json();
+
+      // Approve user
+      console.log('🔧 DEV: Approving user:', userId);
+      const userApproveResponse = await fetch(`${BACKEND_URL}/api/admin/users/${userId}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!userApproveResponse.ok) {
+        throw new Error('Failed to approve user');
+      }
+
+      // Approve all pets
+      for (const pet of pets) {
+        console.log('🔧 DEV: Approving pet:', pet.id);
+        await fetch(`${BACKEND_URL}/api/admin/pets/${pet.id}/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      console.log('✅ DEV: Auto-approval complete!');
+      
+      // Navigate to home
+      setTimeout(() => {
+        router.replace('/(tabs)/home' as any);
+      }, 500);
+
+    } catch (error) {
+      console.error('❌ DEV: Auto-approval failed:', error);
+      Alert.alert('Error', 'Failed to auto-approve. Please try again or use admin panel.');
+    } finally {
+      setApproving(false);
+    }
+  };
+
   const shimmerTranslate = shimmerAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [-200, 200],
