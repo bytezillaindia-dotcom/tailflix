@@ -218,6 +218,10 @@ export default function TailReelsFeed() {
               onComment={() => handleComment(reel)}
               onShare={() => handleShare(reel.id)}
               onPlayPress={() => {
+                if (!reel.video_url || reel.video_url.trim() === '') {
+                  Alert.alert('Video Not Available', 'This reel does not have a video.');
+                  return;
+                }
                 setSelectedVideo(reel);
                 setVideoModalVisible(true);
               }}
