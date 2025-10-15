@@ -5,16 +5,20 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../constants/theme';
+import { useAuth } from '../components/AuthContext';
 
 export default function VerifyPendingScreen() {
   const router = useRouter();
+  const { userId } = useAuth();
   const [shimmerAnim] = useState(new Animated.Value(0));
   const [pulseAnim] = useState(new Animated.Value(1));
+  const [approving, setApproving] = useState(false);
 
   useEffect(() => {
     // Shimmer animation
