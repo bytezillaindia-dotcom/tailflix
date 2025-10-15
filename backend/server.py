@@ -568,6 +568,25 @@ async def get_pet_feed(user_id: Optional[str] = None, limit: int = 10, debug: bo
         # Enrich pet data with owner info and mock distance
         enriched_pets = []
         for pet_doc in pets:
+            # Clean up pet_doc to fix data inconsistencies
+            pet_doc.pop('_id', None)  # Remove MongoDB _id
+            
+            # Fix temperament field - convert list to string if needed
+            if isinstance(pet_doc.get('temperament'), list):
+                pet_doc['temperament'] = ', '.join(pet_doc['temperament'])
+            
+            # Ensure temperaments is a list
+            if isinstance(pet_doc.get('temperaments'), str):
+                pet_doc['temperaments'] = [t.strip() for t in pet_doc['temperaments'].split(',') if t.strip()]
+            elif pet_doc.get('temperaments') is None:
+                pet_doc['temperaments'] = []
+            
+            # Ensure photos is a list
+            if pet_doc.get('photos') is None:
+                pet_doc['photos'] = []
+            elif isinstance(pet_doc.get('photos'), str):
+                pet_doc['photos'] = [pet_doc['photos']]
+            
             pet = Pet(**pet_doc)
             
             # Get owner info
