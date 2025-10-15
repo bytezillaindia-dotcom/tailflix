@@ -151,35 +151,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logo: {
-    width: 280,
-    height: 280,
+  logoText: {
+    fontSize: 80,
+    marginBottom: SPACING.md,
   },
-  taglineContainer: {
-    position: 'absolute',
-    bottom: 100,
-    alignItems: 'center',
+  appName: {
+    fontSize: FONT_SIZES.xxxl,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: SPACING.sm,
   },
   tagline: {
-    fontSize: FONT_SIZES.xl,
-    color: '#D2691E',
-    fontWeight: '700',
-    textAlign: 'center',
-    letterSpacing: 1.2,
-    textShadowColor: '#FFB6C1',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
-  },
-  pawsContainer: {
-    flexDirection: 'row',
-    marginTop: SPACING.md,
-    gap: SPACING.sm,
-  },
-  paw: {
-    fontSize: 28,
-    opacity: 0.9,
-  },
-  heart: {
-    fontSize: 32,
+    fontSize: FONT_SIZES.md,
+    color: '#CCC',
+    fontWeight: '500',
   },
 });
