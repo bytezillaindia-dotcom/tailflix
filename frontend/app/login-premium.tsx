@@ -171,24 +171,31 @@ export default function PremiumLoginScreen() {
     // DEV BYPASS: Check if OTP is 123456
     if (otpCode === '123456') {
       try {
-        // Generate mock session token
-        const mockToken = `mock_token_${Date.now()}`;
-        const mockUserId = `dev_user_${phoneNumber}`;
-        
-        await AsyncStorage.setItem('sessionToken', mockToken);
-        await login(mockUserId);
-        
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert('Dev Bypass', 'Logged in with dev code!');
-        
-        setTimeout(() => {
-          router.replace('/(tabs)/home');
-        }, 500);
-        
-        setLoading(false);
-        return;
+        // Use the real backend to create/login the user
+        const response = await fetch(`${BACKEND_URL}/api/auth/verify-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ method: 'phone', value: phoneNumber, otp: '123456' }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.token) {
+          await AsyncStorage.setItem('sessionToken', data.token);
+          await login(data.user_id);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          Alert.alert('Dev Bypass', 'Logged in successfully!');
+          
+          setTimeout(() => {
+            router.replace('/(tabs)/home');
+          }, 500);
+          
+          setLoading(false);
+          return;
+        }
       } catch (error) {
         console.error('Dev bypass failed:', error);
+        // Fall through to normal verification
       }
     }
 
