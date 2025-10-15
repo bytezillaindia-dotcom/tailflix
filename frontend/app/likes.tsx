@@ -43,7 +43,7 @@ export default function LikesScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   useEffect(() => {
     fetchReceivedLikes();

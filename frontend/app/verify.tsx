@@ -22,7 +22,7 @@ export default function VerifyScreen() {
   const [docPhoto, setDocPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   const pickImage = async (type: 'selfie' | 'petPose' | 'doc') => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();

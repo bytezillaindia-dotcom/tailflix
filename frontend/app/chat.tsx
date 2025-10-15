@@ -51,7 +51,7 @@ export default function ChatScreen() {
   const pawSparkleAnim = useRef(new Animated.Value(0)).current;
   const sendButtonGlowAnim = useRef(new Animated.Value(0)).current;
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   useEffect(() => {
     if (matchId) {

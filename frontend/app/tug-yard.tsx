@@ -61,7 +61,7 @@ export default function TugYardScreen() {
   const tugTimer = useRef<NodeJS.Timeout | null>(null);
   const strongTugTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   useEffect(() => {
     fetchProfiles();

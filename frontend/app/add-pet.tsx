@@ -31,7 +31,7 @@ export default function AddPetScreen() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   const toggleTemperament = (temp: Temperament) => {
     if (temperaments.includes(temp)) {

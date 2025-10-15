@@ -10,7 +10,7 @@ export default function HomeScreen() {
   const [likesBadgeCount, setLikesBadgeCount] = useState(0);
   const [superLikesBadgeCount, setSuperLikesBadgeCount] = useState(0);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   useEffect(() => {
     fetchLikesCount();

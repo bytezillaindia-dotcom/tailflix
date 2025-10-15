@@ -26,7 +26,7 @@ export default function LoginScreen() {
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   const handleSendOtp = async () => {
     if (!inputValue.trim()) {

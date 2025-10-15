@@ -32,7 +32,7 @@ export default function RegisterUserScreen() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [location, setLocation] = useState<{lat: number; lng: number} | null>(null);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   const handlePickImage = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

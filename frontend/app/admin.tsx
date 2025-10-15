@@ -96,7 +96,7 @@ export default function AdminScreen() {
   };
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   useEffect(() => {
     loadData();

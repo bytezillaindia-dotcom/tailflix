@@ -39,7 +39,7 @@ export default function PremiumLoginScreen() {
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const otpRefs = useRef([...Array(6)].map(() => React.createRef<TextInput>())).current;
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   useEffect(() => {
     startEntryAnimations();
