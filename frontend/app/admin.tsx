@@ -865,7 +865,7 @@ export default function AdminScreen() {
           )
         ) : (
           // Bookings tab
-          tailProBookings.length === 0 ? (
+          (tailProBookings || []).length === 0 ? (
             <View style={styles.placeholderContainer}>
               <Text style={styles.placeholderIcon}>📅</Text>
               <Text style={styles.placeholderText}>No Bookings Yet</Text>
