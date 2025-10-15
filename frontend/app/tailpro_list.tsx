@@ -202,7 +202,9 @@ export default function TailProList() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{category.charAt(0).toUpperCase() + category.slice(1)}</Text>
+        <Text style={styles.headerTitle}>
+          {category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Services'}
+        </Text>
         <View style={{ width: 60 }} />
       </View>
 
