@@ -341,15 +341,18 @@ backend:
 
   - task: "User and Pet Registration APIs"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented complete user and pet registration system requiring admin approval. BACKEND CHANGES: 1) Updated User model to include profile fields: name, gender, age, email, photo (base64), location {lat,lng}, status ('unverified'|'verified'|'rejected') 2) Created PUT /api/users/{user_id}/profile endpoint to save user profile with status='unverified' by default 3) Created GET /api/users/{user_id}/profile endpoint to retrieve user profile 4) Updated Pet model to include status field ('unverified'|'verified'|'rejected'), made age/temperament flexible 5) Updated POST /api/pets endpoint to handle both age and birth_year, single photo or photos array, set status='unverified' by default 6) Created admin endpoints: GET /api/admin/pending-registrations (returns pending users and pets), POST /api/admin/users/{user_id}/approve (sets status='verified' and is_verified_human=true), POST /api/admin/pets/{pet_id}/approve (sets status='verified'), POST /api/admin/users/{user_id}/reject, POST /api/admin/pets/{pet_id}/reject. FRONTEND CHANGES: Updated register_pet.tsx to set status='unverified' and show 'submitted for admin approval' message. Routes already registered in _layout.tsx. Ready for testing: Test user registration flow → pet registration flow → admin approval → user can access app."
+        - working: false
+          agent: "testing"
+          comment: "❌ CRITICAL ISSUES FOUND: 1) GET /api/admin/pending-registrations returns 500 Internal Server Error due to ObjectId serialization issues in MongoDB data. Backend logs show 'ObjectId object is not iterable' and 'vars() argument must have __dict__ attribute' errors. 2) GET /api/users/{user_id}/profile returns 404 Not Found even after successful profile creation via PUT endpoint. 3) GET /api/pets endpoint fails with validation errors due to temperament field type mismatch (expects string, gets list). ✅ WORKING CORRECTLY: User OTP flow, Pet registration (POST /api/pets), Pet approval (POST /api/admin/pets/{id}/approve), User rejection endpoints. The core registration system is partially functional but has critical data serialization and retrieval issues that prevent full workflow completion."
 
 frontend:
   - task: "Splash Screen"
