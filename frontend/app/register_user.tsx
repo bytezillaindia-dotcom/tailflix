@@ -120,11 +120,15 @@ export default function RegisterUserScreen() {
         console.log('✅ Profile saved successfully');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         
+        // Show success message
+        setSuccessMessage('✅ Profile Saved! Moving to pet registration...');
+        
         // Direct navigation without Alert - Alert can be buggy on web
-        console.log('🚀 Navigating to register_pet');
+        console.log('🚀 Navigating to register_pet in 1 second');
         setTimeout(() => {
+          setLoading(false);
           router.push('/register_pet' as any);
-        }, 300);
+        }, 1000);
       } else {
         const errorData = await response.json();
         console.log('❌ Error response:', errorData);
