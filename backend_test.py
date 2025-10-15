@@ -22,29 +22,28 @@ API_BASE = f"{BACKEND_URL}/api"
 print(f"🔗 Testing TailFlix Registration System at: {API_BASE}")
 print("=" * 80)
 
-class TailFlixTester:
+class RegistrationTester:
     def __init__(self):
-        self.journey_results = []
-        self.users = {}
-        self.pets = {}
-        self.verifications = {}
+        self.test_results = []
+        self.test_user_id = None
+        self.test_pet_id = None
         
-    def log_step(self, step: str, success: bool, message: str, details: dict = None):
-        """Log journey step result"""
-        status = "✅" if success else "❌" if not success else "⚠️"
-        result = {
-            "step": step,
-            "success": success,
-            "message": message,
-            "details": details or {},
-            "timestamp": datetime.now().isoformat()
-        }
-        self.journey_results.append(result)
-        print(f"{status} {step}: {message}")
+    def log_test(self, test_name, success, details="", response_data=None):
+        """Log test results"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name}")
         if details:
-            for key, value in details.items():
-                print(f"   {key}: {value}")
+            print(f"   Details: {details}")
+        if response_data and not success:
+            print(f"   Response: {response_data}")
         print()
+        
+        self.test_results.append({
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "response": response_data
+        })
         
     def make_request(self, method: str, endpoint: str, data: dict = None) -> tuple:
         """Make HTTP request and return (success, response_data, status_code)"""
