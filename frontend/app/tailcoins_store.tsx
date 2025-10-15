@@ -10,7 +10,7 @@ const COIN_PACKAGES = [
   { id: 1, coins: 50, price: '₹49', popular: false },
   { id: 2, coins: 120, price: '₹99', popular: true },
   { id: 3, coins: 300, price: '₹199', popular: false },
-  { id: 4, coins: 600, price: '₹349', popular: false },
+  { id: 4, coins: 750, price: '₹499', popular: false },
 ];
 
 export default function TailCoinsStore() {
