@@ -317,36 +317,24 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
   const likeScale = new Animated.Value(1);
   const [videoError, setVideoError] = useState(false);
   
-  // Initialize video player with expo-video with error handling
-  let player;
-  try {
-    player = useVideoPlayer(reel.video_url, (player) => {
-      player.loop = true;
-      player.muted = false;
-    });
-  } catch (error) {
-    console.error('Error initializing video player:', error);
-    setVideoError(true);
-  }
+  // Initialize video player with expo-video - MUST be called unconditionally
+  const player = useVideoPlayer(reel.video_url || '', (player) => {
+    player.loop = true;
+    player.muted = false;
+  });
 
   useEffect(() => {
-    if (player && !videoError) {
+    if (!videoError && reel.video_url) {
       if (isActive) {
-        try {
-          player.play();
-        } catch (error) {
+        player.play().catch((error) => {
           console.error('Error playing video:', error);
           setVideoError(true);
-        }
+        });
       } else {
-        try {
-          player.pause();
-        } catch (error) {
-          console.error('Error pausing video:', error);
-        }
+        player.pause();
       }
     }
-  }, [isActive, player, videoError]);
+  }, [isActive, player, videoError, reel.video_url]);
 
   const handleLikePress = () => {
     Animated.sequence([
