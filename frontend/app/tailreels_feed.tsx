@@ -317,6 +317,7 @@ interface ReelCardProps {
   onLike: () => void;
   onComment: () => void;
   onShare: () => void;
+  onPlayPress: () => void;
 }
 
 function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps) {
