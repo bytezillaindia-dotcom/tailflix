@@ -52,6 +52,48 @@ export default function AdminScreen() {
   const [tailProBookings, setTailProBookings] = useState<any[]>([]);
   const [tailProLoading, setTailProLoading] = useState(true);
   const [tailProSubTab, setTailProSubTab] = useState<'verification' | 'bookings'>('verification');
+
+  // Load TailPro data when tab is active
+  useEffect(() => {
+    if (activeTab === 'tailpro') {
+      loadTailProData();
+    }
+  }, [activeTab]);
+
+  const loadTailProData = async () => {
+    const MOCK_VENDORS = [
+      { vendorId: 'mock_v1', name: 'Happy Paws Grooming', phone: '+91-9999999999', category: 'Grooming', city: 'Bengaluru', price: 599, status: 'pending', docs: 'Verified' },
+      { vendorId: 'mock_v2', name: 'Pet Care Clinic', phone: '+91-8888888888', category: 'Veterinary', city: 'Mumbai', price: 799, status: 'pending', docs: 'Pending' },
+    ];
+    const MOCK_BOOKINGS = [
+      { order_id: 'ORD001', service: 'Pet Grooming', vendor_id: 'mock_v1', vendor_name: 'Happy Paws', customer: 'Arjun Kumar', date: '2025-10-15', status: 'Confirmed', amount: 599 },
+      { order_id: 'ORD002', service: 'Vet Checkup', vendor_id: 'mock_v2', vendor_name: 'Pet Care Clinic', customer: 'Priya Sharma', date: '2025-10-16', status: 'Pending', amount: 799 },
+    ];
+
+    try {
+      const partnersStr = await AsyncStorage.getItem('tailpro_partners');
+      if (partnersStr) {
+        const parsed = JSON.parse(partnersStr);
+        setTailProPartners(parsed.length > 0 ? parsed : MOCK_VENDORS);
+      } else {
+        setTailProPartners(MOCK_VENDORS);
+      }
+
+      const bookingsStr = await AsyncStorage.getItem('tailpro_bookings');
+      if (bookingsStr) {
+        const parsed = JSON.parse(bookingsStr);
+        setTailProBookings(parsed.length > 0 ? parsed : MOCK_BOOKINGS);
+      } else {
+        setTailProBookings(MOCK_BOOKINGS);
+      }
+    } catch (error) {
+      console.error('Error loading TailPro data:', error);
+      setTailProPartners(MOCK_VENDORS);
+      setTailProBookings(MOCK_BOOKINGS);
+    } finally {
+      setTailProLoading(false);
+    }
+  };
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
