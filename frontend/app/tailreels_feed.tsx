@@ -317,8 +317,9 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
   const likeScale = useRef(new Animated.Value(1)).current;
   const [videoError, setVideoError] = useState(false);
   
-  // Initialize video player with expo-video - MUST be called unconditionally
-  const player = useVideoPlayer(reel.video_url || '', (player) => {
+  // Initialize video player with expo-video - handle missing URLs safely
+  const videoUrl = reel.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+  const player = useVideoPlayer(videoUrl, (player) => {
     player.loop = true;
     player.muted = false;
   });
