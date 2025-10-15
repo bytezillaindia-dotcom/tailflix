@@ -1230,14 +1230,19 @@ async def get_pending_registrations():
     """
     try:
         # Get pending users
-        pending_users = await db.users.find({"status": "unverified"}).to_list(1000)
+        pending_users_raw = await db.users.find({"status": "unverified"}).to_list(1000)
+        pending_users = []
+        for user in pending_users_raw:
+            user.pop('_id', None)  # Remove MongoDB ObjectId
+            pending_users.append(user)
         
         # Get pending pets
-        pending_pets = await db.pets.find({"status": "unverified"}).to_list(1000)
+        pending_pets_raw = await db.pets.find({"status": "unverified"}).to_list(1000)
         
         # Enrich pets with owner info
         enriched_pets = []
-        for pet in pending_pets:
+        for pet in pending_pets_raw:
+            pet.pop('_id', None)  # Remove MongoDB ObjectId
             owner = await db.users.find_one({"id": pet['user_id']})
             enriched_pets.append({
                 **pet,
@@ -1245,12 +1250,12 @@ async def get_pending_registrations():
                 "owner_contact": owner.get('value', 'N/A') if owner else 'N/A'
             })
         
-        logger.info(f"Admin: Retrieved {len(pending_users)} pending users and {len(pending_pets)} pending pets")
+        logger.info(f"Admin: Retrieved {len(pending_users)} pending users and {len(enriched_pets)} pending pets")
         
         return {
             "pending_users": pending_users,
             "pending_pets": enriched_pets,
-            "total_pending": len(pending_users) + len(pending_pets)
+            "total_pending": len(pending_users) + len(enriched_pets)
         }
     
     except Exception as e:
