@@ -1,80 +1,85 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
+import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 
 export default function SplashScreen() {
   const router = useRouter();
-
-  // Netflix-style animation values
-  const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.6)).current;
-  const glowOpacity = useRef(new Animated.Value(0)).current;
-  const screenOpacity = useRef(new Animated.Value(1)).current;
+  const videoRef = useRef<Video>(null);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
-    startNetflixAnimation();
-  }, []);
+    // If video fails to load, navigate after 3 seconds
+    const fallbackTimer = setTimeout(() => {
+      if (videoError) {
+        checkSessionAndNavigate();
+      }
+    }, 3000);
 
-  const startNetflixAnimation = async () => {
-    // Netflix-style: Fade in + Scale + Glow
-    Animated.parallel([
-      Animated.timing(logoOpacity, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.spring(logoScale, {
-        toValue: 1,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-      Animated.timing(glowOpacity, {
-        toValue: 1,
-        duration: 1200,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
+    return () => clearTimeout(fallbackTimer);
+  }, [videoError]);
 
-    // Wait 2 seconds then fade out and navigate
-    setTimeout(async () => {
-      Animated.timing(screenOpacity, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-
-      // FORCE CLEAR SESSION FOR TESTING
-      await AsyncStorage.removeItem('sessionToken');
-      
+  const checkSessionAndNavigate = async () => {
+    try {
       // Check if user is logged in
       const sessionToken = await AsyncStorage.getItem('sessionToken');
       
       console.log('🔍 Session Token:', sessionToken ? 'EXISTS' : 'NOT FOUND');
       console.log('🚀 Navigating to:', sessionToken ? '/(tabs)/home' : '/login-premium');
       
-      setTimeout(() => {
-        if (sessionToken) {
-          router.replace('/(tabs)/home');
-        } else {
-          router.replace('/login-premium');
-        }
-      }, 500);
-    }, 2000);
+      if (sessionToken) {
+        router.replace('/(tabs)/home');
+      } else {
+        router.replace('/login-premium');
+      }
+    } catch (error) {
+      console.error('Error checking session:', error);
+      router.replace('/login-premium');
+    }
+  };
+
+  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded) {
+      // Video finished playing
+      if (status.didJustFinish) {
+        console.log('✅ Video finished, navigating...');
+        checkSessionAndNavigate();
+      }
+    } else if (status.error) {
+      console.error('❌ Video error:', status.error);
+      setVideoError(true);
+    }
+  };
+
+  const handleVideoError = (error: string) => {
+    console.error('❌ Video failed to load:', error);
+    setVideoError(true);
   };
 
   return (
-    <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
-      {/* Dark Netflix-style Background */}
-      <LinearGradient
-        colors={COLORS.gradientDark}
-        style={styles.gradientBackground}
-      />
+    <View style={styles.container}>
+      {videoError ? (
+        // Fallback: Black background
+        <View style={styles.fallbackBackground} />
+      ) : (
+        // Video Splash Screen
+        <Video
+          ref={videoRef}
+          source={{ uri: 'https://customer-assets.emergentagent.com/job_pawflix-preview/artifacts/3s7whpuf_TAILFLIX.mp4' }}
+          style={styles.video}
+          resizeMode={ResizeMode.COVER}
+          shouldPlay
+          isLooping={false}
+          isMuted={false}
+          onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+          onError={handleVideoError}
+          useNativeControls={false}
+        />
+      )}
+    </View>
+  );
+}
 
       {/* Animated Glow */}
       <Animated.View
