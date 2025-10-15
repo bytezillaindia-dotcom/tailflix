@@ -79,16 +79,25 @@ export default function RegisterUserScreen() {
       Alert.alert('Error', 'Please upload a profile photo');
       return false;
     }
+    console.log('✅ Form validation passed');
     return true;
   };
 
   const handleContinue = async () => {
-    if (!validateForm()) return;
+    console.log('🔵 Continue button clicked');
+    console.log('Form data:', { name, gender, age, email, hasPhoto: !!photo, location });
+    
+    if (!validateForm()) {
+      console.log('❌ Validation failed');
+      return;
+    }
 
     setLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
+      console.log('📤 Sending PUT request to:', `${BACKEND_URL}/api/users/${userId}/profile`);
+      
       const response = await fetch(`${BACKEND_URL}/api/users/${userId}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -103,15 +112,24 @@ export default function RegisterUserScreen() {
         }),
       });
 
+      console.log('📥 Response status:', response.status);
+      
       if (response.ok) {
+        console.log('✅ Profile saved successfully');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert('Profile Created!', 'Now let\'s add your pet details', [
-          { text: 'Continue', onPress: () => router.push('/register_pet' as any) }
+          { text: 'Continue', onPress: () => {
+            console.log('🚀 Navigating to register_pet');
+            router.push('/register_pet' as any);
+          }}
         ]);
       } else {
+        const errorData = await response.json();
+        console.log('❌ Error response:', errorData);
         throw new Error('Failed to create profile');
       }
     } catch (error) {
+      console.error('❌ Error in handleContinue:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert('Error', 'Failed to save profile. Please try again.');
     } finally {
