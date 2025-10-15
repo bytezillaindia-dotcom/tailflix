@@ -311,27 +311,6 @@ interface ReelCardProps {
 
 function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps) {
   const likeScale = useRef(new Animated.Value(1)).current;
-  const [videoError, setVideoError] = useState(false);
-  
-  // Initialize video player with expo-video - handle missing URLs safely
-  const videoUrl = reel.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-  const player = useVideoPlayer(videoUrl, (player) => {
-    player.loop = true;
-    player.muted = false;
-  });
-
-  useEffect(() => {
-    if (!videoError && reel.video_url) {
-      if (isActive) {
-        player.play().catch((error) => {
-          console.error('Error playing video:', error);
-          setVideoError(true);
-        });
-      } else {
-        player.pause();
-      }
-    }
-  }, [isActive, player, videoError, reel.video_url]);
 
   const handleLikePress = () => {
     Animated.sequence([
@@ -349,23 +328,12 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
 
   return (
     <View style={styles.reelContainer}>
-      {/* Video or Error Fallback */}
-      {videoError || !reel.video_url ? (
-        <View style={styles.videoErrorContainer}>
-          <Text style={styles.videoErrorIcon}>🎬</Text>
-          <Text style={styles.videoErrorText}>Video unavailable</Text>
-          <Text style={styles.videoErrorSubtext}>Swipe to next reel</Text>
-        </View>
-      ) : (
-        <VideoView
-          player={player}
-          style={styles.video}
-          contentFit="cover"
-          nativeControls={false}
-          allowsFullscreen={false}
-          allowsPictureInPicture={false}
-        />
-      )}
+      {/* Safe Video */}
+      <SafeVideo
+        videoUrl={reel.video_url}
+        thumbUrl="https://placekitten.com/600/900"
+        isVisible={isActive}
+      />
 
       {/* Gradient Overlays */}
       <LinearGradient
