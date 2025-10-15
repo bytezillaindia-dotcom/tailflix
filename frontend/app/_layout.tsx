@@ -12,26 +12,29 @@ export default function RootLayout() {
         <StatusBar style="light" backgroundColor={COLORS.black} />
       <Stack
         screenOptions={{
-          headerShown: false,
+          headerShown: true,
+          headerStyle: { backgroundColor: COLORS.black },
+          headerTintColor: COLORS.white,
+          headerTitleStyle: { fontWeight: 'bold' },
           contentStyle: { backgroundColor: COLORS.black },
           animation: 'fade',
         }}
       >
-        <Stack.Screen name="index" />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding-choice" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="login-premium" />
-        <Stack.Screen name="home" />
-        <Stack.Screen name="home-premium" />
-        <Stack.Screen name="add-pet" />
-        <Stack.Screen name="verify" />
-        <Stack.Screen name="verification-gate" />
-        <Stack.Screen name="verification-success" />
-        <Stack.Screen name="admin" />
-        <Stack.Screen name="pet-feed" />
-        <Stack.Screen name="fetch-yard" />
-        <Stack.Screen name="tug-yard" />
+        <Stack.Screen name="onboarding-choice" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="login-premium" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
+        <Stack.Screen name="home-premium" options={{ headerShown: false }} />
+        <Stack.Screen name="add-pet" options={{ title: 'Add Pet' }} />
+        <Stack.Screen name="verify" options={{ title: 'Verify' }} />
+        <Stack.Screen name="verification-gate" options={{ title: 'Verification' }} />
+        <Stack.Screen name="verification-success" options={{ headerShown: false }} />
+        <Stack.Screen name="admin" options={{ title: 'Admin Panel' }} />
+        <Stack.Screen name="pet-feed" options={{ title: 'Pet Feed' }} />
+        <Stack.Screen name="fetch-yard" options={{ title: 'Fetch Yard' }} />
+        <Stack.Screen name="tug-yard" options={{ title: 'Tug Yard' }}
         <Stack.Screen name="paywall" />
         <Stack.Screen name="match" />
         <Stack.Screen name="double-fetch" />
