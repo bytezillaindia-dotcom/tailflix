@@ -52,6 +52,9 @@ export default function SplashScreen() {
       // Check if user is logged in
       const sessionToken = await AsyncStorage.getItem('sessionToken');
       
+      console.log('🔍 Session Token:', sessionToken ? 'EXISTS' : 'NOT FOUND');
+      console.log('🚀 Navigating to:', sessionToken ? '/(tabs)/home' : '/login-premium');
+      
       setTimeout(() => {
         if (sessionToken) {
           router.replace('/(tabs)/home');
