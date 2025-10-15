@@ -48,6 +48,8 @@ export default function FetchYardScreen() {
   const [dailyLikesLimit, setDailyLikesLimit] = useState<number | null>(10);
   const [isPremium, setIsPremium] = useState(false);
   const [showCoinsPaywall, setShowCoinsPaywall] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallError, setPaywallError] = useState('');
   const [paywallMessage, setPaywallMessage] = useState('');
   const [requiredCoins, setRequiredCoins] = useState(0);
 
