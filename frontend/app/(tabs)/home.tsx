@@ -31,8 +31,31 @@ export default function HomeScreen() {
   const [userName, setUserName] = useState('Friend');
 
   useEffect(() => {
+    checkVerificationStatus();
     fetchUserData();
   }, [userId]);
+
+  const checkVerificationStatus = async () => {
+    if (!userId) return;
+    
+    try {
+      const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+      const response = await fetch(`${BACKEND_URL}/api/users/${userId}/profile`);
+      
+      if (response.ok) {
+        const userData = await response.json();
+        
+        // Check if user is verified
+        if (userData.status === 'unverified') {
+          console.log('🚫 User not verified, redirecting to verify_pending');
+          router.replace('/verify_pending' as any);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking verification:', error);
+    }
+  };
 
   const fetchUserData = async () => {
     if (!userId) return;
