@@ -147,7 +147,7 @@ export default function FetchYardScreen() {
           '🎉 Success!',
           `You bought 100 TailCoins for ₹99!\nNew balance: ${data.new_balance} coins`,
           [{ text: 'OK', onPress: () => {
-            setShowPaywall(false);
+            setShowCoinsPaywall(false);
             fetchUserStats();
           }}]
         );
