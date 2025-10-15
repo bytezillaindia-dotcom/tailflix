@@ -140,14 +140,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  fallbackImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  errorBadge: {
+    position: 'absolute',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    padding: SPACING.lg,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
   errorIcon: {
-    fontSize: 60,
-    marginBottom: SPACING.md,
+    fontSize: 40,
+    marginBottom: SPACING.sm,
   },
   errorText: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.md,
     color: '#FFF',
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
+    textAlign: 'center',
   },
   retryButton: {
     backgroundColor: COLORS.pawPink,
