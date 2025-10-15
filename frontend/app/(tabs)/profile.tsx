@@ -45,7 +45,7 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             await AsyncStorage.removeItem('sessionToken');
-            router.replace('/login');
+            router.replace('/login-premium');
           },
         },
       ]
