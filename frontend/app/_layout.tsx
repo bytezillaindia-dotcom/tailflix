@@ -59,8 +59,8 @@ export default function RootLayout() {
         <Stack.Screen name="vendor_dashboard" options={{ title: 'Vendor Dashboard' }} />
         <Stack.Screen name="tailmarket_post_puppy" options={{ title: 'Post Puppy' }} />
         <Stack.Screen name="tailboard_post_ad" options={{ title: 'Post Ad' }} />
-        <Stack.Screen name="tailtales_feed" options={{ title: 'TailTales' }} />
-        <Stack.Screen name="tailtales_post" options={{ title: 'Create Tale' }} />
+        <Stack.Screen name="tailtales_feed" options={{ headerShown: false }} />
+        <Stack.Screen name="tailtales_post" options={{ headerShown: false }} />
         <Stack.Screen name="tailreels_feed" options={{ title: 'TailReels' }} />
         <Stack.Screen name="tailreels_upload" options={{ title: 'Upload Reel' }} />
         <Stack.Screen name="tailreels_comments" options={{ title: 'Comments' }} />
