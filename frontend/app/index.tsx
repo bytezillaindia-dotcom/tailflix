@@ -49,9 +49,6 @@ export default function SplashScreen() {
         useNativeDriver: true,
       }).start();
 
-      // FORCE LOGOUT FOR TESTING - Clear session token
-      await AsyncStorage.removeItem('sessionToken');
-      
       // Check if user is logged in
       const sessionToken = await AsyncStorage.getItem('sessionToken');
       
