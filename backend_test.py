@@ -1988,13 +1988,22 @@ if __name__ == "__main__":
     
     tester = TailFlixTester()
     
-    # Check if we should run the special debug test
-    if len(sys.argv) > 1 and sys.argv[1] == "debug":
-        print("🔍 Running SPECIAL Pet Feed Debug Logging Test")
-        tester.test_pet_feed_debug_logging()
+    # Check if we should run specific tests
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "debug":
+            print("🔍 Running SPECIAL Pet Feed Debug Logging Test")
+            tester.test_pet_feed_debug_logging()
+        elif sys.argv[1] == "tailcoins":
+            print("💰 Running TAILCOINS ECONOMY Tests Only")
+            tester.test_tailcoins_economy_system()
+        else:
+            print("🧪 Running ALL TailFlix Backend Tests")
+            tester.run_all_tests()
+            tester.test_tailcoins_economy_system()
     else:
         print("🧪 Running ALL TailFlix Backend Tests")
         tester.run_all_tests()
+        tester.test_tailcoins_economy_system()
     
     # Always run the debug test for this specific request
     print("\n" + "="*80)
