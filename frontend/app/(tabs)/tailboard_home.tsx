@@ -88,7 +88,7 @@ export default function TailBoardHomeScreen() {
     <TouchableOpacity
       key={item.id}
       style={styles.carouselCard}
-      onPress={() => router.push('/tailboard')}
+      onPress={() => router.push('/tailboard' as any)}
     >
       <View style={styles.cardContent}>
         <View style={styles.cardImage}>
