@@ -23,7 +23,7 @@ export default function TailCoinsPaywall({ visible, onClose, requiredAmount = 0,
 
   const handleUpgradePremium = () => {
     onClose();
-    router.push('/paywall');
+    router.push('/premium_upgrade');
   };
 
   return (
