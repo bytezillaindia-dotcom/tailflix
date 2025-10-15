@@ -314,7 +314,7 @@ interface ReelCardProps {
 }
 
 function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps) {
-  const likeScale = new Animated.Value(1);
+  const likeScale = useRef(new Animated.Value(1)).current;
   const [videoError, setVideoError] = useState(false);
   
   // Initialize video player with expo-video - MUST be called unconditionally
