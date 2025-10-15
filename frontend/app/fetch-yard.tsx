@@ -15,8 +15,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 import { useAuth } from '../components/AuthContext';
+import { useTailCoins } from '../components/TailCoinsContext';
 import { ActionIcon } from '../components/ActionIcon';
 import { PaywallModal } from '../components/PaywallModal';
+import TailCoinsPaywall from '../components/TailCoinsPaywall';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 120;
