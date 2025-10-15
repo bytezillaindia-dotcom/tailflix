@@ -780,25 +780,25 @@ export default function AdminScreen() {
         {/* Sub-tabs */}
         <View style={styles.subTabsContainer}>
           <TouchableOpacity
-            style={[styles.subTab, subTab === 'verification' && styles.subTabActive]}
-            onPress={() => setSubTab('verification')}
+            style={[styles.subTab, tailProSubTab === 'verification' && styles.subTabActive]}
+            onPress={() => setTailProSubTab('verification')}
           >
-            <Text style={[styles.subTabText, subTab === 'verification' && styles.subTabTextActive]}>
+            <Text style={[styles.subTabText, tailProSubTab === 'verification' && styles.subTabTextActive]}>
               Partner Verification
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.subTab, subTab === 'bookings' && styles.subTabActive]}
-            onPress={() => setSubTab('bookings')}
+            style={[styles.subTab, tailProSubTab === 'bookings' && styles.subTabActive]}
+            onPress={() => setTailProSubTab('bookings')}
           >
-            <Text style={[styles.subTabText, subTab === 'bookings' && styles.subTabTextActive]}>
+            <Text style={[styles.subTabText, tailProSubTab === 'bookings' && styles.subTabTextActive]}>
               Bookings 📅
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Content based on sub-tab */}
-        {subTab === 'verification' ? (
+        {tailProSubTab === 'verification' ? (
           pendingPartners.length === 0 ? (
             <View style={styles.placeholderContainer}>
               <Text style={styles.placeholderIcon}>💼</Text>
