@@ -135,7 +135,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Social 📱</Text>
-            <TouchableOpacity onPress={() => router.push('/tailtales_feed')}>
+            <TouchableOpacity onPress={() => router.push('/tailtales_feed' as any)}>
               <Text style={styles.seeAll}>See All →</Text>
             </TouchableOpacity>
           </View>
