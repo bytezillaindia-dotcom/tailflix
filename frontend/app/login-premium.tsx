@@ -165,6 +165,30 @@ export default function PremiumLoginScreen() {
     setLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
+    // DEV BYPASS: Check if OTP is 123456
+    if (otpCode === '123456') {
+      try {
+        // Generate mock session token
+        const mockToken = `mock_token_${Date.now()}`;
+        const mockUserId = `dev_user_${phoneNumber}`;
+        
+        await AsyncStorage.setItem('sessionToken', mockToken);
+        await login(mockUserId);
+        
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Alert.alert('Dev Bypass', 'Logged in with dev code!');
+        
+        setTimeout(() => {
+          router.replace('/(tabs)/home');
+        }, 500);
+        
+        setLoading(false);
+        return;
+      } catch (error) {
+        console.error('Dev bypass failed:', error);
+      }
+    }
+
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/verify-otp`, {
         method: 'POST',
@@ -188,7 +212,9 @@ export default function PremiumLoginScreen() {
       }
     } catch (error) {
       shakeAnimation();
-      Alert.alert('Error', 'Verification failed. Please try again.');
+      setOtp(['', '', '', '', '', '']);
+      otpRefs[0].current?.focus();
+      Alert.alert('Error', 'OTP verification failed. Please retry or use dev code: 123456');
     } finally {
       setLoading(false);
     }
