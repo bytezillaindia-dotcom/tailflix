@@ -92,56 +92,25 @@ export default function SplashScreen() {
     }, 2500); // 2.5 seconds total duration
   };
 
-  const rotate = ringRotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
   return (
     <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
-      {/* Gradient Background */}
+      {/* Dark Netflix-style Background */}
       <LinearGradient
-        colors={['#FFF8E7', '#FFE4B5', '#FFD700']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={COLORS.gradientDark}
         style={styles.gradientBackground}
       />
 
-      {/* Animated Glow Background */}
+      {/* Animated Glow */}
       <Animated.View
         style={[
-          styles.glowBackground,
+          styles.glowCircle,
           {
             opacity: glowOpacity,
           },
         ]}
       />
 
-      {/* Sparkle particles */}
-      <Animated.View style={[styles.sparkle, { top: '20%', left: '15%', opacity: glowOpacity }]}>
-        <Text style={styles.sparkleText}>✨</Text>
-      </Animated.View>
-      <Animated.View style={[styles.sparkle, { top: '70%', right: '20%', opacity: glowOpacity }]}>
-        <Text style={styles.sparkleText}>✨</Text>
-      </Animated.View>
-      <Animated.View style={[styles.sparkle, { top: '40%', right: '10%', opacity: glowOpacity }]}>
-        <Text style={styles.sparkleText}>✨</Text>
-      </Animated.View>
-
-      {/* Rotating Ring Effect - Golden Leash Arc */}
-      <Animated.View
-        style={[
-          styles.rotatingRing,
-          {
-            transform: [{ rotate }],
-            opacity: logoOpacity,
-          },
-        ]}
-      >
-        <View style={styles.ring} />
-      </Animated.View>
-
-      {/* Logo - Perfectly Centered */}
+      {/* Logo with Scale & Fade */}
       <Animated.View
         style={[
           styles.logoContainer,
@@ -151,29 +120,9 @@ export default function SplashScreen() {
           },
         ]}
       >
-        <Image
-          source={require('../assets/tailflix_logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </Animated.View>
-
-      {/* Tagline */}
-      <Animated.View
-        style={[
-          styles.taglineContainer,
-          {
-            opacity: taglineOpacity,
-            transform: [{ translateY: taglineY }],
-          },
-        ]}
-      >
-        <Text style={styles.tagline}>Where Tails and Hearts Connect</Text>
-        <View style={styles.pawsContainer}>
-          <Text style={styles.paw}>🐾</Text>
-          <Text style={styles.heart}>💕</Text>
-          <Text style={styles.paw}>🐾</Text>
-        </View>
+        <Text style={styles.logoText}>🐾</Text>
+        <Text style={styles.appName}>TailFlix</Text>
+        <Text style={styles.tagline}>Where Tails Meet Tales</Text>
       </Animated.View>
     </Animated.View>
   );
