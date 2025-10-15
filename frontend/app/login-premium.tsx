@@ -169,13 +169,13 @@ export default function PremiumLoginScreen() {
       const response = await fetch(`${BACKEND_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneNumber, otp: otpCode }),
+        body: JSON.stringify({ method: 'phone', value: phoneNumber, otp: otpCode }),
       });
 
       const data = await response.json();
 
-      if (response.ok && data.session_token) {
-        await AsyncStorage.setItem('sessionToken', data.session_token);
+      if (response.ok && data.token) {
+        await AsyncStorage.setItem('sessionToken', data.token);
         await login(data.user_id);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.replace('/(tabs)/home');
