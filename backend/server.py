@@ -1261,6 +1261,15 @@ async def buy_tail_coins(user_id: str, data: dict):
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="User not found")
         
+        # Create transaction record
+        transaction = TailCoinsTransaction(
+            user_id=user_id,
+            type="earn",
+            amount=coins_to_add,
+            source=f"Purchase {amount}"
+        )
+        await db.tailcoins_transactions.insert_one(transaction.dict())
+        
         # Get updated user
         user = await db.users.find_one({"id": user_id})
         
