@@ -693,8 +693,6 @@ if __name__ == "__main__":
         print("\n✅ ALL TESTS PASSED - Registration system working correctly!")
     else:
         print("\n❌ SOME TESTS FAILED - Check details above")
-    
-    def test_journey_1_new_user_onboarding(self):
         """Test complete new user onboarding flow"""
         print("🚀 JOURNEY 1: NEW USER ONBOARDING")
         print("=" * 60)
