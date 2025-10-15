@@ -130,12 +130,15 @@ export default function PremiumLoginScreen() {
         setTimer(30);
         setCanResend(false);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Alert.alert('OTP Sent!', 'Check your phone for the 6-digit code (or use dev code: 123456)');
         setTimeout(() => otpRefs[0].current?.focus(), 300);
       } else {
-        Alert.alert('Error', 'Failed to send OTP. Please try again.');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        Alert.alert('Error', 'OTP not sent. Please try again or use dev code: 123456');
       }
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert('Connection Error', 'Could not send OTP. Use dev code: 123456 to bypass');
     } finally {
       setLoading(false);
     }
