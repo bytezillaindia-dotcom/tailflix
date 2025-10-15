@@ -1,5 +1,12 @@
-// TailFlix Theme Configuration - Playful Luxury Edition
+// TailFlix Theme Configuration - Creed/Netflix Style
 export const COLORS = {
+  // Main Palette (Creed/Netflix Style)
+  background: '#FFF8F2',
+  primary: '#FFB6C1',
+  accent: '#FFD47D',
+  dark: '#1B1B1F',
+  text: '#333333',
+  
   // Legacy colors (kept for compatibility)
   black: '#000000',
   charcoal: '#2B2B2B',
@@ -9,8 +16,8 @@ export const COLORS = {
   darkGray: '#1A1A1A',
   gray: '#666666',
   
-  // New Playful Luxury Palette
-  cream: '#FFF8E7',
+  // Extended Palette
+  cream: '#FFF8F2',
   creamLight: '#FFFCF5',
   goldenBeige: '#FFE4B5',
   peach: '#FFDAB9',
@@ -22,11 +29,17 @@ export const COLORS = {
   lightBrown: 'rgba(139, 69, 19, 0.8)',
   goldShimmer: '#FFA500',
   
+  // Tab Bar Colors
+  tabBarBg: '#FFF8F2',
+  tabBarActive: '#FFB6C1',
+  tabBarInactive: '#A0A0A0',
+  
   // Gradients (as array for LinearGradient)
-  gradientCream: ['#FFF8E7', '#FFE4B5', '#FFD700'],
-  gradientPeach: ['#FFF8E7', '#FFE4B5', '#FFDAB9'],
+  gradientCream: ['#FFF8F2', '#FFE4B5', '#FFD700'],
+  gradientPeach: ['#FFF8F2', '#FFE4B5', '#FFDAB9'],
   gradientPawPink: ['#FFB6C1', '#FFD700'],
-  gradientCard: ['#FFDAB9', '#FFF8E7'],
+  gradientCard: ['#FFDAB9', '#FFF8F2'],
+  gradientDark: ['#000000', '#1B1B1F', '#2B2B2B'],
 };
 
 export const SPACING = {
