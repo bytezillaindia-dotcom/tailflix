@@ -117,7 +117,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Dating 🎾</Text>
-            <TouchableOpacity onPress={() => router.push('/fetch-yard')}>
+            <TouchableOpacity onPress={() => router.push('/fetch-yard' as any)}>
               <Text style={styles.seeAll}>See All →</Text>
             </TouchableOpacity>
           </View>
