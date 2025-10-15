@@ -626,11 +626,6 @@ export default function AdminScreen() {
   };
 
   const renderTailProTab = () => {
-    const [partners, setPartners] = React.useState<any[]>([]);
-    const [bookings, setBookings] = React.useState<any[]>([]);
-    const [loading, setLoading] = React.useState(true);
-    const [subTab, setSubTab] = React.useState<'verification' | 'bookings'>('verification');
-
     // Mock data for when storage is empty
     const MOCK_VENDORS = [
       {
@@ -678,37 +673,37 @@ export default function AdminScreen() {
       },
     ];
 
-    React.useEffect(() => {
-      loadData();
+    useEffect(() => {
+      loadTailProData();
     }, []);
 
-    const loadData = async () => {
+    const loadTailProData = async () => {
       try {
         // Load partners
         const partnersStr = await AsyncStorage.getItem('tailpro_partners');
         if (partnersStr) {
           const parsedPartners = JSON.parse(partnersStr);
-          setPartners(parsedPartners.length > 0 ? parsedPartners : MOCK_VENDORS);
+          setTailProPartners(parsedPartners.length > 0 ? parsedPartners : MOCK_VENDORS);
         } else {
           // Use mock data if no data exists
-          setPartners(MOCK_VENDORS);
+          setTailProPartners(MOCK_VENDORS);
         }
 
         // Load bookings
         const bookingsStr = await AsyncStorage.getItem('tailpro_bookings');
         if (bookingsStr) {
           const parsedBookings = JSON.parse(bookingsStr);
-          setBookings(parsedBookings.length > 0 ? parsedBookings : MOCK_BOOKINGS);
+          setTailProBookings(parsedBookings.length > 0 ? parsedBookings : MOCK_BOOKINGS);
         } else {
-          setBookings(MOCK_BOOKINGS);
+          setTailProBookings(MOCK_BOOKINGS);
         }
       } catch (error) {
         console.error('Error loading TailPro data:', error);
         // Fallback to mock data on error
-        setPartners(MOCK_VENDORS);
-        setBookings(MOCK_BOOKINGS);
+        setTailProPartners(MOCK_VENDORS);
+        setTailProBookings(MOCK_BOOKINGS);
       } finally {
-        setLoading(false);
+        setTailProLoading(false);
       }
     };
 
@@ -722,13 +717,13 @@ export default function AdminScreen() {
             text: 'Approve',
             onPress: async () => {
               try {
-                const updatedPartners = partners.map((p: any) =>
+                const updatedPartners = tailProPartners.map((p: any) =>
                   p.vendorId === vendorId
                     ? { ...p, status: 'approved', role: 'vendor' }
                     : p
                 );
                 await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
-                setPartners(updatedPartners);
+                setTailProPartners(updatedPartners);
                 Alert.alert('Success', 'Partner approved successfully');
               } catch (error) {
                 console.error('Error approving partner:', error);
@@ -751,11 +746,11 @@ export default function AdminScreen() {
             style: 'destructive',
             onPress: async () => {
               try {
-                const updatedPartners = partners.map((p: any) =>
+                const updatedPartners = tailProPartners.map((p: any) =>
                   p.vendorId === vendorId ? { ...p, status: 'rejected' } : p
                 );
                 await AsyncStorage.setItem('tailpro_partners', JSON.stringify(updatedPartners));
-                setPartners(updatedPartners);
+                setTailProPartners(updatedPartners);
                 Alert.alert('Rejected', 'Partner application rejected');
               } catch (error) {
                 console.error('Error rejecting partner:', error);
@@ -767,7 +762,7 @@ export default function AdminScreen() {
       );
     };
 
-    if (loading) {
+    if (tailProLoading) {
       return (
         <View style={styles.tabContent}>
           <Text style={styles.tabTitle}>TailPro Management</Text>
@@ -776,7 +771,7 @@ export default function AdminScreen() {
       );
     }
 
-    const pendingPartners = partners.filter(p => p.status === 'pending');
+    const pendingPartners = tailProPartners.filter(p => p.status === 'pending');
 
     return (
       <View style={styles.tabContent}>
