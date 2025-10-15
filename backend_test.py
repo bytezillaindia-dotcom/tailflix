@@ -1526,6 +1526,463 @@ class TailFlixTester:
         else:
             self.log_step("Premium Enforcement - Premium Golden Bone", False, f"Premium user blocked from Golden Bone: {response}")
 
+    # ============ TAILCOINS ECONOMY TESTING ============
+    
+    def test_tailcoins_economy_system(self):
+        """Test the newly implemented TailCoins economy system"""
+        print("\n💰 TAILCOINS ECONOMY SYSTEM TESTING")
+        print("=" * 60)
+        
+        # Setup test user for TailCoins testing
+        self.setup_tailcoins_test_user()
+        
+        # Test 1: Transaction History API (empty for new users)
+        self.test_transaction_history_empty()
+        
+        # Test 2: Buy Coins with Transaction Recording
+        self.test_buy_coins_transaction()
+        
+        # Test 3: Spend Coins with Transaction Recording
+        self.test_spend_coins_transaction()
+        
+        # Test 4: Transaction Sorting and Limit
+        self.test_transaction_sorting_and_limit()
+        
+        # Test 5: Edge Cases - Insufficient Coins
+        self.test_insufficient_coins_edge_case()
+        
+        # Test 6: Transaction Fields Validation
+        self.test_transaction_fields_validation()
+    
+    def setup_tailcoins_test_user(self):
+        """Setup a dedicated test user for TailCoins testing"""
+        step = "TailCoins Setup - Test User Creation"
+        
+        try:
+            # Create unique test user
+            import time
+            test_phone = f"+91987654{int(time.time()) % 10000:04d}"
+            
+            # Send OTP
+            otp_success, otp_response, _ = self.make_request("POST", "/auth/send-otp", {
+                "method": "phone",
+                "value": test_phone
+            })
+            
+            if otp_success and otp_response.get("mock_otp"):
+                # Verify OTP
+                verify_success, verify_response, _ = self.make_request("POST", "/auth/verify-otp", {
+                    "method": "phone",
+                    "value": test_phone,
+                    "otp": otp_response["mock_otp"]
+                })
+                
+                if verify_success and verify_response.get("user_id"):
+                    self.users["tailcoins_test"] = {
+                        "user_id": verify_response["user_id"],
+                        "phone": test_phone
+                    }
+                    
+                    self.log_step(step, True, "TailCoins test user created successfully", {
+                        "User ID": verify_response["user_id"],
+                        "Phone": test_phone
+                    })
+                else:
+                    self.log_step(step, False, f"OTP verification failed: {verify_response}")
+            else:
+                self.log_step(step, False, f"OTP send failed: {otp_response}")
+                
+        except Exception as e:
+            self.log_step(step, False, f"Exception during setup: {str(e)}")
+    
+    def test_transaction_history_empty(self):
+        """Test 1: Transaction history should be empty for new users"""
+        step = "TailCoins - Empty Transaction History"
+        
+        if "tailcoins_test" not in self.users:
+            self.log_step(step, False, "Test user not available")
+            return
+        
+        user_id = self.users["tailcoins_test"]["user_id"]
+        
+        success, response, status_code = self.make_request("GET", f"/users/{user_id}/tailcoins/transactions")
+        
+        if success and status_code == 200:
+            transactions = response.get("transactions", [])
+            current_balance = response.get("current_balance", 0)
+            
+            if len(transactions) == 0:
+                self.log_step(step, True, "Empty transaction history returned correctly", {
+                    "Transactions count": len(transactions),
+                    "Current balance": current_balance,
+                    "Response structure": "Valid"
+                })
+            else:
+                self.log_step(step, False, f"Expected 0 transactions, got {len(transactions)}")
+        else:
+            self.log_step(step, False, f"API call failed: {status_code} - {response}")
+    
+    def test_buy_coins_transaction(self):
+        """Test 2: Buy coins should add balance and create transaction record"""
+        step = "TailCoins - Buy Coins Transaction"
+        
+        if "tailcoins_test" not in self.users:
+            self.log_step(step, False, "Test user not available")
+            return
+        
+        user_id = self.users["tailcoins_test"]["user_id"]
+        
+        # Buy 120 coins for ₹99
+        success, response, status_code = self.make_request("POST", f"/users/{user_id}/buy-coins", {
+            "coins": 120,
+            "amount": "₹99"
+        })
+        
+        if success and status_code == 200:
+            if response.get("success") and response.get("coins_added") == 120:
+                self.log_step("TailCoins - Buy Coins Success", True, "Coins purchased successfully", {
+                    "Coins added": response.get("coins_added"),
+                    "New balance": response.get("new_balance"),
+                    "Amount paid": response.get("amount_paid")
+                })
+                
+                # Verify transaction was created
+                time.sleep(1)  # Brief delay
+                
+                txn_success, txn_response, _ = self.make_request("GET", f"/users/{user_id}/tailcoins/transactions")
+                
+                if txn_success:
+                    transactions = txn_response.get("transactions", [])
+                    
+                    if len(transactions) == 1:
+                        txn = transactions[0]
+                        
+                        if (txn.get("type") == "earn" and 
+                            txn.get("amount") == 120 and 
+                            "Purchase ₹99" in txn.get("source", "")):
+                            
+                            self.log_step(step, True, "Buy coins transaction recorded correctly", {
+                                "Transaction type": txn.get("type"),
+                                "Amount": txn.get("amount"),
+                                "Source": txn.get("source"),
+                                "Transaction ID": txn.get("id"),
+                                "Timestamp": txn.get("timestamp")
+                            })
+                        else:
+                            self.log_step(step, False, f"Transaction details incorrect: {txn}")
+                    else:
+                        self.log_step(step, False, f"Expected 1 transaction, got {len(transactions)}")
+                else:
+                    self.log_step(step, False, f"Failed to get transactions: {txn_response}")
+            else:
+                self.log_step(step, False, f"Buy coins failed: {response}")
+        else:
+            self.log_step(step, False, f"API call failed: {status_code} - {response}")
+    
+    def test_spend_coins_transaction(self):
+        """Test 3: Spend coins via Super Like should deduct balance and create transaction"""
+        step = "TailCoins - Spend Coins Transaction"
+        
+        if "tailcoins_test" not in self.users:
+            self.log_step(step, False, "Test user not available")
+            return
+        
+        user_id = self.users["tailcoins_test"]["user_id"]
+        
+        # Create a target pet to like
+        pet_success, pet_response, _ = self.make_request("POST", "/pets", {
+            "pet_name": "Target Pet",
+            "breed": "Golden Retriever",
+            "sex": "Male", 
+            "birth_year": 2020,
+            "temperaments": ["Friendly"],
+            "photos": ["base64_photo_data"]
+        })
+        
+        if not pet_success:
+            self.log_step(step, False, f"Failed to create target pet: {pet_response}")
+            return
+        
+        target_pet_id = pet_response.get("id")
+        
+        # Perform super_like action (costs 5 TailCoins for non-premium users)
+        like_success, like_response, _ = self.make_request("POST", f"/likes?user_id={user_id}", {
+            "pet_id": target_pet_id,
+            "action_type": "super_like"
+        })
+        
+        if like_success and like_response.get("id"):
+            user_stats = like_response.get("user_stats", {})
+            expected_balance = 115  # 120 - 5
+            
+            if user_stats.get("tail_coins") == expected_balance:
+                self.log_step("TailCoins - Spend Coins Success", True, "Coins deducted successfully", {
+                    "Coins deducted": 5,
+                    "New balance": user_stats.get("tail_coins"),
+                    "Action type": "super_like"
+                })
+                
+                # Verify spend transaction was created
+                time.sleep(1)
+                
+                txn_success, txn_response, _ = self.make_request("GET", f"/users/{user_id}/tailcoins/transactions")
+                
+                if txn_success:
+                    transactions = txn_response.get("transactions", [])
+                    
+                    if len(transactions) >= 2:
+                        # Find the spend transaction (should be first due to sorting)
+                        spend_txn = transactions[0]
+                        
+                        if (spend_txn.get("type") == "spend" and 
+                            spend_txn.get("amount") == 5 and 
+                            "Super Like" in spend_txn.get("source", "")):
+                            
+                            self.log_step(step, True, "Spend coins transaction recorded correctly", {
+                                "Transaction type": spend_txn.get("type"),
+                                "Amount": spend_txn.get("amount"),
+                                "Source": spend_txn.get("source"),
+                                "Total transactions": len(transactions)
+                            })
+                        else:
+                            self.log_step(step, False, f"Spend transaction details incorrect: {spend_txn}")
+                    else:
+                        self.log_step(step, False, f"Expected at least 2 transactions, got {len(transactions)}")
+                else:
+                    self.log_step(step, False, f"Failed to get transactions: {txn_response}")
+            else:
+                self.log_step(step, False, f"Balance not deducted correctly. Expected {expected_balance}, got {user_stats.get('tail_coins')}")
+        else:
+            # Check if it's an insufficient coins error (which would be expected behavior)
+            if like_response.get("error") == "insufficient_coins":
+                self.log_step(step, False, f"Insufficient coins error (user may not have enough): {like_response}")
+            else:
+                self.log_step(step, False, f"Super like action failed: {like_response}")
+    
+    def test_transaction_sorting_and_limit(self):
+        """Test 4: Transaction history should be sorted newest first and respect limit"""
+        step = "TailCoins - Transaction Sorting & Limit"
+        
+        if "tailcoins_test" not in self.users:
+            self.log_step(step, False, "Test user not available")
+            return
+        
+        user_id = self.users["tailcoins_test"]["user_id"]
+        
+        # Get all transactions
+        success, response, status_code = self.make_request("GET", f"/users/{user_id}/tailcoins/transactions")
+        
+        if success and status_code == 200:
+            transactions = response.get("transactions", [])
+            
+            if len(transactions) >= 2:
+                # Check sorting (newest first)
+                first_txn = transactions[0]
+                second_txn = transactions[1]
+                
+                # First should be spend (more recent), second should be earn (older)
+                if first_txn.get("type") == "spend" and second_txn.get("type") == "earn":
+                    self.log_step("TailCoins - Sorting Check", True, "Transactions sorted correctly (newest first)", {
+                        "First transaction": f"{first_txn.get('type')} - {first_txn.get('source')}",
+                        "Second transaction": f"{second_txn.get('type')} - {second_txn.get('source')}"
+                    })
+                else:
+                    self.log_step("TailCoins - Sorting Check", False, f"Sorting incorrect. First: {first_txn.get('type')}, Second: {second_txn.get('type')}")
+                
+                # Test limit parameter
+                limit_success, limit_response, _ = self.make_request("GET", f"/users/{user_id}/tailcoins/transactions?limit=1")
+                
+                if limit_success:
+                    limited_transactions = limit_response.get("transactions", [])
+                    
+                    if len(limited_transactions) == 1:
+                        if limited_transactions[0].get("type") == "spend":
+                            self.log_step(step, True, "Limit parameter working correctly", {
+                                "Requested limit": 1,
+                                "Returned count": len(limited_transactions),
+                                "Returned transaction": f"{limited_transactions[0].get('type')} - {limited_transactions[0].get('source')}"
+                            })
+                        else:
+                            self.log_step(step, False, f"Limit returned wrong transaction: {limited_transactions[0]}")
+                    else:
+                        self.log_step(step, False, f"Limit parameter failed. Expected 1, got {len(limited_transactions)}")
+                else:
+                    self.log_step(step, False, f"Limit parameter test failed: {limit_response}")
+            else:
+                self.log_step(step, False, f"Not enough transactions to test sorting. Got {len(transactions)}")
+        else:
+            self.log_step(step, False, f"Failed to get transactions: {status_code} - {response}")
+    
+    def test_insufficient_coins_edge_case(self):
+        """Test 5: Edge case - insufficient coins should return error without creating transaction"""
+        step = "TailCoins - Insufficient Coins Edge Case"
+        
+        if "tailcoins_test" not in self.users:
+            self.log_step(step, False, "Test user not available")
+            return
+        
+        user_id = self.users["tailcoins_test"]["user_id"]
+        
+        # Create target pet
+        pet_success, pet_response, _ = self.make_request("POST", "/pets", {
+            "pet_name": "Expensive Pet",
+            "breed": "Poodle",
+            "sex": "Female",
+            "birth_year": 2021,
+            "temperaments": ["Elegant"],
+            "photos": ["base64_photo_expensive"]
+        })
+        
+        if not pet_success:
+            self.log_step(step, False, f"Failed to create target pet: {pet_response}")
+            return
+        
+        target_pet_id = pet_response.get("id")
+        
+        # Try Golden Bone action (costs 50 TailCoins, user should have 115 after previous tests)
+        # First Golden Bone should work
+        gb1_success, gb1_response, _ = self.make_request("POST", f"/likes?user_id={user_id}", {
+            "pet_id": target_pet_id,
+            "action_type": "golden_bone"
+        })
+        
+        if gb1_success and gb1_response.get("id"):
+            user_stats = gb1_response.get("user_stats", {})
+            new_balance = user_stats.get("tail_coins", 0)
+            
+            self.log_step("TailCoins - First Golden Bone", True, "First Golden Bone successful", {
+                "Coins deducted": 50,
+                "New balance": new_balance
+            })
+            
+            # Now try another Golden Bone (should fail if balance < 50)
+            if new_balance < 50:
+                pet2_success, pet2_response, _ = self.make_request("POST", "/pets", {
+                    "pet_name": "Another Expensive Pet",
+                    "breed": "Husky",
+                    "sex": "Male",
+                    "birth_year": 2020,
+                    "temperaments": ["Active"],
+                    "photos": ["base64_photo_husky"]
+                })
+                
+                if pet2_success:
+                    target_pet2_id = pet2_response.get("id")
+                    
+                    gb2_success, gb2_response, _ = self.make_request("POST", f"/likes?user_id={user_id}", {
+                        "pet_id": target_pet2_id,
+                        "action_type": "golden_bone"
+                    })
+                    
+                    if gb2_success and gb2_response.get("error") == "insufficient_coins":
+                        self.log_step(step, True, "Insufficient coins error returned correctly", {
+                            "Error type": gb2_response.get("error"),
+                            "Message": gb2_response.get("message"),
+                            "Current balance": new_balance,
+                            "Coins needed": 50
+                        })
+                        
+                        # Verify no transaction was created for failed attempt
+                        time.sleep(1)
+                        
+                        txn_success, txn_response, _ = self.make_request("GET", f"/users/{user_id}/tailcoins/transactions")
+                        
+                        if txn_success:
+                            transactions = txn_response.get("transactions", [])
+                            # Should have: 1 earn + 1 super_like spend + 1 golden_bone spend = 3 transactions
+                            expected_count = 3
+                            
+                            if len(transactions) == expected_count:
+                                self.log_step("TailCoins - No Failed Transaction", True, "No transaction created for insufficient coins", {
+                                    "Total transactions": len(transactions),
+                                    "Expected": expected_count,
+                                    "Failed attempt recorded": "No (correct)"
+                                })
+                            else:
+                                self.log_step("TailCoins - No Failed Transaction", False, f"Unexpected transaction count: {len(transactions)}")
+                    else:
+                        self.log_step(step, False, f"Expected insufficient_coins error, got: {gb2_response}")
+                else:
+                    self.log_step(step, False, f"Failed to create second target pet: {pet2_response}")
+            else:
+                self.log_step(step, False, f"User still has enough coins ({new_balance}) to test insufficient coins scenario")
+        else:
+            self.log_step(step, False, f"First Golden Bone failed: {gb1_response}")
+    
+    def test_transaction_fields_validation(self):
+        """Test 6: Verify all transaction fields are present and correctly formatted"""
+        step = "TailCoins - Transaction Fields Validation"
+        
+        if "tailcoins_test" not in self.users:
+            self.log_step(step, False, "Test user not available")
+            return
+        
+        user_id = self.users["tailcoins_test"]["user_id"]
+        
+        success, response, status_code = self.make_request("GET", f"/users/{user_id}/tailcoins/transactions")
+        
+        if success and status_code == 200:
+            transactions = response.get("transactions", [])
+            
+            if len(transactions) > 0:
+                required_fields = ["id", "type", "amount", "source", "timestamp"]
+                validation_results = []
+                
+                for i, txn in enumerate(transactions):
+                    txn_valid = True
+                    missing_fields = []
+                    
+                    # Check required fields
+                    for field in required_fields:
+                        if field not in txn or txn[field] is None:
+                            missing_fields.append(field)
+                            txn_valid = False
+                    
+                    # Validate field types and values
+                    if txn_valid:
+                        if not isinstance(txn["id"], str) or len(txn["id"]) == 0:
+                            txn_valid = False
+                            validation_results.append(f"Transaction {i}: Invalid ID format")
+                        
+                        if txn["type"] not in ["earn", "spend"]:
+                            txn_valid = False
+                            validation_results.append(f"Transaction {i}: Invalid type '{txn['type']}'")
+                        
+                        if not isinstance(txn["amount"], int) or txn["amount"] <= 0:
+                            txn_valid = False
+                            validation_results.append(f"Transaction {i}: Invalid amount '{txn['amount']}'")
+                        
+                        if not isinstance(txn["source"], str) or len(txn["source"]) == 0:
+                            txn_valid = False
+                            validation_results.append(f"Transaction {i}: Invalid source '{txn['source']}'")
+                        
+                        # Validate timestamp format
+                        try:
+                            from datetime import datetime
+                            datetime.fromisoformat(txn["timestamp"].replace('Z', '+00:00'))
+                        except (ValueError, AttributeError):
+                            txn_valid = False
+                            validation_results.append(f"Transaction {i}: Invalid timestamp '{txn['timestamp']}'")
+                    
+                    if missing_fields:
+                        validation_results.append(f"Transaction {i}: Missing fields {missing_fields}")
+                
+                if len(validation_results) == 0:
+                    self.log_step(step, True, "All transaction fields valid", {
+                        "Transactions validated": len(transactions),
+                        "Required fields": required_fields,
+                        "Validation errors": 0
+                    })
+                else:
+                    self.log_step(step, False, f"Field validation errors found", {
+                        "Transactions validated": len(transactions),
+                        "Validation errors": validation_results
+                    })
+            else:
+                self.log_step(step, False, "No transactions available for field validation")
+        else:
+            self.log_step(step, False, f"Failed to get transactions: {status_code} - {response}")
+
 if __name__ == "__main__":
     import sys
     
