@@ -247,4 +247,18 @@ const styles = StyleSheet.create({
     color: '#CCC',
     marginBottom: SPACING.xs,
   },
+  historyButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: BORDER_RADIUS.xl,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    marginTop: SPACING.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  historyButtonText: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gold,
+  },
 });
