@@ -311,6 +311,17 @@ export default function TailReelsFeed() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* Video Modal */}
+      {selectedVideo && (
+        <VideoModal
+          visible={videoModalVisible}
+          videoUrl={selectedVideo.video_url}
+          caption={selectedVideo.caption}
+          petName={selectedVideo.pet_name}
+          onClose={() => setVideoModalVisible(false)}
+        />
+      )}
     </View>
   );
 }
