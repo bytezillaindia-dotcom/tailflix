@@ -819,10 +819,17 @@ class RegistrationTester:
         return passed == total
 
 if __name__ == "__main__":
-    tester = RegistrationTester()
-    success = tester.run_all_tests()
+    print(f"🚀 Starting Pet Feed API Sanity Check")
+    print(f"🎯 Target User ID: {TEST_USER_ID}")
+    print(f"🌐 Backend URL: {API_BASE}")
+    print()
+    
+    tester = PetFeedTester()
+    success = tester.test_pet_feed_api_quick_check()
     
     if success:
-        print("\n✅ ALL TESTS PASSED - Registration system working correctly!")
+        print(f"\n🎊 PET FEED API TEST PASSED - API is working correctly!")
+        sys.exit(0)
     else:
-        print("\n❌ SOME TESTS FAILED - Check details above")
+        print(f"\n💥 PET FEED API TEST FAILED - API has issues!")
+        sys.exit(1)
