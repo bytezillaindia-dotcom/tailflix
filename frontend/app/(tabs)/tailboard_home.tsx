@@ -65,7 +65,7 @@ export default function TailBoardHomeScreen() {
   const renderHeroCard = () => (
     <TouchableOpacity
       style={styles.heroCard}
-      onPress={() => router.push('/tailboard')}
+      onPress={() => router.push('/tailboard' as any)}
     >
       <LinearGradient
         colors={['rgba(255, 182, 193, 0.8)', 'rgba(255, 212, 125, 0.8)']}
