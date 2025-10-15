@@ -97,10 +97,20 @@ export default function VerifyPendingScreen() {
 
       console.log('✅ DEV: Auto-approval complete!');
       
-      // Navigate to home
-      setTimeout(() => {
-        router.replace('/(tabs)/home' as any);
-      }, 500);
+      Alert.alert(
+        '✅ Approved!',
+        'You are now verified! Please logout and login again to refresh your session.',
+        [
+          {
+            text: 'Logout Now',
+            onPress: async () => {
+              await AsyncStorage.removeItem('sessionToken');
+              await AsyncStorage.removeItem('userId');
+              router.replace('/login-premium');
+            }
+          }
+        ]
+      );
 
     } catch (error) {
       console.error('❌ DEV: Auto-approval failed:', error);
