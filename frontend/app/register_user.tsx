@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,6 +22,7 @@ export default function RegisterUserScreen() {
   const router = useRouter();
   const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   
   // Form state
   const [name, setName] = useState('');
