@@ -113,6 +113,30 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        {/* BIG TEST BUTTON FOR REGISTRATION */}
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#FFD700',
+            padding: 20,
+            margin: 16,
+            borderRadius: 16,
+            alignItems: 'center',
+            shadowColor: '#FFD700',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.5,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
+          onPress={() => router.push('/register_user' as any)}
+        >
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#000', marginBottom: 4 }}>
+            🧪 TEST REGISTRATION
+          </Text>
+          <Text style={{ fontSize: 14, color: '#000' }}>
+            Click here to view user registration screen
+          </Text>
+        </TouchableOpacity>
+
         {/* Dating Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
