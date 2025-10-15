@@ -622,7 +622,7 @@ export default function FetchYardScreen() {
         onClose={() => setShowPaywall(false)}
         onBuyCoins={handleBuyCoins}
         onUpgradePremium={handleUpgradePremium}
-        tailCoins={tailCoins}
+        tailCoins={balance}
         dailyLikesUsed={dailyLikesCount}
         dailyLikesLimit={dailyLikesLimit || 10}
         errorType={paywallError}
