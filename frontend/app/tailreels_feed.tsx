@@ -216,6 +216,10 @@ export default function TailReelsFeed() {
               onLike={() => handleLike(reel.id)}
               onComment={() => handleComment(reel)}
               onShare={() => handleShare(reel.id)}
+              onPlayPress={() => {
+                setSelectedVideo(reel);
+                setVideoModalVisible(true);
+              }}
             />
           )}
           pagingEnabled
