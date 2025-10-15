@@ -41,6 +41,23 @@ class User(BaseModel):
     tail_coins: int = 0  # TailCoins balance
     daily_likes_count: int = 0  # Number of free likes used today
     daily_likes_reset_date: Optional[datetime] = None  # Last reset date for daily likes
+    # Profile fields
+    name: Optional[str] = None
+    gender: Optional[str] = None
+    age: Optional[int] = None
+    email: Optional[str] = None
+    photo: Optional[str] = None  # Base64 encoded image
+    location: Optional[dict] = None  # {lat: float, lng: float}
+    status: str = "unverified"  # 'unverified', 'verified' (requires admin approval)
+
+class UserProfileUpdate(BaseModel):
+    name: str
+    gender: str
+    age: int
+    email: Optional[str] = None
+    photo: str
+    location: Optional[dict] = None
+    status: str = "unverified"
 
 class SendOtpRequest(BaseModel):
     method: str  # 'phone' or 'email'
