@@ -865,7 +865,7 @@ export default function AdminScreen() {
           )
         ) : (
           // Bookings tab
-          bookings.length === 0 ? (
+          tailProBookings.length === 0 ? (
             <View style={styles.placeholderContainer}>
               <Text style={styles.placeholderIcon}>📅</Text>
               <Text style={styles.placeholderText}>No Bookings Yet</Text>
@@ -875,7 +875,7 @@ export default function AdminScreen() {
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
-              {bookings.map((booking) => (
+              {tailProBookings.map((booking) => (
                 <View key={booking.order_id} style={styles.bookingCard}>
                   <View style={styles.bookingHeader}>
                     <Text style={styles.bookingOrderId}>#{booking.order_id}</Text>
