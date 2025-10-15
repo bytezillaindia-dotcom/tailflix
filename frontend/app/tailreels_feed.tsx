@@ -330,11 +330,11 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
       {/* Thumbnail placeholder - stable, no crashes */}
       <View style={styles.thumbnailContainer}>
         <Image 
-          source={{ uri: 'https://placekitten.com/600/900' }}
+          source={{ uri: `https://placekitten.com/${600 + reel.id}/${900 + reel.id}` }}
           style={styles.thumbnail}
         />
-        <View style={styles.videoBadge}>
-          <Text style={styles.videoBadgeText}>🎬 Video Preview</Text>
+        <View style={styles.playButtonOverlay}>
+          <Text style={styles.playButton}>▶️</Text>
         </View>
       </View>
 
