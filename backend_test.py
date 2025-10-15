@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-TailFlix Backend Testing Suite - Double Fetch & Action Mechanics
-Tests the newly implemented mutual match animation and action mechanics
+TailFlix Backend Testing Suite - User & Pet Registration System
+Tests the complete user and pet registration system with admin approval workflow
 """
 
 import requests
 import json
 import time
+import base64
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
@@ -18,7 +19,7 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'http://localhost:8001')
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"🔗 Testing TailFlix Backend at: {API_BASE}")
+print(f"🔗 Testing TailFlix Registration System at: {API_BASE}")
 print("=" * 80)
 
 class TailFlixTester:
