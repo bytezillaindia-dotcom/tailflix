@@ -183,6 +183,24 @@ export default function VerifyPendingScreen() {
             In the meantime, make sure your contact details are correct.
           </Text>
 
+          {/* DEV BYPASS BUTTON */}
+          <TouchableOpacity 
+            style={styles.devButton} 
+            onPress={handleDevApprove}
+            disabled={approving}
+          >
+            <LinearGradient
+              colors={['#FFD700', '#FFA500']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.devGradient}
+            >
+              <Text style={styles.devText}>
+                {approving ? '⏳ Auto-Approving...' : '🔧 DEV: Auto-Approve & Enter App'}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
           {/* Logout Button */}
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <LinearGradient
