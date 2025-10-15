@@ -103,16 +103,16 @@ export default function RegisterPetScreen() {
           age: parseInt(age),
           temperament: temperament.join(', '),
           photo,
-          status: 'verified', // AUTO-VERIFY for simplified flow
+          status: 'unverified', // REQUIRES ADMIN APPROVAL
         }),
       });
 
       if (response.ok) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert(
-          '🎉 Welcome to TailFlix!',
-          'Your profile is ready! Start exploring and connecting with other pet lovers.',
-          [{ text: 'Let\'s Go!', onPress: () => router.replace('/(tabs)/home' as any) }]
+          '🎉 Registration Complete!',
+          'Your profile has been submitted for admin approval. We\'ll notify you once verified!',
+          [{ text: 'Got it!', onPress: () => router.replace('/(tabs)/home' as any) }]
         );
       } else {
         throw new Error('Failed to create pet profile');
