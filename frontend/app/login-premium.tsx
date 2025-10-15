@@ -262,10 +262,15 @@ export default function PremiumLoginScreen() {
         Alert.alert('Incorrect Code', 'Please try again');
       }
     } catch (error) {
+      console.error('❌ OTP Verification Error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       shakeAnimation();
       setOtp(['', '', '', '', '', '']);
       otpRefs[0].current?.focus();
-      Alert.alert('Error', 'OTP verification failed. Please retry or use dev code: 123456');
+      Alert.alert(
+        'Error', 
+        `OTP verification failed. ${error?.message || 'Please retry or use dev code: 123456'}`
+      );
     } finally {
       setLoading(false);
     }
