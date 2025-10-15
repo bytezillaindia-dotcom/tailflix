@@ -217,7 +217,11 @@ export default function TailReelsFeed() {
           onScroll={handleScroll}
           scrollEventThrottle={16}
           estimatedItemSize={SCREEN_HEIGHT}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => String(item.id)}
+          initialNumToRender={1}
+          maxToRenderPerBatch={2}
+          windowSize={3}
+          removeClippedSubviews={true}
         />
       )}
 
