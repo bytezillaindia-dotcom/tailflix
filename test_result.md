@@ -339,6 +339,18 @@ backend:
           agent: "testing"
           comment: "✅ TAILCOINS ECONOMY BACKEND TESTING COMPLETE: All core functionality working perfectly. COMPREHENSIVE TEST RESULTS (10/11 tests passed): 1) ✅ Transaction History API - Empty list for new users, correct response structure 2) ✅ Buy Coins Transaction - 120 coins purchased for ₹99, transaction record created with type='earn', amount=120, source='Purchase ₹99' 3) ✅ Spend Coins Transaction - Super Like deducted 5 coins (120→115), transaction record created with type='spend', source='Super Like' 4) ✅ Transaction Sorting - Newest first (spend before earn), limit parameter working (limit=1 returns 1 transaction) 5) ✅ Transaction Fields - All required fields present (id, type, amount, source, timestamp) with correct formats 6) ✅ Golden Bone Spending - 50 coins deducted (115→65), transaction recorded 7) ✅ Insufficient Coins Edge Case - Correctly returns 'insufficient_coins' error without creating transaction when balance < required amount. PRICING CONFIRMED: Super Like=5 coins, Golden Bone=50 coins. All transaction records properly sorted by created_at DESC. API endpoints working: GET /api/users/{user_id}/tailcoins/transactions, POST /api/users/{user_id}/buy-coins, POST /api/likes (with coin deduction). TailCoins economy system ready for production."
 
+  - task: "User and Pet Registration APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented complete user and pet registration system requiring admin approval. BACKEND CHANGES: 1) Updated User model to include profile fields: name, gender, age, email, photo (base64), location {lat,lng}, status ('unverified'|'verified'|'rejected') 2) Created PUT /api/users/{user_id}/profile endpoint to save user profile with status='unverified' by default 3) Created GET /api/users/{user_id}/profile endpoint to retrieve user profile 4) Updated Pet model to include status field ('unverified'|'verified'|'rejected'), made age/temperament flexible 5) Updated POST /api/pets endpoint to handle both age and birth_year, single photo or photos array, set status='unverified' by default 6) Created admin endpoints: GET /api/admin/pending-registrations (returns pending users and pets), POST /api/admin/users/{user_id}/approve (sets status='verified' and is_verified_human=true), POST /api/admin/pets/{pet_id}/approve (sets status='verified'), POST /api/admin/users/{user_id}/reject, POST /api/admin/pets/{pet_id}/reject. FRONTEND CHANGES: Updated register_pet.tsx to set status='unverified' and show 'submitted for admin approval' message. Routes already registered in _layout.tsx. Ready for testing: Test user registration flow → pet registration flow → admin approval → user can access app."
+
 frontend:
   - task: "Splash Screen"
     implemented: true
