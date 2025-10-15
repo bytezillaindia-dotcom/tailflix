@@ -1222,6 +1222,196 @@ async def get_verifications(user_id: Optional[str] = None):
 
 # ============ Admin Routes ============
 
+@api_router.get("/admin/pending-registrations")
+async def get_pending_registrations():
+    """
+    Get all pending user and pet registrations waiting for admin approval
+    Returns users and pets with 'unverified' status
+    """
+    try:
+        # Get pending users
+        pending_users = await db.users.find({"status": "unverified"}).to_list(1000)
+        
+        # Get pending pets
+        pending_pets = await db.pets.find({"status": "unverified"}).to_list(1000)
+        
+        # Enrich pets with owner info
+        enriched_pets = []
+        for pet in pending_pets:
+            owner = await db.users.find_one({"id": pet['user_id']})
+            enriched_pets.append({
+                **pet,
+                "owner_name": owner.get('name', 'Unknown') if owner else 'Unknown',
+                "owner_contact": owner.get('value', 'N/A') if owner else 'N/A'
+            })
+        
+        logger.info(f"Admin: Retrieved {len(pending_users)} pending users and {len(pending_pets)} pending pets")
+        
+        return {
+            "pending_users": pending_users,
+            "pending_pets": enriched_pets,
+            "total_pending": len(pending_users) + len(pending_pets)
+        }
+    
+    except Exception as e:
+        logger.error(f"Error fetching pending registrations: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch pending registrations")
+
+
+@api_router.post("/admin/users/{user_id}/approve")
+async def approve_user_registration(user_id: str):
+    """
+    Approve a user registration
+    - Updates user status to 'verified'
+    - Sets is_verified_human to true
+    """
+    try:
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        result = await db.users.update_one(
+            {"id": user_id},
+            {"$set": {
+                "status": "verified",
+                "is_verified_human": True
+            }}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to approve user")
+        
+        logger.info(f"Admin approved user registration: {user_id} ({user.get('name')})")
+        
+        return {
+            "success": True,
+            "message": f"User {user.get('name')} approved successfully",
+            "user_id": user_id
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error approving user: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to approve user")
+
+
+@api_router.post("/admin/pets/{pet_id}/approve")
+async def approve_pet_registration(pet_id: str):
+    """
+    Approve a pet registration
+    - Updates pet status to 'verified'
+    - Sets verified to true
+    """
+    try:
+        pet = await db.pets.find_one({"id": pet_id})
+        if not pet:
+            raise HTTPException(status_code=404, detail="Pet not found")
+        
+        result = await db.pets.update_one(
+            {"id": pet_id},
+            {"$set": {
+                "status": "verified",
+                "verified": True
+            }}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to approve pet")
+        
+        logger.info(f"Admin approved pet registration: {pet_id} ({pet.get('pet_name')})")
+        
+        return {
+            "success": True,
+            "message": f"Pet {pet.get('pet_name')} approved successfully",
+            "pet_id": pet_id
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error approving pet: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to approve pet")
+
+
+@api_router.post("/admin/users/{user_id}/reject")
+async def reject_user_registration(user_id: str, data: Optional[dict] = None):
+    """
+    Reject a user registration
+    - Updates user status to 'rejected'
+    """
+    try:
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        reason = data.get('reason', 'Not specified') if data else 'Not specified'
+        
+        result = await db.users.update_one(
+            {"id": user_id},
+            {"$set": {
+                "status": "rejected",
+                "rejection_reason": reason
+            }}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to reject user")
+        
+        logger.info(f"Admin rejected user registration: {user_id} ({user.get('name')}). Reason: {reason}")
+        
+        return {
+            "success": True,
+            "message": f"User {user.get('name')} registration rejected",
+            "user_id": user_id
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error rejecting user: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to reject user")
+
+
+@api_router.post("/admin/pets/{pet_id}/reject")
+async def reject_pet_registration(pet_id: str, data: Optional[dict] = None):
+    """
+    Reject a pet registration
+    - Updates pet status to 'rejected'
+    """
+    try:
+        pet = await db.pets.find_one({"id": pet_id})
+        if not pet:
+            raise HTTPException(status_code=404, detail="Pet not found")
+        
+        reason = data.get('reason', 'Not specified') if data else 'Not specified'
+        
+        result = await db.pets.update_one(
+            {"id": pet_id},
+            {"$set": {
+                "status": "rejected",
+                "rejection_reason": reason
+            }}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to reject pet")
+        
+        logger.info(f"Admin rejected pet registration: {pet_id} ({pet.get('pet_name')}). Reason: {reason}")
+        
+        return {
+            "success": True,
+            "message": f"Pet {pet.get('pet_name')} registration rejected",
+            "pet_id": pet_id
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error rejecting pet: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to reject pet")
+
+
 @api_router.get("/admin/verifications/pending", response_model=List[Verification])
 async def get_pending_verifications():
     """Get all pending verifications for admin review"""
