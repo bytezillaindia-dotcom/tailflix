@@ -31,6 +31,23 @@ class PetFeedTester:
     def __init__(self):
         self.test_results = []
         
+    def log_test(self, test_name, success, details="", response_data=None):
+        """Log test results with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        status_symbol = "✅" if success else "❌"
+        print(f"[{timestamp}] {status_symbol} {test_name}")
+        if details:
+            print(f"    {details}")
+        if response_data and not success:
+            print(f"    Response: {response_data}")
+        
+        self.test_results.append({
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "response": response_data
+        })
+        
     def test_pet_feed_api_quick_check(self):
         """
         Quick sanity check for GET /api/pets/feed with verified user
