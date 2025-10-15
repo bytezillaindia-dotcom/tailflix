@@ -771,7 +771,7 @@ export default function AdminScreen() {
       );
     }
 
-    const pendingPartners = tailProPartners.filter(p => p.status === 'pending');
+    const pendingPartners = (tailProPartners || []).filter(p => p.status === 'pending');
 
     return (
       <View style={styles.tabContent}>
