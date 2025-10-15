@@ -348,15 +348,37 @@ async def get_user_profile(user_id: str):
 async def create_pet(pet_data: PetCreate, user_id: Optional[str] = None):
     """
     Create a new pet profile
-    Accepts user_id as query parameter or uses most recent user as fallback
+    Accepts user_id as query parameter or uses owner_id from body or falls back to most recent user
+    Sets pet status to 'unverified' by default (requires admin approval)
     """
     try:
-        # Get user_id from parameter or fallback to most recent user
+        # Get user_id from parameter, body, or fallback to most recent user
         if not user_id:
-            recent_user = await db.users.find_one(sort=[("last_login", -1)])
-            if not recent_user:
-                raise HTTPException(status_code=404, detail="No user found. Please login first.")
-            user_id = recent_user['id']
+            if pet_data.owner_id:
+                user_id = pet_data.owner_id
+            else:
+                recent_user = await db.users.find_one(sort=[("last_login", -1)])
+                if not recent_user:
+                    raise HTTPException(status_code=404, detail="No user found. Please login first.")
+                user_id = recent_user['id']
+        
+        # Handle age vs birth_year
+        if pet_data.age and not pet_data.birth_year:
+            current_year = datetime.utcnow().year
+            birth_year = current_year - pet_data.age
+        elif pet_data.birth_year:
+            birth_year = pet_data.birth_year
+        else:
+            raise HTTPException(status_code=400, detail="Either age or birth_year must be provided")
+        
+        # Handle photos
+        photos = pet_data.photos if pet_data.photos else []
+        if pet_data.photo and pet_data.photo not in photos:
+            photos.append(pet_data.photo)
+        
+        # Handle temperament
+        temperament_str = pet_data.temperament if pet_data.temperament else ""
+        temperaments_list = pet_data.temperaments if pet_data.temperaments else []
         
         # Create pet object
         pet = Pet(
@@ -364,15 +386,18 @@ async def create_pet(pet_data: PetCreate, user_id: Optional[str] = None):
             pet_name=pet_data.pet_name,
             breed=pet_data.breed,
             sex=pet_data.sex,
-            birth_year=pet_data.birth_year,
-            temperaments=pet_data.temperaments,
-            photos=pet_data.photos,
+            birth_year=birth_year,
+            temperaments=temperaments_list,
+            temperament=temperament_str,
+            photos=photos,
+            verified=False,
+            status=pet_data.status if pet_data.status else "unverified"
         )
         
         # Save to database
         await db.pets.insert_one(pet.dict())
         
-        logger.info(f"New pet added: {pet_data.pet_name} for user {user_id}")
+        logger.info(f"New pet added: {pet_data.pet_name} for user {user_id} with status '{pet.status}'")
         
         return pet
     
