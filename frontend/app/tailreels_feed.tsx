@@ -353,7 +353,7 @@ function ReelCard({ reel, isActive, onLike, onComment, onShare }: ReelCardProps)
   return (
     <View style={styles.reelContainer}>
       {/* Video or Error Fallback */}
-      {videoError || !player ? (
+      {videoError || !reel.video_url ? (
         <View style={styles.videoErrorContainer}>
           <Text style={styles.videoErrorIcon}>🎬</Text>
           <Text style={styles.videoErrorText}>Video unavailable</Text>
