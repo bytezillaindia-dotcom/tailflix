@@ -212,7 +212,29 @@ export default function PremiumLoginScreen() {
         await AsyncStorage.setItem('sessionToken', data.token);
         await login(data.user_id);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.replace('/(tabs)/home');
+        
+        // Check if user has completed registration
+        try {
+          const profileResponse = await fetch(`${BACKEND_URL}/api/users/${data.user_id}/profile`);
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            // User has profile, go to home
+            setTimeout(() => {
+              router.replace('/(tabs)/home');
+            }, 500);
+          } else {
+            // No profile found, redirect to registration
+            Alert.alert('Welcome!', 'Let\'s set up your TailFlix profile');
+            setTimeout(() => {
+              router.replace('/register_user' as any);
+            }, 500);
+          }
+        } catch (error) {
+          // If profile check fails, assume new user
+          setTimeout(() => {
+            router.replace('/register_user' as any);
+          }, 500);
+        }
       } else {
         shakeAnimation();
         setOtp(['', '', '', '', '', '']);
