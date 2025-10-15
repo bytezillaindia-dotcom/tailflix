@@ -433,7 +433,7 @@ export default function FetchYardScreen() {
             style={styles.coinBadgeGradient}
           >
             <Text style={styles.coinIcon}>🪙</Text>
-            <Text style={styles.coinText}>{tailCoins}</Text>
+            <Text style={styles.coinText}>{balance}</Text>
           </LinearGradient>
         </Animated.View>
       </View>
