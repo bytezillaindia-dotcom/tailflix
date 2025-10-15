@@ -499,15 +499,16 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 2
-  run_ui: true
+  test_sequence: 3
+  run_ui: false
 
 test_plan:
   current_focus:
-    - "TailPro Home Screen"
-    - "TailPro Service List"
-    - "TailPro Booking Wizard"
-    - "TailPro Orders Management"
+    - "TailCoins Economy Backend"
+    - "TailCoins Store Screen"
+    - "TailCoins History Screen"
+    - "TailCoins Dashboard Card"
+    - "TailCoins Context Provider"
     - "TailPro Contact Provider"
     - "TailPro Partner Signup"
     - "TailPro Dashboard Integration"
