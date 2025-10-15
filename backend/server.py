@@ -416,7 +416,14 @@ async def get_pets(user_id: Optional[str] = None):
             pets = await db.pets.find({"user_id": user_id}).to_list(1000)
         else:
             pets = await db.pets.find().to_list(1000)
-        return [Pet(**pet) for pet in pets]
+        
+        # Remove MongoDB _id and ensure Pet model compatibility
+        cleaned_pets = []
+        for pet in pets:
+            pet.pop('_id', None)  # Remove MongoDB ObjectId
+            cleaned_pets.append(Pet(**pet))
+        
+        return cleaned_pets
     except Exception as e:
         logger.error(f"Error fetching pets: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch pets")
