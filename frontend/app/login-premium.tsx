@@ -186,9 +186,28 @@ export default function PremiumLoginScreen() {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           Alert.alert('Dev Bypass', 'Logged in successfully!');
           
-          setTimeout(() => {
-            router.replace('/(tabs)/home');
-          }, 500);
+          // Check if user has completed registration
+          try {
+            const profileResponse = await fetch(`${BACKEND_URL}/api/users/${data.user_id}/profile`);
+            if (profileResponse.ok) {
+              const profileData = await profileResponse.json();
+              // User has profile, go to home
+              setTimeout(() => {
+                router.replace('/(tabs)/home');
+              }, 500);
+            } else {
+              // No profile found, redirect to registration
+              Alert.alert('Welcome!', 'Let\'s set up your TailFlix profile');
+              setTimeout(() => {
+                router.replace('/register_user' as any);
+              }, 500);
+            }
+          } catch (error) {
+            // If profile check fails, assume new user
+            setTimeout(() => {
+              router.replace('/register_user' as any);
+            }, 500);
+          }
           
           setLoading(false);
           return;
