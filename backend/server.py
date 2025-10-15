@@ -130,6 +130,14 @@ class ChatMessageCreate(BaseModel):
     match_id: str
     message: str
 
+class TailCoinsTransaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    type: str  # 'earn' or 'spend'
+    amount: int
+    source: str  # Description of transaction (e.g., "Purchase ₹99", "Super Like", "Daily Reward")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 
 # ============ Auth Routes ============
 
