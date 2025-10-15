@@ -54,8 +54,14 @@ export default function VideoModal({ visible, videoUrl, caption, petName, onClos
         {/* Video Player or Error */}
         {hasError ? (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorIcon}>🎬</Text>
-            <Text style={styles.errorText}>Video unavailable</Text>
+            <Image 
+              source={{ uri: 'https://placekitten.com/600/900' }}
+              style={styles.fallbackImage}
+            />
+            <View style={styles.errorBadge}>
+              <Text style={styles.errorIcon}>🎬</Text>
+              <Text style={styles.errorText}>Video failed to load</Text>
+            </View>
             <TouchableOpacity style={styles.retryButton} onPress={onClose}>
               <Text style={styles.retryText}>Close</Text>
             </TouchableOpacity>
