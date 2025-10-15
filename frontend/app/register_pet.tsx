@@ -109,11 +109,14 @@ export default function RegisterPetScreen() {
 
       if (response.ok) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert(
-          '🎉 Registration Complete!',
-          'Your profile has been submitted for admin approval. We\'ll notify you once verified!',
-          [{ text: 'Got it!', onPress: () => router.replace('/verify_pending' as any) }]
-        );
+        console.log('✅ Pet profile saved successfully');
+        
+        // Direct navigation without Alert - Alert is buggy on web
+        console.log('🚀 Navigating to verify_pending');
+        setTimeout(() => {
+          setLoading(false);
+          router.replace('/verify_pending' as any);
+        }, 500);
       } else {
         throw new Error('Failed to create pet profile');
       }
