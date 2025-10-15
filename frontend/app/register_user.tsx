@@ -242,6 +242,13 @@ export default function RegisterUserScreen() {
             </View>
           </View>
 
+          {/* Success Message */}
+          {successMessage ? (
+            <View style={styles.successContainer}>
+              <Text style={styles.successText}>{successMessage}</Text>
+            </View>
+          ) : null}
+
           {/* Continue Button */}
           <TouchableOpacity
             style={styles.continueButton}
@@ -254,9 +261,11 @@ export default function RegisterUserScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.continueGradient}
             >
-              <Text style={styles.continueText}>
-                {loading ? 'Saving...' : 'Continue →'}
-              </Text>
+              {loading ? (
+                <ActivityIndicator color={COLORS.white} size="small" />
+              ) : (
+                <Text style={styles.continueText}>Continue →</Text>
+              )}
             </LinearGradient>
           </TouchableOpacity>
         </ScrollView>
