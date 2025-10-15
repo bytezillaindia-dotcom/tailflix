@@ -153,7 +153,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Marketplace 🛒</Text>
-            <TouchableOpacity onPress={() => router.push('/tailboard')}>
+            <TouchableOpacity onPress={() => router.push('/tailboard' as any)}>
               <Text style={styles.seeAll}>See All →</Text>
             </TouchableOpacity>
           </View>
