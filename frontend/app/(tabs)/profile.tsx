@@ -35,26 +35,28 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            // Clear all session data
-            await AsyncStorage.removeItem('sessionToken');
-            await AsyncStorage.removeItem('userId');
-            await AsyncStorage.removeItem('@tailflix_userId');
-            await AsyncStorage.removeItem('@tailflix_token');
-            
-            console.log('✅ Logged out - all session data cleared');
-            
-            router.replace('/login-premium');
-          },
-        },
+    // Web-compatible logout
+    const confirmed = window.confirm('Are you sure you want to logout?');
+    
+    if (confirmed) {
+      try {
+        // Clear all session data
+        await AsyncStorage.removeItem('sessionToken');
+        await AsyncStorage.removeItem('userId');
+        await AsyncStorage.removeItem('@tailflix_userId');
+        await AsyncStorage.removeItem('@tailflix_token');
+        
+        console.log('✅ Logged out - all session data cleared');
+        
+        // Use replace to prevent back navigation
+        router.replace('/login-premium');
+      } catch (error) {
+        console.error('Error during logout:', error);
+        // Force navigation even if error
+        router.replace('/login-premium');
+      }
+    }
+  };
       ]
     );
   };
