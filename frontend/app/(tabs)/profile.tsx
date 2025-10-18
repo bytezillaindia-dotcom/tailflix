@@ -57,9 +57,6 @@ export default function ProfileScreen() {
       }
     }
   };
-      ]
-    );
-  };
 
   const handleTestRegistration = () => {
     router.push('/register_user' as any);
