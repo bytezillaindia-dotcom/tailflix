@@ -44,7 +44,14 @@ export default function ProfileScreen() {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
+            // Clear all session data
             await AsyncStorage.removeItem('sessionToken');
+            await AsyncStorage.removeItem('userId');
+            await AsyncStorage.removeItem('@tailflix_userId');
+            await AsyncStorage.removeItem('@tailflix_token');
+            
+            console.log('✅ Logged out - all session data cleared');
+            
             router.replace('/login-premium');
           },
         },
