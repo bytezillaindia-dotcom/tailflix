@@ -100,3 +100,72 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
 });
+        style={[
+          styles.glowCircle,
+          {
+            opacity: glowOpacity,
+          },
+        ]}
+      />
+
+      {/* Logo with Scale & Fade */}
+      <Animated.View
+        style={[
+          styles.logoContainer,
+          {
+            opacity: logoOpacity,
+            transform: [{ scale: logoScale }],
+          },
+        ]}
+      >
+        <Text style={styles.logoText}>🐾</Text>
+        <Text style={styles.appName}>TailFlix</Text>
+        <Text style={styles.tagline}>Where Tails Meet Tales</Text>
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gradientBackground: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  glowCircle: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: COLORS.primary,
+    opacity: 0.2,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 100,
+    elevation: 25,
+  },
+  logoContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 80,
+    marginBottom: SPACING.md,
+  },
+  appName: {
+    fontSize: FONT_SIZES.xxxl,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: SPACING.sm,
+  },
+  tagline: {
+    fontSize: FONT_SIZES.md,
+    color: '#CCC',
+    fontWeight: '500',
+  },
+});
